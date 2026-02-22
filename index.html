@@ -11,35 +11,22 @@
 
   <style>
     :root{
-      /* ✅ Surfaces (2 niveaux) */
       --panel: rgba(14, 20, 45, .78);
       --panel2: rgba(255,255,255,.045);
-
-      /* ✅ Lignes / borders */
       --line: rgba(255,255,255,.14);
       --line2: rgba(255,255,255,.10);
-
-      /* Texte */
       --text:#e8eefc;
       --muted:#b7c2df;
       --muted2: rgba(183,194,223,.68);
-
-      /* Accents */
       --good:#22c55e;
       --blue:#60a5fa;
       --violet:#a78bfa;
       --red:#fb7185;
-
-      /* Shadow + radius */
       --shadow: 0 18px 70px rgba(0,0,0,.50);
       --shadow2: 0 14px 45px rgba(0,0,0,.42);
       --radius: 18px;
-
-      /* Focus */
       --focus: 0 0 0 3px rgba(96,165,250,.26);
-
-      /* Dock */
-      --dockH: 74px; /* hauteur approximative (sert au padding-bottom) */
+      --dockH: 74px;
       --dockGap: 16px;
     }
 
@@ -55,7 +42,6 @@
       justify-content:center;
       padding:26px;
       padding-bottom: calc(26px + var(--dockH) + var(--dockGap));
-
       background:
         radial-gradient(1100px 650px at 14% 10%, rgba(251,113,133,.20), transparent 60%),
         radial-gradient(1050px 650px at 88% 18%, rgba(96,165,250,.20), transparent 60%),
@@ -127,9 +113,7 @@
       opacity:.85;
     }
 
-    /* =========================
-       ✅ BARRE DE FILTRE
-       ========================= */
+    /* ── FILTRES ── */
     .filters{
       position:relative;
       z-index:1;
@@ -150,6 +134,7 @@
       align-items:center;
       gap:10px;
       min-width:0;
+      flex-wrap:wrap;
     }
 
     .filtersLabel{
@@ -174,8 +159,6 @@
       cursor:pointer;
       transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
       max-width: min(320px, 70vw);
-
-      /* ✅ Fix rendu menu natif (dark) */
       color-scheme: dark;
       background-color: rgba(255,255,255,.07);
     }
@@ -188,18 +171,13 @@
       box-shadow: var(--focus);
       border-color: rgba(96,165,250,.45);
     }
-
-    /* ✅ Fix affichage des options (dropdown) */
     .select option{
-      background-color: #0b1226; /* fond sombre */
-      color: #e8eefc;            /* texte clair */
+      background-color: #0b1226;
+      color: #e8eefc;
     }
     .select option:checked{
       background-color: #1a2b5a;
       color: #e8eefc;
-    }
-    .select option[value="all"]{
-      color: rgba(232,238,252,.92);
     }
 
     .selectWrap{
@@ -215,8 +193,57 @@
       color: rgba(255,255,255,.75);
       font-size:14px;
       transform: translateY(-1px);
-      text-shadow: 0 10px 18px rgba(0,0,0,.35);
     }
+
+    /* ── ✅ RECHERCHE ── */
+    .searchWrap{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+    }
+    .searchWrap::before{
+      content:"🔍";
+      position:absolute;
+      left:11px;
+      font-size:13px;
+      pointer-events:none;
+      opacity:.65;
+    }
+    .searchInput{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      font-weight:600;
+      font-size:13px;
+      border-radius: 14px;
+      padding:10px 12px 10px 34px;
+      outline:none;
+      width: min(220px, 50vw);
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, width .2s ease;
+      color-scheme: dark;
+    }
+    .searchInput::placeholder{ color: var(--muted2); font-weight:600; }
+    .searchInput:focus{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(96,165,250,.45);
+      box-shadow: var(--focus);
+      width: min(280px, 60vw);
+    }
+    /* ✅ Bouton clear recherche */
+    .searchClear{
+      position:absolute;
+      right:10px;
+      background:none;
+      border:none;
+      color: var(--muted2);
+      cursor:pointer;
+      font-size:14px;
+      padding:0;
+      line-height:1;
+      display:none;
+    }
+    .searchClear.show{ display:block; }
+    .searchClear:hover{ color: var(--text); }
 
     .filtersMeta{
       color: var(--muted2);
@@ -224,7 +251,7 @@
       white-space:nowrap;
     }
 
-    /* Cat headers */
+    /* ── CATEGORIES ── */
     .cat{
       margin-top:14px;
       border:1px solid var(--line2);
@@ -255,28 +282,22 @@
       background: linear-gradient(180deg, rgba(34,197,94,.65), rgba(34,197,94,.25), rgba(96,165,250,.22));
       opacity:.65;
     }
-    /* ✅ Histoire */
     .cat[data-cat="histoire"]::before{
       background: linear-gradient(180deg, rgba(245,158,11,.70), rgba(251,113,133,.22), rgba(96,165,250,.20));
       opacity:.70;
     }
-
-    /* ✅ NEW: Films */
-    .cat[data-cat="films"]::before{
+    .cat[data-cat="cinema"]::before{
       background: linear-gradient(180deg, rgba(96,165,250,.70), rgba(251,113,133,.18), rgba(167,139,250,.18));
       opacity:.72;
     }
-    /* ✅ NEW: Musique */
     .cat[data-cat="musique"]::before{
       background: linear-gradient(180deg, rgba(167,139,250,.75), rgba(96,165,250,.18), rgba(34,197,94,.18));
       opacity:.72;
     }
-    /* ✅ NEW: Jeux vidéos */
     .cat[data-cat="jeux-videos"]::before{
       background: linear-gradient(180deg, rgba(34,197,94,.70), rgba(96,165,250,.18), rgba(245,158,11,.16));
       opacity:.72;
     }
-    /* ✅ NEW: Pop culture */
     .cat[data-cat="pop-culture"]::before{
       background: linear-gradient(180deg, rgba(251,113,133,.72), rgba(245,158,11,.18), rgba(96,165,250,.18));
       opacity:.74;
@@ -406,7 +427,6 @@
       opacity:.9;
       pointer-events:none;
     }
-
     .catIco.poke{ border-color: rgba(251,113,133,.35); }
 
     .pokeball{
@@ -442,6 +462,7 @@
       padding:0;
     }
 
+    /* ── CARDS ── */
     .card{
       border:1px solid rgba(255,255,255,.12);
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
@@ -495,6 +516,29 @@
       opacity:1;
     }
 
+    /* ── ✅ Badge "Déjà joué" ── */
+    .card.played{
+      border-color: rgba(34,197,94,.30);
+    }
+    .playedBadge{
+      display:none;
+      position:absolute;
+      top:8px;
+      left:8px;
+      background: rgba(34,197,94,.18);
+      border:1px solid rgba(34,197,94,.40);
+      border-radius:8px;
+      font-size:11px;
+      font-weight:900;
+      color: #4ade80;
+      padding:3px 7px;
+      z-index:2;
+      letter-spacing:.2px;
+      line-height:1;
+      backdrop-filter:blur(6px);
+    }
+    .card.played .playedBadge{ display:block; }
+
     .cTitle{
       font-weight:900;
       font-size:14px;
@@ -519,9 +563,6 @@
       z-index:1;
     }
 
-    /* =========================
-       ✅ NEW: petit drapeau sur la card
-       ========================= */
     .cardFlag{
       position:absolute;
       top:10px;
@@ -538,6 +579,7 @@
     }
     .cardFlag svg{ display:block; width:100%; height:100%; }
 
+    /* ── BOUTONS ── */
     .btn{
       padding:12px 16px;
       border-radius:14px;
@@ -553,6 +595,8 @@
       transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
       outline:none;
       white-space:nowrap;
+      font-family: inherit;
+      font-size:14px;
     }
     .btn:hover{
       background: rgba(255,255,255,.11);
@@ -572,9 +616,8 @@
       border-color: rgba(34,197,94,.60);
       box-shadow: 0 14px 34px rgba(34,197,94,.14);
     }
-
     .btn:disabled{
-      opacity:.55;
+      opacity:.45;
       cursor:not-allowed;
       transform:none;
       box-shadow:none;
@@ -610,18 +653,19 @@
     ::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.20); }
     ::-webkit-scrollbar-track{ background: rgba(0,0,0,.12); }
 
+    /* ── ✅ DOCK ── */
     .launchDockFixed{
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
       bottom: var(--dockGap);
       z-index: 999;
-
       width: min(1120px, calc(100% - 52px));
       display:flex;
-      justify-content:center;
-      padding: 10px;
-
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 14px;
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(10, 14, 34, .55);
@@ -629,10 +673,59 @@
       box-shadow: 0 18px 70px rgba(0,0,0,.45);
     }
 
+    /* ✅ Nom du quiz sélectionné dans le dock */
+    .dockInfo{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      flex:1;
+    }
+    .dockLabel{
+      color: var(--muted2);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .dockTitle{
+      font-weight:900;
+      font-size:13px;
+      color: var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+      opacity:0;
+      transform: translateY(4px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .dockTitle.show{
+      opacity:1;
+      transform: translateY(0);
+    }
+    .dockHint{
+      color: var(--muted2);
+      font-size:11px;
+      white-space:nowrap;
+      opacity:0;
+      transition: opacity .18s ease;
+    }
+    .dockHint.show{ opacity:1; }
+
+    /* ✅ Message "aucun résultat" */
+    .noResults{
+      display:none;
+      text-align:center;
+      padding:32px 16px;
+      color: var(--muted2);
+      font-size:14px;
+    }
+    .noResults.show{ display:block; }
+
     @media (max-width: 520px){
       :root{ --dockGap: 12px; }
       .launchDockFixed{ width: calc(100% - 32px); }
       body{ padding:16px; padding-bottom: calc(16px + var(--dockH) + var(--dockGap)); }
+      .dockInfo{ display:none; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -650,12 +743,11 @@
 
     <div class="hero">
       <h1>Mes Quiz</h1>
-      <div class="sub">Choisis un quiz (classé par catégories & sous-catégories), puis lance-le 🚀</div>
+      <div class="sub">Choisis un quiz, puis lance-le 🚀 — Double-clic ou Entrée pour lancer directement</div>
     </div>
 
     <div class="panel">
 
-      <!-- ✅ Filtre catégorie -->
       <div class="filters" aria-label="Filtres">
         <div class="filtersLeft">
           <div class="filtersLabel">Catégorie</div>
@@ -664,12 +756,25 @@
               <option value="all">Toutes</option>
             </select>
           </div>
+
+          <!-- ✅ Champ de recherche -->
+          <div class="searchWrap">
+            <input
+              type="search"
+              id="searchInput"
+              class="searchInput"
+              placeholder="Rechercher…"
+              autocomplete="off"
+              aria-label="Rechercher un quiz"
+            />
+            <button class="searchClear" id="searchClear" aria-label="Effacer la recherche">✕</button>
+          </div>
         </div>
         <div class="filtersMeta" id="filtersMeta"></div>
       </div>
 
-      <!-- Sections générées automatiquement -->
       <div id="sections"></div>
+      <div class="noResults" id="noResults">😶 Aucun quiz ne correspond à ta recherche.</div>
 
       <div class="foot">
         Astuce : si tes fichiers sont à côté de <code>index.html</code>, alors <code>file</code> = le nom exact du fichier (ex : <code>pokemon-gen1.html</code>).
@@ -678,7 +783,13 @@
     </div>
   </div>
 
+  <!-- ✅ Dock amélioré avec nom du quiz -->
   <div class="launchDockFixed">
+    <div class="dockInfo">
+      <span class="dockLabel">Sélectionné :</span>
+      <span class="dockTitle" id="dockTitle">—</span>
+      <span class="dockHint" id="dockHint">· Double-clic pour lancer</span>
+    </div>
     <button class="btn primary" id="btnGo" disabled>▶ Lancer le quiz</button>
   </div>
 
@@ -698,23 +809,21 @@
     { key:"euro-winner", title:"Pays vainqueurs de l'Euro de football", desc:"Depuis 1960", file:"euro-winner.html", cat:"sport", sub:"football" },
     { key:"championsleague-winner", title:"Vainqueurs de la Ligue des Champions", desc:"Depuis 1956", file:"championsleague-winner.html", cat:"sport", sub:"football" },
 
-    /* ✅ Championnats (avec drapeau "country") */
     { key:"ligue1-winner", title:"Champions de France (Ligue 1 / D1)", desc:"Depuis 1932-1933", file:"ligue1-winner.html", cat:"sport", sub:"football", country:"FR" },
     { key:"lens-coach", title:"Entraîneurs du RC Lens", desc:"Depuis 1934", file:"lens-coach.html", cat:"sport", sub:"football", country:"FR" },
-    { key:"premierleague-winner", title:"Champions d’Angleterre (D1 / Premier League)", desc:"Depuis 1888-89", file:"premierleague-winner.html", cat:"sport", sub:"football", country:"GB" },
-    { key:"liga-winner", title:"Champions d’Espagne (La Liga)", desc:"Depuis 1929", file:"liga-winner.html", cat:"sport", sub:"football", country:"ES" },
-    { key:"bundesliga-winner", title:"Champions d’Allemagne (Bundesliga)", desc:"Depuis 1963-64", file:"bundesliga-winner.html", cat:"sport", sub:"football", country:"DE" },
-    { key:"seriea-winner", title:"Champions d’Italie (Serie A)", desc:"Depuis 1929-1930", file:"seriea-winner.html", cat:"sport", sub:"football", country:"IT" },
+    { key:"premierleague-winner", title:"Champions d'Angleterre (D1 / Premier League)", desc:"Depuis 1888-89", file:"premierleague-winner.html", cat:"sport", sub:"football", country:"GB" },
+    { key:"liga-winner", title:"Champions d'Espagne (La Liga)", desc:"Depuis 1929", file:"liga-winner.html", cat:"sport", sub:"football", country:"ES" },
+    { key:"bundesliga-winner", title:"Champions d'Allemagne (Bundesliga)", desc:"Depuis 1963-64", file:"bundesliga-winner.html", cat:"sport", sub:"football", country:"DE" },
+    { key:"seriea-winner", title:"Champions d'Italie (Serie A)", desc:"Depuis 1929-1930", file:"seriea-winner.html", cat:"sport", sub:"football", country:"IT" },
 
-    /* ✅ AJOUT : Surnoms des sélections (quiz demandé) */
     { key:"national-teams-nicknames", title:"Surnoms des sélections", desc:"Trouve le pays à partir du surnom de son équipe (football)", file:"surnoms-selections-50.html", cat:"sport", sub:"football" },
 
     { key:"rugby-worldcup-winner", title:"Vainqueurs de la Coupe du monde de Rugby", desc:"Depuis 1987", file:"rugby-worldcup-winner.html", cat:"sport", sub:"rugby" },
     { key:"top14-winner", title:"Vainqueurs du Top 14 / Championnat de France", desc:"Depuis 1892", file:"top14-winner.html", cat:"sport", sub:"rugby", country:"FR" },
 
     { key:"nba-winner", title:"Champions NBA", desc:"Depuis 1947", file:"nba-winner.html", cat:"sport", sub:"basket", country:"US" },
-	
-	{ key:"formula-one-winner", title:"Champions F1", desc:"Depuis 1950", file:"formula-one-winner.html", cat:"sport", sub:"formule 1" },
+
+    { key:"formula-one-winner", title:"Champions F1", desc:"Depuis 1950", file:"formula-one-winner.html", cat:"sport", sub:"formule 1" },
 
     { key:"capitales-europeennes", title:"Capitales européennes", desc:"Saisie libre • pays → capitale", file:"capitales-europeennes.html", cat:"geo", sub:"europe" },
     { key:"departements-français", title:"Départements français", desc:"Trouver les départements par numéro", file:"departements-français.html", cat:"geo", sub:"france" },
@@ -723,17 +832,10 @@
     { key:"presidents-russes", title:"Dirigeants Russie & URSS", desc:"Depuis 1917", file:"presidents-russes.html", cat:"histoire", sub:"russie", country:"RU" },
 
     { key:"box-office-monde", title:"Top 50 box-office mondial", desc:"(Box Office Mojo)", file:"box-office-monde.html", cat:"cinema", sub:"films" },
-
-    /* ✅ AJOUT : Disney + Pixar */
     { key:"disney-pixar", title:"Disney + Pixar", desc:"Films à trouver", file:"disney-pixar.html", cat:"cinema", sub:"films" },
 
     { key:"bilboard-world", title:"Top 20 artistes", desc:"(ventes mondiales)", file:"bilboard-world.html", cat:"musique", sub:"artistes" },
     { key:"bilboard-france", title:"Top 20 artistes francophones", desc:"(ventes)", file:"bilboard-france.html", cat:"musique", sub:"artistes", country:"FR" },
-
-    /*
-    { key:"zelda-bosses", title:"Zelda — Boss", desc:"Trouver les boss", file:"zelda-bosses.html", cat:"jeux-videos", sub:"nintendo" },
-    { key:"marvel-phases", title:"Marvel — Films par phase", desc:"MCU", file:"mcu-phases.html", cat:"pop-culture", sub:"marvel" },
-    */
   ];
 
   const CATS = [
@@ -749,14 +851,12 @@
 
   const SUBCATS = {
     sport: [
-      { id:"olympics", title:"Jeux Olympiques", icon:"olympics" },
-      { id:"football", title:"Football",        icon:"football" },
-      { id:"tennis",   title:"Tennis",          icon:"tennis" },
-      { id:"rugby",    title:"Rugby",           icon:"rugby" },
-      { id:"basket",   title:"Basket",          icon:"basket" },
-
-      /* ✅ MODIF: on met une clé d'icône propre à la F1 */
-      { id:"formule 1", title:"Formule 1",      icon:"formula1" }
+      { id:"olympics",   title:"Jeux Olympiques", icon:"olympics" },
+      { id:"football",   title:"Football",        icon:"football" },
+      { id:"tennis",     title:"Tennis",          icon:"tennis" },
+      { id:"rugby",      title:"Rugby",           icon:"rugby" },
+      { id:"basket",     title:"Basket",          icon:"basket" },
+      { id:"formule 1",  title:"Formule 1",       icon:"formula1" }
     ],
     geo: [
       { id:"monde",  title:"Monde",  icon:"earth" },
@@ -770,12 +870,12 @@
       { id:"france",      title:"France",      icon:"france" },
       { id:"angleterre",  title:"Angleterre",  icon:"uk" },
       { id:"etats-unis",  title:"Etats-Unis",  icon:"us" },
-      { id:"russie",      title:"Russie",      icon:"ru" }
+      { id:"russie",      title:"Russie",       icon:"ru" }
     ],
     cinema: [
       { id:"films",   title:"Films",   icon:"🎬" },
-      { id:"series",   title:"Séries",   icon:"📺" },
-      { id:"acteurs",  title:"Acteurs",  icon:"⭐" }
+      { id:"series",  title:"Séries",  icon:"📺" },
+      { id:"acteurs", title:"Acteurs", icon:"⭐" }
     ],
     musique: [
       { id:"artistes", title:"Artistes", icon:"🎤" },
@@ -783,222 +883,151 @@
       { id:"titres",   title:"Titres",   icon:"🎵" }
     ],
     "jeux-videos": [
-      { id:"nintendo", title:"Nintendo", icon:"🎮" },
+      { id:"nintendo",    title:"Nintendo",    icon:"🎮" },
       { id:"playstation", title:"PlayStation", icon:"🕹️" },
-      { id:"pc",       title:"PC",       icon:"💻" }
+      { id:"pc",          title:"PC",          icon:"💻" }
     ],
     "pop-culture": [
-      { id:"marvel",  title:"Marvel",  icon:"🦸" },
-      { id:"starwars",title:"Star Wars", icon:"✨" },
-      { id:"anime",   title:"Anime",   icon:"🌸" }
+      { id:"marvel",   title:"Marvel",    icon:"🦸" },
+      { id:"starwars", title:"Star Wars", icon:"✨" },
+      { id:"anime",    title:"Anime",     icon:"🌸" }
     ]
   };
 
   const SUBICON = {
-    olympics: "🏅",
-    football: "⚽",
-    tennis:   "🎾",
-    rugby:    "🏉",
-    basket:   "🏀",
-
-    /* ✅ AJOUT: emoji voiture F1 */
-    formula1: "🏎️",
-
-    monde:    "🌍",
-    earth:    "🌍",
-    poke:     "🔴",
-    history:  "📜",
-    films:    "🎬",
-    music:    "🎵",
-    games:    "🎮",
-    pop:      "✨"
+    olympics:"🏅", football:"⚽", tennis:"🎾", rugby:"🏉",
+    basket:"🏀", formula1:"🏎️", monde:"🌍", earth:"🌍", poke:"🔴",
+    history:"📜", films:"🎬", music:"🎵", games:"🎮", pop:"✨"
   };
 
-  const sections = document.getElementById("sections");
-  const btnGo = document.getElementById("btnGo");
-  const catFilter = document.getElementById("catFilter");
+  // ── ✅ localStorage : quiz déjà joués ──────────────────────────────────────
+  function getPlayedSet(){
+    try { return new Set(JSON.parse(localStorage.getItem("quizPlayed") || "[]")); }
+    catch { return new Set(); }
+  }
+  const playedSet = getPlayedSet();
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const sections    = document.getElementById("sections");
+  const btnGo       = document.getElementById("btnGo");
+  const catFilter   = document.getElementById("catFilter");
   const filtersMeta = document.getElementById("filtersMeta");
+  const searchInput = document.getElementById("searchInput");
+  const searchClear = document.getElementById("searchClear");
+  const dockTitle   = document.getElementById("dockTitle");
+  const dockHint    = document.getElementById("dockHint");
+  const noResults   = document.getElementById("noResults");
 
-  let selectedFile = null;
+  let selectedFile  = null;
+  let selectedKey   = null;
 
+  // ── Utilitaires ──────────────────────────────────────────────────────────
   function formatTitleHTML(title){
     const m = title.match(/^(.*?)(\s*\((?:\d{3,4})(?:[^)]*)\))\s*$/);
     if (!m) return title;
     return `${m[1]}<span class="tYears">${m[2].trim()}</span>`;
   }
 
+  function normalizeSearch(str){
+    return (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+  }
+
   function catIconHTML(icon){
-    if (icon === "poke") return `<div class="catIco poke" aria-hidden="true"><div class="pokeball"></div></div>`;
-    if (icon === "ball") return `<div class="catIco" aria-hidden="true"><span class="emoji">⚽</span></div>`;
+    if (icon === "poke")    return `<div class="catIco poke" aria-hidden="true"><div class="pokeball"></div></div>`;
+    if (icon === "ball")    return `<div class="catIco" aria-hidden="true"><span class="emoji">⚽</span></div>`;
     if (icon === "history") return `<div class="catIco" aria-hidden="true"><span class="emoji">📜</span></div>`;
-    if (icon === "films") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎬</span></div>`;
-    if (icon === "music") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎵</span></div>`;
-    if (icon === "games") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎮</span></div>`;
-    if (icon === "pop")   return `<div class="catIco" aria-hidden="true"><span class="emoji">✨</span></div>`;
+    if (icon === "films")   return `<div class="catIco" aria-hidden="true"><span class="emoji">🎬</span></div>`;
+    if (icon === "music")   return `<div class="catIco" aria-hidden="true"><span class="emoji">🎵</span></div>`;
+    if (icon === "games")   return `<div class="catIco" aria-hidden="true"><span class="emoji">🎮</span></div>`;
+    if (icon === "pop")     return `<div class="catIco" aria-hidden="true"><span class="emoji">✨</span></div>`;
     return `<div class="catIco" aria-hidden="true"><span class="emoji">🌍</span></div>`;
   }
 
-  /* ====== FLAGS (SVG inline) ====== */
-  function euFlagSVG(){
-    return `
-      <span class="subFlag" aria-hidden="true">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="12" fill="#003399"/>
-          <g fill="#FFCC00" transform="translate(9 6)">
-            ${Array.from({length:12}).map((_,i)=>{
-              const a = (i*30) * Math.PI/180;
-              const x = Math.cos(a)*3.2;
-              const y = Math.sin(a)*3.2;
-              return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.55"/>`;
-            }).join("")}
-          </g>
-        </svg>
-      </span>
-    `;
+  // ── Drapeaux ─────────────────────────────────────────────────────────────
+  function euFlagSVG(cls="subFlag"){
+    return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="12" fill="#003399"/><g fill="#FFCC00" transform="translate(9 6)">${Array.from({length:12}).map((_,i)=>{const a=(i*30)*Math.PI/180;return `<circle cx="${(Math.cos(a)*3.2).toFixed(2)}" cy="${(Math.sin(a)*3.2).toFixed(2)}" r="0.55"/>`;}).join("")}</g></svg></span>`;
   }
-
-  function frFlagSVG(){
-    return `
-      <span class="subFlag" aria-hidden="true">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="6" height="12" x="0"  fill="#0055A4"/>
-          <rect width="6" height="12" x="6"  fill="#FFFFFF"/>
-          <rect width="6" height="12" x="12" fill="#EF4135"/>
-        </svg>
-      </span>
-    `;
+  function frFlagSVG(cls="subFlag"){
+    return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="6" height="12" x="0" fill="#0055A4"/><rect width="6" height="12" x="6" fill="#FFFFFF"/><rect width="6" height="12" x="12" fill="#EF4135"/></svg></span>`;
   }
-
-  function ukFlagSVG(){
-    return `
-      <span class="subFlag" aria-hidden="true">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="12" fill="#012169"/>
-          <path d="M0,0 L2,0 L18,10 L18,12 L16,12 L0,2 Z" fill="#FFFFFF" opacity=".92"/>
-          <path d="M18,0 L16,0 L0,10 L0,12 L2,12 L18,2 Z" fill="#FFFFFF" opacity=".92"/>
-          <path d="M0,0 L1.3,0 L18,9.3 L18,10.6 L16.7,10.6 L0,1.3 Z" fill="#C8102E" opacity=".95"/>
-          <path d="M18,0 L16.7,0 L0,9.3 L0,10.6 L1.3,10.6 L18,1.3 Z" fill="#C8102E" opacity=".95"/>
-          <rect x="7" y="0" width="4" height="12" fill="#FFFFFF"/>
-          <rect x="0" y="4" width="18" height="4" fill="#FFFFFF"/>
-          <rect x="7.7" y="0" width="2.6" height="12" fill="#C8102E"/>
-          <rect x="0" y="4.7" width="18" height="2.6" fill="#C8102E"/>
-        </svg>
-      </span>
-    `;
+  function ukFlagSVG(cls="subFlag"){
+    return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="12" fill="#012169"/><path d="M0,0 L2,0 L18,10 L18,12 L16,12 L0,2 Z" fill="#FFFFFF" opacity=".92"/><path d="M18,0 L16,0 L0,10 L0,12 L2,12 L18,2 Z" fill="#FFFFFF" opacity=".92"/><path d="M0,0 L1.3,0 L18,9.3 L18,10.6 L16.7,10.6 L0,1.3 Z" fill="#C8102E" opacity=".95"/><path d="M18,0 L16.7,0 L0,9.3 L0,10.6 L1.3,10.6 L18,1.3 Z" fill="#C8102E" opacity=".95"/><rect x="7" y="0" width="4" height="12" fill="#FFFFFF"/><rect x="0" y="4" width="18" height="4" fill="#FFFFFF"/><rect x="7.7" y="0" width="2.6" height="12" fill="#C8102E"/><rect x="0" y="4.7" width="18" height="2.6" fill="#C8102E"/></svg></span>`;
   }
-
-  function usFlagSVG(){
-    const stripes = Array.from({length:7}).map((_,i)=>{
-      const y = i* (12/7);
-      return `<rect x="0" y="${y.toFixed(3)}" width="18" height="${(12/7/2).toFixed(3)}" fill="#B22234"/>`;
-    }).join("");
-    return `
-      <span class="subFlag" aria-hidden="true">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="12" fill="#FFFFFF"/>
-          ${stripes}
-          <rect x="0" y="0" width="8" height="6.5" fill="#3C3B6E"/>
-          <g fill="#FFFFFF" opacity=".95">
-            ${Array.from({length:12}).map((_,i)=>{
-              const cols = 4;
-              const r = Math.floor(i/cols);
-              const c = i%cols;
-              const x = 1.1 + c*1.8;
-              const y = 1.0 + r*1.6;
-              return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.28"/>`;
-            }).join("")}
-          </g>
-        </svg>
-      </span>
-    `;
+  function usFlagSVG(cls="subFlag"){
+    const stripes=Array.from({length:7}).map((_,i)=>`<rect x="0" y="${(i*12/7).toFixed(3)}" width="18" height="${(12/7/2).toFixed(3)}" fill="#B22234"/>`).join("");
+    return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="12" fill="#FFFFFF"/>${stripes}<rect x="0" y="0" width="8" height="6.5" fill="#3C3B6E"/><g fill="#FFFFFF" opacity=".95">${Array.from({length:12}).map((_,i)=>`<circle cx="${(1.1+(i%4)*1.8).toFixed(2)}" cy="${(1.0+Math.floor(i/4)*1.6).toFixed(2)}" r="0.28"/>`).join("")}</g></svg></span>`;
   }
-
-  function ruFlagSVG(){
-    return `
-      <span class="subFlag" aria-hidden="true">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="4" y="0" fill="#FFFFFF"/>
-          <rect width="18" height="4" y="4" fill="#0039A6"/>
-          <rect width="18" height="4" y="8" fill="#D52B1E"/>
-        </svg>
-      </span>
-    `;
+  function ruFlagSVG(cls="subFlag"){
+    return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="4" y="0" fill="#FFFFFF"/><rect width="18" height="4" y="4" fill="#0039A6"/><rect width="18" height="4" y="8" fill="#D52B1E"/></svg></span>`;
   }
-
-  /* ✅ NEW: drapeaux pays (championnats & autres) */
   function deFlagSVG(){
-    return `
-      <span class="cardFlag" aria-hidden="true" title="Allemagne">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="4" y="0" fill="#000000"/>
-          <rect width="18" height="4" y="4" fill="#DD0000"/>
-          <rect width="18" height="4" y="8" fill="#FFCE00"/>
-        </svg>
-      </span>
-    `;
+    return `<span class="cardFlag" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="4" y="0" fill="#000000"/><rect width="18" height="4" y="4" fill="#DD0000"/><rect width="18" height="4" y="8" fill="#FFCE00"/></svg></span>`;
   }
   function itFlagSVG(){
-    return `
-      <span class="cardFlag" aria-hidden="true" title="Italie">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="6" height="12" x="0"  fill="#009246"/>
-          <rect width="6" height="12" x="6"  fill="#FFFFFF"/>
-          <rect width="6" height="12" x="12" fill="#CE2B37"/>
-        </svg>
-      </span>
-    `;
+    return `<span class="cardFlag" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="6" height="12" x="0" fill="#009246"/><rect width="6" height="12" x="6" fill="#FFFFFF"/><rect width="6" height="12" x="12" fill="#CE2B37"/></svg></span>`;
   }
   function esFlagSVG(){
-    return `
-      <span class="cardFlag" aria-hidden="true" title="Espagne">
-        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="12" fill="#AA151B"/>
-          <rect width="18" height="6" y="3" fill="#F1BF00"/>
-        </svg>
-      </span>
-    `;
+    return `<span class="cardFlag" aria-hidden="true"><svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="12" fill="#AA151B"/><rect width="18" height="6" y="3" fill="#F1BF00"/></svg></span>`;
   }
 
   function cardFlagHTML(code){
     if (!code) return "";
     const c = String(code).toUpperCase();
-
-    if (c === "FR") return frFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
-    if (c === "GB" || c === "UK") return ukFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
-    if (c === "US") return usFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
-    if (c === "RU") return ruFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
-
-    if (c === "DE") return deFlagSVG();
-    if (c === "IT") return itFlagSVG();
-    if (c === "ES") return esFlagSVG();
-
+    if (c==="FR") return frFlagSVG("cardFlag");
+    if (c==="GB"||c==="UK") return ukFlagSVG("cardFlag");
+    if (c==="US") return usFlagSVG("cardFlag");
+    if (c==="RU") return ruFlagSVG("cardFlag");
+    if (c==="DE") return deFlagSVG();
+    if (c==="IT") return itFlagSVG();
+    if (c==="ES") return esFlagSVG();
     return "";
   }
 
   function subIconHTML(iconKey){
-    if (iconKey === "europe") return euFlagSVG();
-    if (iconKey === "france") return frFlagSVG();
-    if (iconKey === "uk" || iconKey === "angleterre") return ukFlagSVG();
-    if (iconKey === "us" || iconKey === "etats-unis") return usFlagSVG();
-    if (iconKey === "ru" || iconKey === "russie") return ruFlagSVG();
-
+    if (iconKey==="europe") return euFlagSVG();
+    if (iconKey==="france") return frFlagSVG();
+    if (iconKey==="uk"||iconKey==="angleterre") return ukFlagSVG();
+    if (iconKey==="us"||iconKey==="etats-unis") return usFlagSVG();
+    if (iconKey==="ru"||iconKey==="russie") return ruFlagSVG();
     const emoji = SUBICON[iconKey] || iconKey || "•";
     return `<span class="subIco" aria-hidden="true">${emoji}</span>`;
   }
 
+  // ── Sélection ─────────────────────────────────────────────────────────────
   function clearSelection(){
     document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
     selectedFile = null;
+    selectedKey  = null;
     btnGo.disabled = true;
+    dockTitle.textContent = "—";
+    dockTitle.classList.remove("show");
+    dockHint.classList.remove("show");
   }
 
-  function selectCard(cardEl, file){
+  function launch(){
+    if (!selectedFile) return;
+    // ✅ Marquer comme joué dans localStorage
+    playedSet.add(selectedKey);
+    try { localStorage.setItem("quizPlayed", JSON.stringify([...playedSet])); } catch{}
+    location.href = selectedFile;
+  }
+
+  function selectCard(cardEl, quiz){
     clearSelection();
     cardEl.classList.add("selected");
-    selectedFile = file;
+    selectedFile = quiz.file;
+    selectedKey  = quiz.key;
     btnGo.disabled = false;
+
+    // ✅ Afficher nom dans dock
+    dockTitle.textContent = quiz.title;
+    dockTitle.classList.add("show");
+    dockHint.classList.add("show");
+
+    cardEl.scrollIntoView({ behavior:"smooth", block:"nearest" });
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
   function renderSubSection(catWrap, subTitle, subIconKey, items){
     if (!items.length) return;
 
@@ -1025,17 +1054,36 @@
       card.setAttribute("tabindex", "0");
       card.dataset.key = q.key;
 
+      // ✅ Badge "Déjà joué"
+      const isPlayed = playedSet.has(q.key);
+      if (isPlayed) card.classList.add("played");
+
       card.innerHTML = `
+        <span class="playedBadge">✅ Déjà joué</span>
         ${cardFlagHTML(q.country)}
         <div class="cTitle">${formatTitleHTML(q.title)}</div>
         <div class="cDesc">${q.desc || ""}</div>
       `;
 
-      card.addEventListener("click", () => selectCard(card, q.file));
+      // ✅ Simple clic → sélection
+      card.addEventListener("click", () => selectCard(card, q));
+
+      // ✅ Double-clic → lancement direct
+      card.addEventListener("dblclick", () => {
+        selectCard(card, q);
+        launch();
+      });
+
+      // ✅ Clavier : Entrée sélectionne, Entrée une 2e fois lance
       card.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          selectCard(card, q.file);
+          if (selectedKey === q.key) {
+            // Déjà sélectionné → lancer
+            launch();
+          } else {
+            selectCard(card, q);
+          }
         }
       });
 
@@ -1048,24 +1096,40 @@
   }
 
   function buildCatFilter(){
-    const opts = [
-      { value: "all", label: "Toutes" },
-      ...CATS.map(c => ({ value: c.id, label: c.title }))
-    ];
-    catFilter.innerHTML = opts.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+    catFilter.innerHTML = [
+      { value:"all", label:"Toutes" },
+      ...CATS.map(c => ({ value:c.id, label:c.title }))
+    ].map(o => `<option value="${o.value}">${o.label}</option>`).join("");
   }
 
   function renderSections(){
     const selectedCat = catFilter.value || "all";
+    const searchRaw   = searchInput.value.trim();
+    const searchNorm  = normalizeSearch(searchRaw);
 
     clearSelection();
     sections.innerHTML = "";
 
-    const visibleQuizzes = (selectedCat === "all")
+    let visibleQuizzes = (selectedCat === "all")
       ? QUIZZES
       : QUIZZES.filter(q => q.cat === selectedCat);
 
-    filtersMeta.textContent = `${visibleQuizzes.length} quiz affiché${visibleQuizzes.length>1 ? "s" : ""}`;
+    // ✅ Filtrage par recherche
+    if (searchNorm) {
+      visibleQuizzes = visibleQuizzes.filter(q =>
+        normalizeSearch(q.title).includes(searchNorm) ||
+        normalizeSearch(q.desc || "").includes(searchNorm)
+      );
+    }
+
+    // Toggle bouton clear
+    searchClear.classList.toggle("show", searchRaw.length > 0);
+
+    const total = visibleQuizzes.length;
+    filtersMeta.textContent = `${total} quiz affiché${total>1?"s":""}`;
+
+    // Message aucun résultat
+    noResults.classList.toggle("show", total === 0);
 
     const catsToRender = (selectedCat === "all")
       ? CATS
@@ -1111,15 +1175,21 @@
     });
   }
 
+  // ── Événements ────────────────────────────────────────────────────────────
   buildCatFilter();
   renderSections();
 
   catFilter.addEventListener("change", renderSections);
 
-  btnGo.addEventListener("click", () => {
-    if (!selectedFile) return;
-    location.href = selectedFile;
+  // ✅ Recherche temps réel
+  searchInput.addEventListener("input", renderSections);
+  searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    searchInput.focus();
+    renderSections();
   });
+
+  btnGo.addEventListener("click", launch);
 </script>
 
 </body>
