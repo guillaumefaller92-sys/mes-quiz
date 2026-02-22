@@ -323,6 +323,21 @@
       font-weight:700;
       color: var(--muted);
     }
+
+    /* ---- Barre de saisie sticky sous la cardHead ---- */
+    .stickyBar{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 15, 32, 0.97);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      padding: 12px 18px 0;
+    }
+    .stickyBar .inputArea{ padding: 0; gap: 8px; }
+    .stickyBar .toast{ padding: 4px 0 8px; min-height: 16px; }
   </style>
 </head>
 
@@ -360,13 +375,16 @@
         </div>
       </div>
 
-      <div class="inputArea">
-        <div class="inputRow">
-          <input id="input" type="text" placeholder="Tape un artiste / groupe… (ex: beatles, madonna, eminem…)" autocomplete="off" />
-          <button class="btn" id="btnSubmit">✅ Valider</button>
+      <!-- Barre de saisie sticky sous la cardHead -->
+      <div class="stickyBar" id="stickyBar">
+        <div class="inputArea">
+          <div class="inputRow">
+            <input id="input" type="text" placeholder="Tape un artiste / groupe… (ex: beatles, madonna, eminem…)" autocomplete="off" />
+            <button class="btn" id="btnSubmit">✅ Valider</button>
+          </div>
         </div>
+        <div id="toast" class="toast"></div>
       </div>
-      <div id="toast" class="toast"></div>
 
       <div class="gridWrap">
         <div class="grid" id="grid"></div>

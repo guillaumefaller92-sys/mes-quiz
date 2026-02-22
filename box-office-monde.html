@@ -322,6 +322,21 @@
       font-weight:700;
       color: var(--muted);
     }
+
+    /* ---- Barre de saisie sticky sous la cardHead ---- */
+    .stickyBar{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 15, 32, 0.97);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      padding: 12px 18px 0;
+    }
+    .stickyBar .inputArea{ padding: 0; gap: 8px; }
+    .stickyBar .toast{ padding: 4px 0 8px; min-height: 16px; }
   </style>
 </head>
 
@@ -359,13 +374,16 @@
         </div>
       </div>
 
-      <div class="inputArea">
-        <div class="inputRow">
-          <input id="input" type="text" placeholder="Tape un film… (ex: avatar, titanic, barbie…)" autocomplete="off" />
-          <button class="btn" id="btnSubmit">✅ Valider</button>
+      <!-- Barre de saisie sticky sous la cardHead -->
+      <div class="stickyBar" id="stickyBar">
+        <div class="inputArea">
+          <div class="inputRow">
+            <input id="input" type="text" placeholder="Tape un film… (ex: avatar, titanic, barbie…)" autocomplete="off" />
+            <button class="btn" id="btnSubmit">✅ Valider</button>
+          </div>
         </div>
+        <div id="toast" class="toast"></div>
       </div>
-      <div id="toast" class="toast"></div>
 
       <div class="gridWrap">
         <div class="grid" id="grid"></div>
@@ -385,7 +403,7 @@
   }
 
   function initials(name){
-    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    const s = (name || "").replace(/['']/g," ").replace(/\s+/g," ").trim();
     if(!s) return "??";
     const parts = s.split(" ").filter(Boolean);
     const keep = [];
@@ -418,12 +436,10 @@
   }
 
   // --------- Posters (Wikipedia REST) ----------
-  // ✅ Overrides pour forcer les BONNES affiches (Avatar de Cameron, Titanic 1997, Barbie 2023)
   const wikiOverride = new Map([
     ["Avatar", "Avatar_(2009_film)"],
     ["Titanic", "Titanic_(1997_film)"],
     ["Barbie", "Barbie_(film)"],
-
     ["The Avengers", "The_Avengers_(2012_film)"],
     ["Beauty and the Beast", "Beauty_and_the_Beast_(2017_film)"],
     ["Aladdin", "Aladdin_(2019_film)"],
@@ -439,7 +455,7 @@
     ["The Super Mario Bros. Movie", "The_Super_Mario_Bros._Movie"],
   ]);
 
-  const posterCache = new Map(); // key -> url (or badge)
+  const posterCache = new Map();
 
   async function fetchWikiThumbByTitle(pageTitle){
     const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(pageTitle);
@@ -515,8 +531,7 @@
     })();
   }
 
-  // --------- Data (Top 50 Worldwide Lifetime Gross — Box Office Mojo) ----------
-  // ✅ Ajout : titleFr + gross pour les 50
+  // --------- Data ----------
   const films = [
     { rank: 1,  title: "Avatar", year: 2009, titleFr: "Avatar", gross: "$2,923,710,708" },
     { rank: 2,  title: "Avengers: Endgame", year: 2019, titleFr: "Avengers : Endgame", gross: "$2,799,439,100" },
@@ -572,20 +587,17 @@
 
   // Index
   const byRank = new Map();
-  const keyToFilm = new Map(); // normalized title -> film
+  const keyToFilm = new Map();
   for(const f of films){
     byRank.set(f.rank, f);
-
-    // ✅ saisie possible en EN + FR
     keyToFilm.set(normalize(f.title), f);
     if (f.titleFr && normalize(f.titleFr) !== normalize(f.title)) {
       keyToFilm.set(normalize(f.titleFr), f);
     }
   }
 
-  // Aliases (tu peux en ajouter)
+  // Aliases
   const aliasToKey = new Map([
-    // Avatar
     [normalize("avatar"), normalize("Avatar")],
     [normalize("avatar 2009"), normalize("Avatar")],
     [normalize("avatar la voie de leau"), normalize("Avatar: The Way of Water")],
@@ -593,12 +605,8 @@
     [normalize("la voie de leau"), normalize("Avatar: The Way of Water")],
     [normalize("way of water"), normalize("Avatar: The Way of Water")],
     [normalize("avatar 2"), normalize("Avatar: The Way of Water")],
-
-    // Titanic / Barbie
     [normalize("titanic 1997"), normalize("Titanic")],
     [normalize("barbie 2023"), normalize("Barbie")],
-
-    // Avengers
     [normalize("endgame"), normalize("Avengers: Endgame")],
     [normalize("avengers endgame"), normalize("Avengers: Endgame")],
     [normalize("infinity war"), normalize("Avengers: Infinity War")],
@@ -606,37 +614,28 @@
     [normalize("age of ultron"), normalize("Avengers: Age of Ultron")],
     [normalize("ultron"), normalize("Avengers: Age of Ultron")],
     [normalize("l ere d ultron"), normalize("Avengers: Age of Ultron")],
-
-    // Star Wars
     [normalize("force awakens"), normalize("Star Wars: Episode VII - The Force Awakens")],
     [normalize("the force awakens"), normalize("Star Wars: Episode VII - The Force Awakens")],
     [normalize("episode vii"), normalize("Star Wars: Episode VII - The Force Awakens")],
     [normalize("star wars 7"), normalize("Star Wars: Episode VII - The Force Awakens")],
     [normalize("episode 7"), normalize("Star Wars: Episode VII - The Force Awakens")],
     [normalize("le reveil de la force"), normalize("Star Wars: Episode VII - The Force Awakens")],
-
     [normalize("the last jedi"), normalize("Star Wars: Episode VIII - The Last Jedi")],
     [normalize("episode viii"), normalize("Star Wars: Episode VIII - The Last Jedi")],
     [normalize("star wars 8"), normalize("Star Wars: Episode VIII - The Last Jedi")],
     [normalize("episode 8"), normalize("Star Wars: Episode VIII - The Last Jedi")],
     [normalize("les derniers jedi"), normalize("Star Wars: Episode VIII - The Last Jedi")],
-
     [normalize("rise of skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
     [normalize("the rise of skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
     [normalize("episode ix"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
     [normalize("star wars 9"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
     [normalize("episode 9"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
     [normalize("l ascension de skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
-
     [normalize("rogue one"), normalize("Rogue One: A Star Wars Story")],
-
-    // Spider-Man
     [normalize("spiderman no way home"), normalize("Spider-Man: No Way Home")],
     [normalize("spider man no way home"), normalize("Spider-Man: No Way Home")],
     [normalize("no way home"), normalize("Spider-Man: No Way Home")],
     [normalize("far from home"), normalize("Spider-Man: Far from Home")],
-
-    // Misc
     [normalize("mario"), normalize("The Super Mario Bros. Movie")],
     [normalize("top gun maverick"), normalize("Top Gun: Maverick")],
     [normalize("jurassic world"), normalize("Jurassic World")],
@@ -647,7 +646,7 @@
   ]);
 
   // --------- State ----------
-  const found = new Set(); // ranks found
+  const found = new Set();
   let timerInterval = null;
   let startTs = null;
   let elapsedMs = 0;
@@ -760,7 +759,7 @@
     }
   }
 
-  function revealRank(rank, mode /* "found" | "revealed" */) {
+  function revealRank(rank, mode) {
     const f = byRank.get(rank);
     if (!f) return;
 
@@ -793,17 +792,13 @@
 
   function giveUp() {
     if (isFinished || isGivenUp) return;
-
     isGivenUp = true;
     stopTimer();
-
     btnPause.disabled = true;
     btnPause.textContent = "⏹️ Stop";
     input.disabled = true;
     btnSubmit.disabled = true;
-
     revealMissingSolutions();
-
     const n = found.size;
     setToast("bad", `🏳️ Abandon : ${n}/${films.length} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
   }
@@ -811,13 +806,11 @@
   function finish() {
     isFinished = true;
     stopTimer();
-
     btnPause.disabled = true;
     btnPause.textContent = "🏁 Terminé";
     btnGiveUp.disabled = true;
     input.disabled = true;
     btnSubmit.disabled = true;
-
     setToast("good", `🏆 ${films.length}/${films.length} ! Top complété en ${timerEl.textContent} !`);
   }
 
@@ -893,11 +886,9 @@
     updateStats();
     setToast("", "");
     resetTimer();
-
     input.disabled = false;
     btnSubmit.disabled = false;
     btnGiveUp.disabled = false;
-
     input.value = "";
     input.focus();
   }
@@ -926,15 +917,13 @@
     autoT = setTimeout(autoTryValidate, 120);
   });
 
-  // Events
   btnSubmit.addEventListener("click", submit);
   document.getElementById("btnReset").addEventListener("click", resetQuiz);
   btnPause.addEventListener("click", togglePause);
   btnGiveUp.addEventListener("click", giveUp);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
 
-  const btnHome = document.getElementById("btnHome");
-  btnHome.addEventListener("click", () => {
+  document.getElementById("btnHome").addEventListener("click", () => {
     window.location.href = "index.html";
   });
 
