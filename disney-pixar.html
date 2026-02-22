@@ -130,7 +130,6 @@
     .btn.danger:hover{ background: rgba(239,68,68,.20); }
     .btn:disabled{ opacity:.55; cursor:not-allowed; }
 
-    /* petit groupe de filtres */
     .seg{
       display:inline-flex;
       border:1px solid var(--line);
@@ -158,7 +157,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
-      overflow:hidden;
+      overflow: visible;
     }
     .cardHead{
       display:flex;
@@ -250,6 +249,28 @@
     .toast.warn{ color: var(--warn); }
     .toast.bad{ color: var(--bad); }
 
+    /* Saga notification badge */
+    .saga-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      color: #fcd34d;
+      font-size: 11px;
+      font-weight: 900;
+      margin-left: 8px;
+      vertical-align: middle;
+      animation: sagaPop .3s ease;
+    }
+    @keyframes sagaPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     .gridWrap{ padding: 0 18px 18px; }
     .grid{
       display:grid;
@@ -286,7 +307,16 @@
     }
     .cell.revealed .titleLine{ color: var(--bad); }
 
-    /* ✅ POSTERS PLUS GRANDS */
+    /* Saga highlight animation */
+    .cell.saga-flash {
+      animation: sagaFlash .5s ease;
+    }
+    @keyframes sagaFlash {
+      0%   { box-shadow: 0 0 0 0 rgba(250,204,21,0); border-color: rgba(250,204,21,.8); }
+      50%  { box-shadow: 0 0 0 8px rgba(250,204,21,.18); }
+      100% { box-shadow: 0 0 0 0 rgba(250,204,21,0); }
+    }
+
     .poster{
       width:88px;
       height:132px;
@@ -300,7 +330,6 @@
     .cell.found .poster{ display:block; }
     .cell.revealed .poster{ display:block; }
 
-    /* ✅ bloc central centré (num + titre) */
     .centerBlock{
       flex: 1 1 auto;
       min-width: 0;
@@ -324,7 +353,6 @@
       min-width:84px;
     }
 
-    /* ✅ TITRES EN ENTIER : multi-lignes */
     .titleLine{
       font-weight:900;
       color: inherit;
@@ -360,6 +388,22 @@
       font-weight:800;
       color: var(--muted);
     }
+
+    /* ---- Barre de saisie sticky sous la cardHead ---- */
+    .stickyBar{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 15, 32, 0.97);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      padding: 12px 18px 0;
+    }
+    .stickyBar .inputArea{ padding: 0; gap: 8px; }
+    .stickyBar .hintPanel{ margin: 6px 0 0; }
+    .stickyBar .toast{ padding: 4px 0 8px; min-height: 16px; }
   </style>
 </head>
 
@@ -401,24 +445,26 @@
 
         <div class="hint" style="padding:0; max-width:720px;">
           Accents/espaces/ponctuation ignorés (ex: <em>Le Bossu de Notre-Dame</em> = bossudenotredame).<br>
-          ✅ Validation auto dès que le titre correspond (pas besoin d’Entrée).<br>
-          💡 “Rebelle” = Pixar.
+          ✅ Validation auto dès que le titre correspond (pas besoin d'Entrée).<br>
+          🎬 Saisir un titre de saga sans numéro valide <strong>tous les films de la saga</strong> (ex: "toy story" → valide les 5 films).<br>
+          💡 "Rebelle" = Pixar.
         </div>
       </div>
 
-      <div class="inputArea">
-        <div class="inputRow">
-          <input id="input" type="text" placeholder="Tape un film… (ex: rebelle, toy story, vaiana)" autocomplete="off" />
-          <button class="btn" id="btnSubmit">✅ Valider</button>
+      <!-- Barre de saisie sticky sous la cardHead -->
+      <div class="stickyBar" id="stickyBar">
+        <div class="inputArea">
+          <div class="inputRow">
+            <input id="input" type="text" placeholder="Tape un film… (ex: rebelle, toy story, vaiana)" autocomplete="off" />
+            <button class="btn" id="btnSubmit">✅ Valider</button>
+          </div>
         </div>
+        <div id="hintPanel" class="hintPanel" aria-live="polite">
+          <div class="hTitle">💡 Initiales des films restants (selon filtre)</div>
+          <div class="chips" id="hintChips"></div>
+        </div>
+        <div id="toast" class="toast"></div>
       </div>
-
-      <div id="hintPanel" class="hintPanel" aria-live="polite">
-        <div class="hTitle">💡 Initiales des films restants (selon filtre)</div>
-        <div class="chips" id="hintChips"></div>
-      </div>
-
-      <div id="toast" class="toast"></div>
 
       <div class="gridWrap">
         <div class="grid" id="grid"></div>
@@ -436,12 +482,11 @@
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/œ/g, "oe")
       .replace(/&/g, "et")
-      .replace(/['’]/g, "")
+      .replace(/['']/g, "")
       .replace(/[^a-z0-9]/g, "");
   }
   function pad3(n){ return String(n).padStart(3, "0"); }
 
-  // fallback poster
   const FALLBACK_POSTER =
     "data:image/svg+xml;charset=utf-8," +
     encodeURIComponent(`
@@ -460,22 +505,17 @@
       </svg>
     `);
 
-  // ---------- Posters en ligne (Wikipedia REST summary) ----------
-  const posterCache = new Map(); // wikiTitle -> url|null
+  const posterCache = new Map();
 
   async function fetchWikiThumb(wikiTitle){
     if (!wikiTitle) return null;
     if (posterCache.has(wikiTitle)) return posterCache.get(wikiTitle);
-
     const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(wikiTitle);
     try{
       const r = await fetch(url, { headers: { "accept": "application/json" } });
       if (!r.ok) { posterCache.set(wikiTitle, null); return null; }
       const data = await r.json();
-      const thumb =
-        (data && data.thumbnail && data.thumbnail.source) ||
-        (data && data.originalimage && data.originalimage.source) ||
-        null;
+      const thumb = (data && data.thumbnail && data.thumbnail.source) || (data && data.originalimage && data.originalimage.source) || null;
       posterCache.set(wikiTitle, thumb);
       return thumb;
     }catch{
@@ -487,24 +527,17 @@
   async function ensurePosterLoaded(id){
     const m = moviesById.get(id);
     if (!m) return;
-
     const img = document.getElementById(`poster-${id}`);
     if (!img) return;
-
     if (img.dataset.loaded === "1") return;
-
     img.src = FALLBACK_POSTER;
-
     const thumb = await fetchWikiThumb(m.wiki);
     if (thumb) img.src = thumb;
-
     img.dataset.loaded = "1";
     img.alt = m.title;
   }
 
   // ---------- DATA ----------
-  // studio: "WDAS" (Walt Disney Animation Studios) | "PIXAR"
-  // IMPORTANT : "Rebelle" = Brave (PIXAR)
   const WDAS = [
     ["WDAS", "Blanche-Neige et les Sept Nains", 1937, "Snow_White_and_the_Seven_Dwarfs_(1937_film)"],
     ["WDAS", "Pinocchio", 1940, "Pinocchio_(1940_film)"],
@@ -606,7 +639,6 @@
     ["PIXAR","Toy Story 5", 2026, "Toy_Story_5"]
   ];
 
-  // ✅ dataset global mélangé (WDAS+PIXAR) et trié chronologiquement
   const ALL = [...WDAS, ...PIXAR]
     .map(row => {
       const [studio, title, year, wiki] = row;
@@ -621,9 +653,37 @@
       ...m
     }));
 
+  // ---------- Saga detection ----------
+  // Strip trailing number/sequel tokens from a normalized title
+  // e.g. "toystory2" -> "toystory", "lareinedesneigest" remains unchanged
+  // Strategy: remove trailing digit words (2,3,4,5,20...)
+  function sagaRoot(normTitle) {
+    // Remove trailing number (including "20", "2000" etc) only if it's a sequel marker
+    // We strip trailing digits that are standalone sequel numbers (1-9, or 2-digit like "20")
+    // but NOT "2000" (Fantasia 2000) or "101" (101 dalmatiens)
+    // Approach: strip trailing 1-2 digit number
+    return normTitle.replace(/[2-9]$/, "").replace(/\d{1,2}$/, m => {
+      const n = parseInt(m);
+      // Only strip if it looks like a sequel number (2-19), not a year digit
+      return (n >= 2 && n <= 19) ? "" : m;
+    });
+  }
+
+  // Build a map: sagaRoot -> [movie, movie, ...] (all movies sharing the same root)
+  // Only store groups that have MORE THAN ONE movie (actual sagas)
+  const sagaMap = new Map(); // normRoot -> [movie]
+  for (const m of ALL) {
+    const root = sagaRoot(normalize(m.title));
+    if (!sagaMap.has(root)) sagaMap.set(root, []);
+    sagaMap.get(root).push(m);
+  }
+  // Keep only real sagas (more than 1 film)
+  for (const [root, movies] of sagaMap) {
+    if (movies.length <= 1) sagaMap.delete(root);
+  }
+
   // ---------- Aliases ----------
   const aliasToKey = new Map([
-    // WDAS
     ["blancheneige", normalize("Blanche-Neige et les Sept Nains")],
     ["frozen", normalize("La Reine des neiges")],
     ["frozen2", normalize("La Reine des neiges 2")],
@@ -632,19 +692,17 @@
     ["kuzco", normalize("Kuzco, l'empereur mégalo")],
     ["atlantide", normalize("Atlantide, l'empire perdu")],
     ["winnie", normalize("Les Aventures de Winnie l'ourson")],
-    // PIXAR
     ["brave", normalize("Rebelle")],
     ["rebelle", normalize("Rebelle")],
     ["toystory", normalize("Toy Story")],
     ["wall-e", normalize("WALL·E")],
     ["walle", normalize("WALL·E")],
-    ["up", normalize("Là-haut (Up)")],
+    ["up", normalize("Là-haut")],
     ["insideout", normalize("Vice-Versa")],
-    ["vice versa", normalize("Vice-Versa")]
+    ["viceversa", normalize("Vice-Versa")]
   ]);
 
   // ---------- Index ----------
-  // key unique = studio|normalizedTitle
   const byKey = new Map();
   const moviesById = new Map();
   for (const m of ALL) {
@@ -654,8 +712,8 @@
   }
 
   // ---------- State ----------
-  let filterStudio = "ALL"; // ALL | WDAS | PIXAR
-  const found = new Set();  // keys studio|norm(title)
+  let filterStudio = "ALL";
+  const found = new Set();
   let isPaused = false;
   let isFinished = false;
   let isGivenUp = false;
@@ -747,7 +805,7 @@
 
   function setToast(type, msg) {
     toast.className = "toast " + (type || "");
-    toast.textContent = msg || "";
+    toast.innerHTML = msg || "";
   }
 
   function getVisibleList(){
@@ -793,7 +851,6 @@
       cell.id = `cell-${m.id}`;
 
       const isFound = found.has(key);
-
       if (isFound) cell.classList.add("found");
 
       cell.innerHTML = `
@@ -813,19 +870,14 @@
       const img = cell.querySelector(`#poster-${m.id}`);
       img.src = FALLBACK_POSTER;
 
-      // charge le poster si déjà trouvé (au rebuild)
       if (isFound) ensurePosterLoaded(m.id);
     }
   }
 
-  // ✅ Scroll vers une cellule trouvée (dans la grille scrollable)
   function scrollToCell(id){
     const cell = document.getElementById(`cell-${id}`);
     if (!cell) return;
-
     cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-
-    // petit flash visuel
     cell.animate(
       [
         { boxShadow: "0 0 0 0 rgba(59,130,246,0)" },
@@ -836,7 +888,14 @@
     );
   }
 
-  async function revealOne(m){
+  function sagaFlashCell(id){
+    const cell = document.getElementById(`cell-${id}`);
+    if (!cell) return;
+    cell.classList.add("saga-flash");
+    setTimeout(() => cell.classList.remove("saga-flash"), 600);
+  }
+
+  async function revealOne(m, isSaga = false){
     const key = `${m.studio}|${normalize(m.title)}`;
     if (found.has(key)) return { changed:false, msg:`⚠️ Déjà trouvé : ${m.title} (${m.year})` };
 
@@ -855,6 +914,8 @@
     nameEl.classList.remove("masked");
     statusEl.textContent = "✅";
 
+    if (isSaga) sagaFlashCell(m.id);
+
     await ensurePosterLoaded(m.id);
 
     cell.animate(
@@ -862,10 +923,38 @@
       { duration: 160, easing: "ease-out" }
     );
 
-    // ✅ scroll vers la case trouvée
-    scrollToCell(m.id);
-
     return { changed:true, msg:`✅ Bien joué : ${m.title} (${m.year})` };
+  }
+
+  // ★ NEW: Reveal all saga movies for a given saga root
+  async function revealSaga(sagaMovies){
+    const newlyFound = [];
+    const alreadyFound = [];
+
+    for (const m of sagaMovies) {
+      const key = `${m.studio}|${normalize(m.title)}`;
+      if (found.has(key)) {
+        alreadyFound.push(m);
+      } else {
+        newlyFound.push(m);
+      }
+    }
+
+    if (newlyFound.length === 0) {
+      return { changed:false, count:0, total:sagaMovies.length, alreadyFound };
+    }
+
+    // Reveal with staggered animation
+    for (let i = 0; i < newlyFound.length; i++) {
+      const m = newlyFound[i];
+      await new Promise(res => setTimeout(res, i * 80));
+      await revealOne(m, true);
+    }
+
+    // Scroll to first newly found
+    if (newlyFound[0]) scrollToCell(newlyFound[0].id);
+
+    return { changed:true, count:newlyFound.length, total:sagaMovies.length, alreadyFound };
   }
 
   async function revealMissingSolutions() {
@@ -897,30 +986,24 @@
   function finish() {
     isFinished = true;
     stopTimer();
-
     btnPause.disabled = true;
     btnPause.textContent = "🏁 Terminé";
     btnGiveUp.disabled = true;
     input.disabled = true;
     btnSubmit.disabled = true;
-
     const visible = getVisibleList();
     setToast("good", `🏆 ${visible.length}/${visible.length} ! Complété en ${timerEl.textContent} !`);
   }
 
   async function giveUp() {
     if (isFinished || isGivenUp) return;
-
     isGivenUp = true;
     stopTimer();
-
     btnPause.disabled = true;
     btnPause.textContent = "⏹️ Stop";
     input.disabled = true;
     btnSubmit.disabled = true;
-
     await revealMissingSolutions();
-
     const visible = getVisibleList();
     const n = getVisibleFoundCount();
     setToast("bad", `🏳️ Abandon : ${n}/${visible.length} trouvés en ${timerEl.textContent}. Solutions en rouge.`);
@@ -932,24 +1015,22 @@
     updateStats();
     setToast("", "");
     resetTimer();
-
     hintPanel.classList.remove("show");
     input.disabled = false;
     btnSubmit.disabled = false;
     btnGiveUp.disabled = false;
     btnPause.disabled = false;
-
     input.value = "";
     input.focus();
     updateHintPanel();
   }
 
   // ---------- Indices ----------
-  const STOP = new Set(["le","la","les","l","de","des","du","d","et","au","aux","une","un","a","à","en","dans","sur","pour","avec"]);
+  const STOP = new Set(["le","la","les","l","de","des","du","d","et","au","aux","une","un","a","a","en","dans","sur","pour","avec"]);
   function initialsOf(title){
     const words = (title || "")
       .toLowerCase()
-      .replace(/['’()]/g, " ")
+      .replace(/[''()]/g, " ")
       .replace(/[:.,!?/\-]/g, " ")
       .split(/\s+/)
       .filter(Boolean)
@@ -974,14 +1055,11 @@
   }
 
   // ---------- Validation ----------
-  // ✅ match EXACT du titre normalisé
   function findMovieByInput(raw){
     const normInput = normalize(raw);
     if (!normInput) return null;
-
     const aliasNorm = aliasToKey.get(normInput);
     const targetNorm = aliasNorm || normInput;
-
     for (const m of ALL){
       const normTitle = normalize(m.title);
       if (normTitle === targetNorm) return m;
@@ -989,20 +1067,105 @@
     return null;
   }
 
-  async function validateRaw(raw) {
-    const m = findMovieByInput(raw);
-    if (!m) return { ok:false, reason:"unknown" };
+  // ★ NEW: Find saga movies matching input as a saga root
+  // Returns array of saga movies if the input matches a saga root (without number), else null
+  function findSagaByInput(raw){
+    const normInput = normalize(raw);
+    if (!normInput) return null;
 
+    // Direct check against sagaMap
+    if (sagaMap.has(normInput)) return sagaMap.get(normInput);
+
+    // Also check aliases — if alias resolves to a title that has a saga root
+    const aliasNorm = aliasToKey.get(normInput);
+    if (aliasNorm) {
+      // Find movie matching aliasNorm
+      for (const m of ALL) {
+        if (normalize(m.title) === aliasNorm) {
+          const root = sagaRoot(aliasNorm);
+          if (sagaMap.has(root)) return sagaMap.get(root);
+          break;
+        }
+      }
+    }
+
+    // Check if normInput equals the saga root of any group
+    for (const [root, movies] of sagaMap) {
+      if (root === normInput) return movies;
+    }
+
+    return null;
+  }
+
+  // ★ NEW: Check if input is an EXACT title match (not saga root)
+  function isExactTitleMatch(normInput){
+    for (const m of ALL) {
+      if (normalize(m.title) === normInput) return true;
+    }
+    return false;
+  }
+
+  async function validateRaw(raw) {
     if (isPaused || isFinished || isGivenUp) return { ok:false, reason:"blocked" };
 
+    const normInput = normalize(raw);
+    if (!normInput) return { ok:false, reason:"empty" };
+
     startTimerIfNeeded();
-    const r = await revealOne(m);
 
-    updateStats();
-    updateHintPanel();
-    setToast(r.changed ? "good" : "warn", r.msg);
+    // ★ Check for exact title first
+    const exactMovie = findMovieByInput(raw);
 
-    // fin si visible complété
+    if (exactMovie) {
+      // ★ Also check if this exact title IS itself a saga root
+      // (i.e., it's the first film of a multi-film saga)
+      // Only apply saga logic if input has NO number at end
+      const hasTrailingNumber = /\d+$/.test(normInput);
+      const aliasNorm = aliasToKey.get(normInput);
+      const resolvedNorm = aliasNorm || normInput;
+      const root = sagaRoot(resolvedNorm);
+
+      if (!hasTrailingNumber && sagaMap.has(root)) {
+        // User typed the base title → reveal entire saga
+        const sagaMovies = sagaMap.get(root);
+        const result = await revealSaga(sagaMovies);
+        updateStats();
+        updateHintPanel();
+
+        if (!result.changed) {
+          setToast("warn", `⚠️ Toute la saga était déjà trouvée !`);
+        } else {
+          const sagaName = sagaMovies[0].title.replace(/\s*\d+$/, "").trim();
+          setToast("good", `🎬 Saga débloquée ! <strong>${sagaName}</strong> : ${result.count} film${result.count > 1 ? "s" : ""} validé${result.count > 1 ? "s" : ""} ! <span class="saga-badge">🎬 SAGA ×${sagaMovies.length}</span>`);
+        }
+      } else {
+        // Single film validation
+        const r = await revealOne(exactMovie);
+        updateStats();
+        updateHintPanel();
+        setToast(r.changed ? "good" : "warn", r.msg);
+        if (!r.changed) return { ok:true };
+        scrollToCell(exactMovie.id);
+      }
+    } else {
+      // ★ Check if input matches a saga root directly (e.g. user typed "toy story" but no exact match for bare "toy story" without number)
+      const sagaMovies = findSagaByInput(raw);
+      if (sagaMovies) {
+        const result = await revealSaga(sagaMovies);
+        updateStats();
+        updateHintPanel();
+        if (!result.changed) {
+          setToast("warn", `⚠️ Toute la saga était déjà trouvée !`);
+        } else {
+          const sagaName = sagaMovies[0].title.replace(/\s*\d+$/, "").trim();
+          setToast("good", `🎬 Saga débloquée ! <strong>${sagaName}</strong> : ${result.count} film${result.count > 1 ? "s" : ""} validé${result.count > 1 ? "s" : ""} ! <span class="saga-badge">🎬 SAGA ×${sagaMovies.length}</span>`);
+        }
+      } else {
+        return { ok:false, reason:"unknown" };
+      }
+    }
+
+    // Check completion
     const visible = getVisibleList();
     if (getVisibleFoundCount() === visible.length) finish();
 
@@ -1029,11 +1192,10 @@
     if (!normalize(raw)) { setToast("warn", "⚠️ Tape un titre de film."); return; }
 
     const res = await validateRaw(raw);
-    if (!res.ok) setToast("bad", "❌ Film non reconnu (ou orthographe non reconnue).");
+    if (!res.ok && res.reason === "unknown") setToast("bad", "❌ Film non reconnu (ou orthographe non reconnue).");
   }
 
-  // ---------- ✅ Auto-validation améliorée ----------
-  // Auto-valide seulement si le match exact est "unique" (pas un préfixe d'autres films).
+  // ---------- Auto-validation ----------
   function resolveNormInput(raw){
     const norm = normalize(raw);
     return aliasToKey.get(norm) || norm;
@@ -1044,7 +1206,7 @@
     for (const m of ALL){
       const t = normalize(m.title);
       if (t.startsWith(resolvedNorm)) count++;
-      if (count > 1) return count; // early exit
+      if (count > 1) return count;
     }
     return count;
   }
@@ -1054,35 +1216,60 @@
     if (isPaused || isFinished || isGivenUp) return;
 
     const raw = input.value;
+    const normInput = normalize(raw);
+    if (!normInput) return;
+
     const resolvedNorm = resolveNormInput(raw);
-    if (!resolvedNorm) return;
 
+    // ★ 1. Vérifier si l'input correspond à une racine de saga directement
+    // (ex: "toystory", "cars", "lareinedesneiges", "viceversa"…)
+    // On auto-valide la saga entière si l'input matche exactement la racine
+    const sagaMoviesDirect = findSagaByInput(raw);
+    if (sagaMoviesDirect) {
+      // S'assurer que l'input est bien la racine (pas un titre avec numéro)
+      const hasTrailingNumber = /\d+$/.test(normInput);
+      if (!hasTrailingNumber) {
+        input.value = "";
+        await validateRaw(raw);
+        input.focus();
+        return;
+      }
+    }
+
+    // ★ 2. Vérifier si l'input est un titre exact de film
     const m = findMovieByInput(raw);
-    if (!m) return;
+    if (m) {
+      const titleNorm = normalize(m.title);
+      if (titleNorm !== resolvedNorm) return;
 
-    const titleNorm = normalize(m.title);
+      // Si ce titre exact est la base d'une saga → auto-valide la saga
+      const hasTrailingNumber = /\d+$/.test(normInput);
+      if (!hasTrailingNumber) {
+        const root = sagaRoot(resolvedNorm);
+        if (sagaMap.has(root)) {
+          input.value = "";
+          await validateRaw(raw);
+          input.focus();
+          return;
+        }
+      }
 
-    // match exact uniquement
-    if (titleNorm !== resolvedNorm) return;
+      // Film isolé : auto-valide seulement s'il n'y a pas d'ambiguïté de préfixe
+      const candidates = countPrefixCandidates(resolvedNorm);
+      if (candidates > 1) return;
 
-    // si plusieurs titres commencent pareil, on n'auto-valide pas (Toy Story -> Toy Story 2/3/4/5)
-    const candidates = countPrefixCandidates(resolvedNorm);
-    if (candidates > 1) return;
-
-    input.value = "";
-    await validateRaw(raw);
-    input.focus();
+      input.value = "";
+      await validateRaw(raw);
+      input.focus();
+    }
   }
 
-  // ---------- Filtre ----------
+  // ---------- Filter ----------
   function setFilter(next){
     filterStudio = next;
-
     tabAll.classList.toggle("active", next === "ALL");
     tabWDAS.classList.toggle("active", next === "WDAS");
     tabPIXAR.classList.toggle("active", next === "PIXAR");
-
-    // rebuild + recalcul
     buildGrid();
     updateStats();
     updateHintPanel();
@@ -1097,17 +1284,11 @@
 
   btnSubmit.addEventListener("click", () => { submit(); });
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
-
   btnPause.addEventListener("click", togglePause);
   btnReset.addEventListener("click", resetQuiz);
   btnGiveUp.addEventListener("click", () => { giveUp(); });
-
   btnHint.addEventListener("click", toggleHint);
-
-  btnHome.addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
-
+  btnHome.addEventListener("click", () => { window.location.href = "index.html"; });
   tabAll.addEventListener("click", () => setFilter("ALL"));
   tabWDAS.addEventListener("click", () => setFilter("WDAS"));
   tabPIXAR.addEventListener("click", () => setFilter("PIXAR"));
@@ -1115,6 +1296,8 @@
   // init
   setFilter("ALL");
   input.focus();
+
+
 </script>
 </body>
 </html>
