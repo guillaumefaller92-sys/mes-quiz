@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Top 20 artistes (ventes mondiales)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(239,68,68,.18), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(59,130,246,.14), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.25) 0 10px, transparent 10px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 45%),
+        linear-gradient(135deg, rgba(245,158,11,.95), rgba(239,68,68,.92));
+      border:3px solid rgba(0,0,0,.55);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:66px; height:18px;
+      border:2px solid rgba(0,0,0,.55);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-22deg);
+      opacity:.6;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(22deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
+    .btn.primary:hover{ background: rgba(245,158,11,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(245,158,11,1), rgba(239,68,68,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 380px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+      max-width: 720px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .poster{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:0;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+      transform: scale(.65);
+      opacity: 0;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .cell.found .poster{ display:block; }
+    .cell.revealed .poster{ display:block; }
+
+    .poster.pop{
+      animation: posterPop 420ms cubic-bezier(.2,1.25,.25,1) both;
+    }
+    @keyframes posterPop{
+      0%   { transform: scale(.65) rotate(-6deg); opacity: 0; }
+      55%  { transform: scale(1.08) rotate(2deg); opacity: 1; }
+      80%  { transform: scale(.96) rotate(-1deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:64px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .mid{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .sub{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.1;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      min-width: 20px;
+      text-align:right;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Top 20 artistes (ventes mondiales)</h1>
+          <p>Une fois trouvé : ventes + logo/photo apparaissent.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0;">
+          Accents/espaces/ponctuation ignorés (ex: <em>AC/DC</em> = <em>acdc</em>).<br>
+          ✅ Validation auto si tu tapes exactement un artiste/groupe (ou un alias).<br>
+          ℹ️ Images : miniatures Wikipédia. Ventes : “reputed/claimed sales” (ordre de grandeur).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un artiste / groupe… (ex: beatles, madonna, eminem…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","the","a","an","and","of","to"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(245,158,11,0.90)"/>
+      <stop offset="1" stop-color="rgba(239,68,68,0.90)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // --------- Images (Wikipedia REST) ----------
+  // Pour quelques pages ambiguës / titres exacts
+  const wikiOverride = new Map([
+    ["Queen", "Queen_(band)"],
+    ["Eagles", "Eagles_(band)"],
+  ]);
+
+  const posterCache = new Map(); // key -> url (or badge)
+
+  async function fetchWikiThumbByTitle(pageTitle){
+    const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(pageTitle);
+    const r = await fetch(url, { cache:"force-cache" });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    return j && j.thumbnail && j.thumbnail.source ? j.thumbnail.source : null;
+  }
+
+  async function fetchWikiThumb(artist){
+    const cacheKey = artist.name + "@" + artist.rank;
+    if (posterCache.has(cacheKey)) return posterCache.get(cacheKey);
+
+    const candidates = [];
+    const baseTitle = artist.wikiTitle || artist.name;
+
+    const ovr = wikiOverride.get(artist.name);
+    if (ovr) candidates.push(ovr);
+
+    candidates.push(baseTitle);
+    candidates.push(baseTitle.replace(/\s+/g,"_"));
+
+    for (const c of candidates){
+      try{
+        const src = await fetchWikiThumbByTitle(c);
+        if (src){
+          posterCache.set(cacheKey, src);
+          return src;
+        }
+      }catch(e){}
+    }
+
+    const out = badgeUrl(artist.name);
+    posterCache.set(cacheKey, out);
+    return out;
+  }
+
+  function setPoster(imgEl, artist){
+    imgEl.classList.remove("pop");
+
+    imgEl.onerror = () => {
+      imgEl.onerror = null;
+      imgEl.src = badgeUrl(artist.name);
+      requestAnimationFrame(() => {
+        imgEl.classList.remove("pop");
+        void imgEl.offsetWidth;
+        imgEl.classList.add("pop");
+      });
+    };
+
+    (async () => {
+      const src = await fetchWikiThumb(artist);
+      imgEl.src = src;
+      imgEl.alt = `Image ${artist.name}`;
+
+      imgEl.onload = () => {
+        imgEl.onload = null;
+        requestAnimationFrame(() => {
+          imgEl.classList.remove("pop");
+          void imgEl.offsetWidth;
+          imgEl.classList.add("pop");
+        });
+      };
+
+      if (String(src).startsWith("data:image/")){
+        requestAnimationFrame(() => {
+          imgEl.classList.remove("pop");
+          void imgEl.offsetWidth;
+          imgEl.classList.add("pop");
+        });
+      }
+    })();
+  }
+
+  // --------- Data (Top 20 — reputed/claimed sales, ordre de grandeur) ----------
+  // NOTE: Ce sont des ventes "reputed/claimed" (souvent "records"), pas un total "albums studio uniquement".
+  const artists = [
+    { rank: 1,  name: "The Beatles",       sales: "≈ 600 millions", wikiTitle: "The Beatles" },
+    { rank: 2,  name: "Michael Jackson",   sales: "≈ 500 millions", wikiTitle: "Michael Jackson" },
+    { rank: 3,  name: "Elvis Presley",     sales: "≈ 500 millions", wikiTitle: "Elvis Presley" },
+    { rank: 4,  name: "Elton John",        sales: "≈ 300 millions", wikiTitle: "Elton John" },
+    { rank: 5,  name: "Queen",             sales: "≈ 300 millions", wikiTitle: "Queen_(band)" },
+    { rank: 6,  name: "Madonna",           sales: "≈ 300 millions", wikiTitle: "Madonna" },
+    { rank: 7,  name: "Led Zeppelin",      sales: "≈ 300 millions", wikiTitle: "Led Zeppelin" },
+    { rank: 8,  name: "Rihanna",           sales: "≈ 300 millions", wikiTitle: "Rihanna" },
+    { rank: 9,  name: "Pink Floyd",        sales: "≈ 250 millions", wikiTitle: "Pink Floyd" },
+    { rank:10,  name: "Eminem",            sales: "≈ 220 millions", wikiTitle: "Eminem" },
+    { rank:11,  name: "Mariah Carey",      sales: "≈ 220 millions", wikiTitle: "Mariah Carey" },
+    { rank:12,  name: "Whitney Houston",   sales: "≈ 220 millions", wikiTitle: "Whitney Houston" },
+    { rank:13,  name: "Taylor Swift",      sales: "≈ 200 millions", wikiTitle: "Taylor Swift" },
+    { rank:14,  name: "Beyoncé",           sales: "≈ 200 millions", wikiTitle: "Beyoncé" },
+    { rank:15,  name: "Ed Sheeran",        sales: "≈ 200 millions", wikiTitle: "Ed Sheeran" },
+    { rank:16,  name: "AC/DC",             sales: "≈ 200 millions", wikiTitle: "AC/DC" },
+    { rank:17,  name: "Eagles",            sales: "≈ 200 millions", wikiTitle: "Eagles_(band)" },
+    { rank:18,  name: "Céline Dion",       sales: "≈ 200 millions", wikiTitle: "Celine Dion" },
+    { rank:19,  name: "The Rolling Stones",sales: "≈ 200 millions", wikiTitle: "The Rolling Stones" },
+    { rank:20,  name: "Garth Brooks",      sales: "≈ 170 millions", wikiTitle: "Garth Brooks" },
+  ];
+
+  // Index
+  const byRank = new Map();
+  const keyToArtist = new Map(); // normalized name -> artist
+  for(const a of artists){
+    byRank.set(a.rank, a);
+    keyToArtist.set(normalize(a.name), a);
+
+    // Bonus : version sans "the" au début
+    const n = a.name;
+    if(/^the\s+/i.test(n)){
+      keyToArtist.set(normalize(n.replace(/^the\s+/i,"")), a);
+    }
+    // Bonus : Céline -> Celine
+    if (a.name.includes("Céline")) {
+      keyToArtist.set(normalize("Celine Dion"), a);
+    }
+    // Bonus : Beyonce sans accent
+    if (a.name.includes("Beyoncé")) {
+      keyToArtist.set(normalize("Beyonce"), a);
+    }
+  }
+
+  // Aliases (tu peux en ajouter)
+  const aliasToKey = new Map([
+    [normalize("beatles"), normalize("The Beatles")],
+    [normalize("the beatles"), normalize("The Beatles")],
+    [normalize("rolling stones"), normalize("The Rolling Stones")],
+    [normalize("stones"), normalize("The Rolling Stones")],
+    [normalize("acdc"), normalize("AC/DC")],
+    [normalize("ac dc"), normalize("AC/DC")],
+    [normalize("céline dion"), normalize("Céline Dion")],
+    [normalize("celine dion"), normalize("Céline Dion")],
+    [normalize("beyonce"), normalize("Beyoncé")],
+    [normalize("beyoncé"), normalize("Beyoncé")],
+  ]);
+
+  // --------- State ----------
+  const found = new Set(); // ranks found
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = found.size;
+    countEl.textContent = `${n} / ${artists.length}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / artists.length) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const a of artists) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${a.rank}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="poster" id="poster-${a.rank}" alt="" />
+          <div class="num">#${String(a.rank).padStart(2,"0")}</div>
+          <div class="mid">
+            <div class="name masked" id="name-${a.rank}">??????</div>
+            <div class="sub" id="sales-${a.rank}">Ventes : —</div>
+          </div>
+        </div>
+        <div class="status" id="status-${a.rank}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealRank(rank, mode /* "found" | "revealed" */) {
+    const a = byRank.get(rank);
+    if (!a) return;
+
+    const cell = document.getElementById(`cell-${rank}`);
+    const nameEl = document.getElementById(`name-${rank}`);
+    const salesEl = document.getElementById(`sales-${rank}`);
+    const statusEl = document.getElementById(`status-${rank}`);
+    const imgEl = document.getElementById(`poster-${rank}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = a.name;
+    nameEl.classList.remove("masked");
+
+    salesEl.textContent = `Ventes : ${a.sales || "—"}`;
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+    setPoster(imgEl, a);
+  }
+
+  function revealMissingSolutions() {
+    for (const a of artists) {
+      if (found.has(a.rank)) continue;
+      revealRank(a.rank, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = found.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${artists.length} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${artists.length}/${artists.length} ! Top complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundName(normKey) {
+    if (!normKey) return false;
+    for (const [k, a] of keyToArtist.entries()) {
+      if (k === normKey) continue;
+      if (found.has(a.rank)) continue;
+      if (k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateName(raw) {
+    const norm = normalize(raw);
+    if (!norm) return { ok:false, reason:"empty" };
+
+    const key = aliasToKey.get(norm) || norm;
+    const a = keyToArtist.get(key);
+    if (!a) return { ok:false, reason:"unknown" };
+
+    startTimerIfNeeded();
+
+    if (found.has(a.rank)) {
+      setToast("warn", `⚠️ Déjà trouvé : ${a.name}.`);
+      return { ok:true, changed:false };
+    }
+
+    found.add(a.rank);
+    revealRank(a.rank, "found");
+    updateStats();
+
+    const extra = a.sales ? ` — ${a.sales}` : "";
+    setToast("good", `✅ Bien joué : ${a.name}${extra}`);
+
+    const cell = document.getElementById(`cell-${a.rank}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (found.size === artists.length) finish();
+    return { ok:true, changed:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    if (!normalize(raw)) { setToast("warn", "⚠️ Tape un artiste / groupe."); return; }
+
+    const r = validateName(raw);
+    if (!r.ok) setToast("bad", "❌ Artiste/groupe non reconnu (ou orthographe non reconnue).");
+  }
+
+  function resetQuiz() {
+    found.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+    if (isPrefixOfAnotherUnfoundName(key)) return;
+
+    if (keyToArtist.has(key)) {
+      input.value = "";
+      const r = validateName(raw);
+      if (!r.ok) setToast("bad", "❌ Artiste/groupe non reconnu.");
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  document.getElementById("totalTop").textContent = artists.length;
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

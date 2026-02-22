@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz – Capitales européennes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Marcellus&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#06142b;
+      --bg2:#081c3c;
+      --card:rgba(8, 28, 60, .72);
+      --line:rgba(255,255,255,.14);
+      --text:rgba(235, 245, 255, .94);
+      --muted:rgba(189, 212, 232, .82);
+
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+
+      --shadow: 0 14px 44px rgba(0,0,0,.38);
+      --radius: 18px;
+
+      --sea1:rgba(56, 189, 248, .18);
+      --sea2:rgba(34, 211, 238, .12);
+      --land:rgba(34, 197, 94, .12);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 520px at 18% 12%, var(--sea1), transparent 60%),
+        radial-gradient(820px 520px at 85% 16%, var(--sea2), transparent 58%),
+        radial-gradient(740px 520px at 55% 95%, var(--land), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2) 70%, var(--bg1));
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-40px;
+      pointer-events:none;
+      opacity:.12;
+      background-image:
+        radial-gradient(circle at 20px 20px, rgba(255,255,255,.55) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 20px 20px, rgba(0,0,0,.45) 0 5px, transparent 5px 100%),
+        linear-gradient(transparent 0 98%, rgba(255,255,255,.14) 98% 100%),
+        linear-gradient(90deg, transparent 0 98%, rgba(255,255,255,.14) 98% 100%);
+      background-size: 110px 110px, 110px 110px, 42px 42px, 42px 42px;
+      transform: rotate(-3deg);
+      filter: blur(.2px);
+    }
+
+    .wrap{ width:min(1180px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:14px; }
+    .badge{
+      width:48px; height:48px; border-radius:16px;
+      border:1px solid var(--line);
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), transparent 55%),
+        linear-gradient(135deg, rgba(34,211,238,.22), rgba(34,197,94,.10));
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .badge::after{
+      content:"";
+      position:absolute;
+      inset:-10px;
+      background:
+        radial-gradient(circle at 65% 55%, rgba(255,255,255,.16), transparent 55%);
+      transform: rotate(12deg);
+    }
+    .badge span{
+      position:relative;
+      font-size:20px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+    }
+
+    .title h1{
+      margin:0;
+      font-family: "Marcellus", serif;
+      font-size:22px;
+      letter-spacing:.3px;
+      line-height:1.15;
+    }
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,211,238,.45);
+      background: rgba(34,211,238,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,211,238,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,211,238,.16), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:14px;
+      letter-spacing:.3px;
+      font-weight:900;
+    }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(34,211,238,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 360px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(34,211,238,.65); box-shadow: 0 0 0 4px rgba(34,211,238,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.4;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap:10px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .capital{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* Drapeau en image, caché tant que non trouvé */
+    .flag{
+      width:40px; height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.14);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.22));
+      opacity: 0;
+      transform: scale(.92);
+      transition: opacity .18s ease, transform .18s ease;
+      overflow:hidden;
+    }
+    .flag img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .cell.found .flag,
+    .cell.revealed .flag{
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .country{
+      font-weight:900;
+      color: inherit;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 170px;
+    }
+
+    .sep{ opacity:.35; }
+
+    .capital{
+      font-weight:900;
+      color: inherit;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 180px;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:800;
+      color: rgba(189,212,232,.72);
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.95;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true"><span>🧭</span></div>
+        <div class="title">
+          <h1>Quiz — Capitales européennes</h1>
+          <p>Tape une <strong>capitale</strong> : elle s’affiche dans la grille (validation auto). Pause / abandon possibles.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div style="min-width: 320px;">
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:640px;">
+          ✅ Saisie <strong>insensible aux accents</strong> (ex: <em>Prague</em>, <em>Reykjavik</em>, <em>Chisinau</em>).<br>
+          Les capitales multi-mots fonctionnent (<em>Saint-Marin</em>, <em>Cité du Vatican</em>).<br>
+          Note : liste “Europe” au sens large (inclut aussi quelques pays transcontinentaux).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape une capitale… (ex: madrid, rome, helsinki, londres)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // --------- Data ----------
+  // format: [countryFR, capitalFR, iso2]  (iso2 = code pays pour les drapeaux)
+  const europe = [
+    ["Albanie","Tirana","al"],
+    ["Allemagne","Berlin","de"],
+    ["Andorre","Andorre-la-Vieille","ad"],
+    ["Arménie","Erevan","am"],
+    ["Autriche","Vienne","at"],
+    ["Azerbaïdjan","Bakou","az"],
+    ["Belgique","Bruxelles","be"],
+    ["Biélorussie","Minsk","by"],
+    ["Bosnie-Herzégovine","Sarajevo","ba"],
+    ["Bulgarie","Sofia","bg"],
+    ["Chypre","Nicosie","cy"],
+    ["Croatie","Zagreb","hr"],
+    ["Danemark","Copenhague","dk"],
+    ["Espagne","Madrid","es"],
+    ["Estonie","Tallinn","ee"],
+    ["Finlande","Helsinki","fi"],
+    ["France","Paris","fr"],
+    ["Géorgie","Tbilissi","ge"],
+    ["Grèce","Athènes","gr"],
+    ["Hongrie","Budapest","hu"],
+    ["Irlande","Dublin","ie"],
+    ["Islande","Reykjavik","is"],
+    ["Italie","Rome","it"],
+    ["Kosovo","Pristina","xk"],
+    ["Lettonie","Riga","lv"],
+    ["Liechtenstein","Vaduz","li"],
+    ["Lituanie","Vilnius","lt"],
+    ["Luxembourg","Luxembourg","lu"],
+    ["Macédoine du Nord","Skopje","mk"],
+    ["Malte","La Valette","mt"],
+    ["Moldavie","Chisinau","md"],
+    ["Monaco","Monaco","mc"],
+    ["Monténégro","Podgorica","me"],
+    ["Norvège","Oslo","no"],
+    ["Pays-Bas","Amsterdam","nl"],
+    ["Pologne","Varsovie","pl"],
+    ["Portugal","Lisbonne","pt"],
+    ["République tchèque","Prague","cz"],
+    ["Roumanie","Bucarest","ro"],
+    ["Royaume-Uni","Londres","gb"],
+    ["Russie","Moscou","ru"],
+    ["Saint-Marin","Saint-Marin","sm"],
+    ["Serbie","Belgrade","rs"],
+    ["Slovaquie","Bratislava","sk"],
+    ["Slovénie","Ljubljana","si"],
+    ["Suède","Stockholm","se"],
+    ["Suisse","Berne","ch"],
+    ["Turquie","Ankara","tr"],
+    ["Ukraine","Kyiv","ua"],
+    ["Vatican","Cité du Vatican","va"]
+  ];
+
+  const TOTAL = europe.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // capitalKey -> [indices...]
+  const byCapital = new Map();
+  for (let i = 0; i < europe.length; i++) {
+    const cap = europe[i][1];
+    const k = normalize(cap);
+    if (!byCapital.has(k)) byCapital.set(k, []);
+    byCapital.get(k).push(i);
+  }
+
+  // Aliases -> clé normalisée de la capitale FR
+  const aliasToCapitalKey = new Map([
+    ["london", normalize("Londres")],
+    ["athens", normalize("Athènes")],
+    ["vienna", normalize("Vienne")],
+    ["rome", normalize("Rome")],
+    ["moscow", normalize("Moscou")],
+    ["kyiv", normalize("Kyiv")],
+    ["kiev", normalize("Kyiv")],
+    ["brussels", normalize("Bruxelles")],
+    ["copenhagen", normalize("Copenhague")],
+    ["cophenhagen", normalize("Copenhague")],
+    ["warsaw", normalize("Varsovie")],
+    ["prague", normalize("Prague")],
+    ["bern", normalize("Berne")],
+    ["bucharest", normalize("Bucarest")],
+    ["tbilisi", normalize("Tbilissi")],
+    ["yerevan", normalize("Erevan")],
+    ["baku", normalize("Bakou")],
+    ["kisinau", normalize("Chisinau")],
+    ["valletta", normalize("La Valette")],
+    ["nicosia", normalize("Nicosie")],
+    ["vatican", normalize("Cité du Vatican")],
+    ["vaticancity", normalize("Cité du Vatican")]
+  ]);
+
+  const foundCaps = new Set();
+
+  // --------- Timer (avec pause) ----------
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function currentScore() {
+    let revealed = 0;
+    for (let i = 0; i < europe.length; i++) {
+      const capKey = normalize(europe[i][1]);
+      if (foundCaps.has(capKey)) revealed++;
+    }
+    return revealed;
+  }
+
+  function updateStats() {
+    const n = currentScore();
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function flagUrl(iso2) {
+    // 40px de large, PNG (simple & fiable)
+    return `https://flagcdn.com/w40/${String(iso2).toLowerCase()}.png`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (let i = 0; i < europe.length; i++) {
+      const [country, capital, iso2] = europe[i];
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${i}`;
+
+      cell.innerHTML = `
+        <div class="left">
+          <div class="flag" aria-hidden="true">
+            <img src="${flagUrl(iso2)}" alt="">
+          </div>
+          <div style="min-width:0;">
+            <div class="country" title="${country}">${country}</div>
+            <div style="margin-top:2px; display:flex; gap:8px; align-items:baseline;">
+              <div class="sep">→</div>
+              <div class="capital masked" id="cap-${i}">??????</div>
+            </div>
+          </div>
+        </div>
+        <div class="status" id="status-${i}">—</div>
+      `;
+
+      // fallback si l'image ne charge pas (rare) : affiche "??"
+      const img = cell.querySelector("img");
+      img.addEventListener("error", () => { img.style.display = "none"; });
+
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealCapitalKey(capKey, style) {
+    if (!byCapital.has(capKey)) return { changed:false, msg:null };
+
+    const indices = byCapital.get(capKey);
+    let changed = false;
+
+    for (const i of indices) {
+      const [country, capital] = europe[i];
+      const cell = document.getElementById(`cell-${i}`);
+      const capEl = document.getElementById(`cap-${i}`);
+      const stEl = document.getElementById(`status-${i}`);
+
+      if (style === "found") {
+        cell.classList.add("found");
+        cell.classList.remove("revealed");
+        stEl.textContent = "✅";
+      } else {
+        if (!cell.classList.contains("found")) cell.classList.add("revealed");
+        stEl.textContent = cell.classList.contains("found") ? "✅" : "❌";
+      }
+
+      capEl.textContent = capital;
+      capEl.classList.remove("masked");
+      changed = true;
+    }
+
+    return { changed, msg:null };
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Europe complétée en ${timerEl.textContent} !`);
+  }
+
+  function revealMissingSolutions() {
+    for (let i = 0; i < europe.length; i++) {
+      const capKey = normalize(europe[i][1]);
+      if (foundCaps.has(capKey)) continue;
+      revealCapitalKey(capKey, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    updateStats();
+
+    const n = currentScore();
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  // ---- Validation (submit + auto) ----
+  function validateRaw(raw, {silent=false} = {}) {
+    const norm = normalize(raw);
+    if (!norm) return { ok:false, reason:"empty" };
+
+    const capKey = aliasToCapitalKey.get(norm) || norm;
+
+    if (!byCapital.has(capKey)) {
+      if (!silent) setToast("bad", "❌ Capitale non reconnue dans la liste.");
+      return { ok:false, reason:"unknown" };
+    }
+
+    if (foundCaps.has(capKey)) {
+      if (!silent) setToast("warn", "⚠️ Déjà trouvé.");
+      return { ok:false, reason:"dup" };
+    }
+
+    startTimerIfNeeded();
+
+    foundCaps.add(capKey);
+    revealCapitalKey(capKey, "found");
+    updateStats();
+
+    const indices = byCapital.get(capKey);
+    const shown = indices.map(i => europe[i][0]).join(", ");
+    if (!silent) setToast("good", `✅ ${raw.trim()} → ${shown}`);
+
+    if (currentScore() === TOTAL) finish();
+
+    return { ok:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    if (!normalize(raw)) { setToast("warn", "⚠️ Tape une capitale."); return; }
+    validateRaw(raw, {silent:false});
+  }
+
+  function resetQuiz() {
+    foundCaps.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+    input.value = "";
+    input.focus();
+  }
+
+  // --- Auto-validation avec anti-spam + gestion préfixes ---
+  // On évite d'auto-valider si la saisie est un préfixe d'une autre capitale NON trouvée
+  function isPrefixOfAnotherUnfound(capKey) {
+    if (!capKey) return false;
+    for (const k of byCapital.keys()) {
+      if (k === capKey) continue;
+      if (k.startsWith(capKey) && !foundCaps.has(k)) return true;
+    }
+    return false;
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const capKey = aliasToCapitalKey.get(norm) || norm;
+
+    if (isPrefixOfAnotherUnfound(capKey)) return;
+
+    if (byCapital.has(capKey) && !foundCaps.has(capKey)) {
+      input.value = "";
+      validateRaw(raw, {silent:true});
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

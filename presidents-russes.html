@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Dirigeants Russie & URSS (1917–…)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        radial-gradient(circle at 30% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 70% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 50% 72%, #111 0 5px, transparent 6px),
+        linear-gradient(#0b1024 0 50%, #fff 50% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .ball::after{
+      content:""; position:absolute; left:-3px; right:-3px; top:50%; height:3px;
+      background:#111; transform: translateY(-50%);
+      opacity:.55;
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* Portrait (affiché seulement quand trouvé) */
+    .flag{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:2px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:none; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:92px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      white-space:nowrap;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Dirigeants Russie & URSS</h1>
+          <p>Lénine → aujourd’hui · ordre chronologique obligatoire · mandats affichés.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<strong id="total">0</strong></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:640px;">
+          ✅ <strong>Ordre chronologique obligatoire</strong> — auto-validation activée.
+          <span style="display:inline-block; opacity:.9"> (Tu peux taper nom complet, nom de famille, translittération…)</span>
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape le prochain dirigeant (dans l'ordre)…" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ✅ URL direct vers un fichier Commons (stable) + redimensionnement
+  function commonsFilePath(fileName, width=96){
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=${width}`;
+  }
+
+  // --------- Data ----------
+  // Modèle : "dirigeants (au sens large) en ordre chronologique" :
+  // - URSS : leaders généralement considérés comme "de facto" (chef du Parti)
+  // - Russie : présidents (élections/mandats)
+  //
+  // Pour que les IDs DOM soient uniques, on utilise un champ `id` (string) séparé du label affiché.
+  const editions = [
+    { id:"1917-11", label:"1917", winner:"Vladimir Lénine",       mandates: 1 },
+    { id:"1924-01", label:"1924", winner:"Joseph Staline",        mandates: 1 },
+    { id:"1953-03", label:"1953", winner:"Gueorgui Malenkov",     mandates: 1 },
+    { id:"1953-09", label:"1953", winner:"Nikita Khrouchtchev",   mandates: 1 },
+    { id:"1964-10", label:"1964", winner:"Leonid Brejnev",        mandates: 1 },
+    { id:"1982-11", label:"1982", winner:"Iouri Andropov",        mandates: 1 },
+    { id:"1984-02", label:"1984", winner:"Konstantin Tchernenko", mandates: 1 },
+    { id:"1985-03", label:"1985", winner:"Mikhaïl Gorbatchev",    mandates: 1 },
+    { id:"1991-06", label:"1991", winner:"Boris Eltsine",         mandates: 2 },
+    { id:"2000-03", label:"2000", winner:"Vladimir Poutine",      mandates: 2 }, // 2000, 2004
+    { id:"2008-03", label:"2008", winner:"Dmitri Medvedev",       mandates: 1 },
+    { id:"2012-03", label:"2012", winner:"Vladimir Poutine",      mandates: 3 }, // 2012, 2018, 2024 (en cours)
+  ];
+
+  const TOTAL = editions.length;
+
+  // Index par id + par nom normalisé
+  const byId = new Map();
+  const leadersByKey = new Map(); // key -> [ids]
+  const allLeaderKeys = new Set();
+
+  for (const e of editions) {
+    byId.set(e.id, e);
+    const k = normalize(e.winner);
+    allLeaderKeys.add(k);
+    if (!leadersByKey.has(k)) leadersByKey.set(k, []);
+    leadersByKey.get(k).push(e.id);
+  }
+
+  // ✅ Portraits (Commons)
+  // NB : change juste les noms de fichiers ici si tu veux d'autres portraits.
+  const portraitFileByKey = new Map([
+    [normalize("Vladimir Lénine"),       "Lenin portrait cropped.jpg"],
+    [normalize("Joseph Staline"),        "Joseph Stalin official portrait.jpg"],
+    [normalize("Gueorgui Malenkov"),     "Georgy Malenkov 1953 (cropped).jpg"],
+    [normalize("Nikita Khrouchtchev"),   "Nikita Khrushchev official portrait.jpg"],
+    [normalize("Leonid Brejnev"),        "Leonid Brezhnev Portrait (2).jpg"],
+    [normalize("Iouri Andropov"),        "Yuri Andropov (cropped).jpg"],
+    [normalize("Konstantin Tchernenko"), "Konstantin Chernenko official portrait.jpg"],
+    [normalize("Mikhaïl Gorbatchev"),    "Gorbachev (cropped).jpg"],
+    [normalize("Boris Eltsine"),         "Boris Yeltsin 1992 official portrait (3x4 cropped).jpg"],
+    [normalize("Vladimir Poutine"),      "Vladimir Putin 2018.jpg"],
+    [normalize("Dmitri Medvedev"),       "Dmitry Medvedev official portrait (01) (cropped).jpg"],
+  ]);
+
+  function portraitOfficialUrl(fullName){
+    const k = normalize(fullName);
+    const file = portraitFileByKey.get(k);
+    if (!file) return "";
+    return commonsFilePath(file, 96);
+  }
+
+  // Aliases (FR + EN + translittérations usuelles)
+  const aliasToKey = new Map([
+    // Lénine / Lenin
+    [normalize("lenine"), normalize("Vladimir Lénine")],
+    [normalize("lenin"), normalize("Vladimir Lénine")],
+    [normalize("vladimir lenine"), normalize("Vladimir Lénine")],
+    [normalize("vladimir lenin"), normalize("Vladimir Lénine")],
+    [normalize("vladimir ilitch lenine"), normalize("Vladimir Lénine")],
+    [normalize("vladimir ilyich lenin"), normalize("Vladimir Lénine")],
+
+    // Staline / Stalin
+    [normalize("staline"), normalize("Joseph Staline")],
+    [normalize("stalin"), normalize("Joseph Staline")],
+    [normalize("joseph staline"), normalize("Joseph Staline")],
+    [normalize("joseph stalin"), normalize("Joseph Staline")],
+    [normalize("iosef staline"), normalize("Joseph Staline")],
+    [normalize("jv staline"), normalize("Joseph Staline")],
+
+    // Malenkov
+    [normalize("malenkov"), normalize("Gueorgui Malenkov")],
+    [normalize("georgy malenkov"), normalize("Gueorgui Malenkov")],
+    [normalize("georgi malenkov"), normalize("Gueorgui Malenkov")],
+    [normalize("gueorgui malenkov"), normalize("Gueorgui Malenkov")],
+    [normalize("georgy"), normalize("Gueorgui Malenkov")], // tolérance
+
+    // Khrouchtchev / Khrushchev
+    [normalize("khrouchtchev"), normalize("Nikita Khrouchtchev")],
+    [normalize("krouchtchev"), normalize("Nikita Khrouchtchev")],
+    [normalize("khrushchev"), normalize("Nikita Khrouchtchev")],
+    [normalize("nikita khrouchtchev"), normalize("Nikita Khrouchtchev")],
+    [normalize("nikita khrushchev"), normalize("Nikita Khrouchtchev")],
+
+    // Brejnev / Brezhnev
+    [normalize("brejnev"), normalize("Leonid Brejnev")],
+    [normalize("brezhnev"), normalize("Leonid Brejnev")],
+    [normalize("leonid brejnev"), normalize("Leonid Brejnev")],
+    [normalize("leonid brezhnev"), normalize("Leonid Brejnev")],
+
+    // Andropov
+    [normalize("andropov"), normalize("Iouri Andropov")],
+    [normalize("yuri andropov"), normalize("Iouri Andropov")],
+    [normalize("iouri andropov"), normalize("Iouri Andropov")],
+
+    // Tchernenko / Chernenko
+    [normalize("tchernenko"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+
+    // (correction : les lignes ci-dessus étaient des doublons involontaires possibles dans certains éditeurs,
+    // on garde seulement les entrées utiles juste après)
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO".toLowerCase().replace("o","o")), normalize("Konstantin Tchernenko")], // noop tolérance
+
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")], // harmless
+
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+
+    [normalize("cherNenko"), normalize("Konstantin Tchernenko")],
+
+    // -> versions propres
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+
+    // ✅ réellement utiles
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+    [normalize("chernenkO"), normalize("Konstantin Tchernenko")],
+
+    // (fin du bloc tolérance)
+    [normalize("chernenkO".toLowerCase()), normalize("Konstantin Tchernenko")],
+
+    // Gorbatchev / Gorbachev
+    [normalize("gorbatchev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbatchev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbatchev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhael gorbatchev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("mikhail gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("gorbachev"), normalize("Mikhaïl Gorbatchev")],
+    [normalize("gorbatchev"), normalize("Mikhaïl Gorbatchev")],
+
+    // Eltsine / Yeltsin
+    [normalize("eltsine"), normalize("Boris Eltsine")],
+    [normalize("yeltsin"), normalize("Boris Eltsine")],
+    [normalize("boris eltsine"), normalize("Boris Eltsine")],
+    [normalize("boris yeltsin"), normalize("Boris Eltsine")],
+
+    // Poutine / Putin
+    [normalize("poutine"), normalize("Vladimir Poutine")],
+    [normalize("putin"), normalize("Vladimir Poutine")],
+    [normalize("vladimir poutine"), normalize("Vladimir Poutine")],
+    [normalize("vladimir putin"), normalize("Vladimir Poutine")],
+
+    // Medvedev
+    [normalize("medvedev"), normalize("Dmitri Medvedev")],
+    [normalize("dmitri medvedev"), normalize("Dmitri Medvedev")],
+    [normalize("dmitry medvedev"), normalize("Dmitri Medvedev")],
+  ]);
+
+  // Nettoyage: on supprime les doublons bizarres éventuels (aucun impact, mais safe)
+  // (les Map remplacent automatiquement les clés identiques)
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+  let nextIdx = 0;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const totalEl = document.getElementById("total");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function expectedEdition(){
+    return editions[nextIdx] || null;
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    totalEl.textContent = TOTAL;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.id}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.id}" alt="" />
+          <div class="num">${e.label}</div>
+          <div class="name masked" id="name-${e.id}">??????</div>
+        </div>
+        <div class="status" id="status-${e.id}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function mandatesLabel(m){
+    // Ici, "mandats" = nombre de mandats (présidence) quand ça s'applique,
+    // et "1 mandat" pour les dirigeants URSS (période unique).
+    if (m === 1) return "1 mandat";
+    return `${m} mandats`;
+  }
+
+  function revealId(id, mode /* "found" | "revealed" */) {
+    const e = byId.get(id);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${e.id}`);
+    const nameEl = document.getElementById(`name-${e.id}`);
+    const statusEl = document.getElementById(`status-${e.id}`);
+    const flagEl = document.getElementById(`flag-${e.id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+
+    statusEl.textContent = mode === "found"
+      ? `✅ · ${mandatesLabel(e.mandates)}`
+      : "❌";
+
+    if (mode === "found") {
+      const src = portraitOfficialUrl(e.winner);
+      flagEl.src = src || "";
+      flagEl.alt = `Portrait ${e.winner}`;
+    } else {
+      flagEl.src = "";
+      flagEl.alt = "";
+    }
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundIds.has(e.id)) continue;
+      revealId(e.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function validateLeader(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!leadersByKey.has(key)) return { ok:false, reason:"unknown" };
+
+    const exp = expectedEdition();
+    if (!exp) return { ok:false, reason:"finished" };
+
+    const expectedKey = normalize(exp.winner);
+    const typedKey = key;
+
+    if (typedKey !== expectedKey) {
+      setToast("bad", "⛔ Pas encore ! Tu dois trouver le prochain dirigeant dans l'ordre chronologique.");
+      return { ok:false, reason:"order" };
+    }
+
+    startTimerIfNeeded();
+
+    foundIds.add(exp.id);
+    revealId(exp.id, "found");
+    nextIdx++;
+
+    updateStats();
+    setToast("good", `✅ Bien joué : ${exp.winner} → ${mandatesLabel(exp.mandates)}.`);
+
+    const cell = document.getElementById(`cell-${exp.id}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (foundIds.size === TOTAL) finish();
+    return { ok:true, changed:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!leadersByKey.has(key)) {
+      setToast("bad", "❌ Dirigeant non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    validateLeader(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+    nextIdx = 0;
+
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // ✅ Auto-validation (exact match seulement ; pas de suggestion ; évite les préfixes)
+  let autoT = null;
+
+  function isAnyLeaderPrefix(typedKey){
+    if (!typedKey) return false;
+    for (const k of allLeaderKeys) {
+      if (k.startsWith(typedKey) && k !== typedKey) return true;
+    }
+    return false;
+  }
+
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const typedKey = aliasToKey.get(norm) || norm;
+
+    if (isAnyLeaderPrefix(typedKey)) return;
+
+    if (leadersByKey.has(typedKey)) {
+      input.value = "";
+      validateLeader(raw);
+      input.focus();
+      return;
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

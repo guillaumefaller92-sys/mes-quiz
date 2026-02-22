@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mes Quiz</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      /* ✅ Surfaces (2 niveaux) */
+      --panel: rgba(14, 20, 45, .78);
+      --panel2: rgba(255,255,255,.045);
+
+      /* ✅ Lignes / borders */
+      --line: rgba(255,255,255,.14);
+      --line2: rgba(255,255,255,.10);
+
+      /* Texte */
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --muted2: rgba(183,194,223,.68);
+
+      /* Accents */
+      --good:#22c55e;
+      --blue:#60a5fa;
+      --violet:#a78bfa;
+      --red:#fb7185;
+
+      /* Shadow + radius */
+      --shadow: 0 18px 70px rgba(0,0,0,.50);
+      --shadow2: 0 14px 45px rgba(0,0,0,.42);
+      --radius: 18px;
+
+      /* Focus */
+      --focus: 0 0 0 3px rgba(96,165,250,.26);
+
+      /* Dock */
+      --dockH: 74px; /* hauteur approximative (sert au padding-bottom) */
+      --dockGap: 16px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:26px;
+      padding-bottom: calc(26px + var(--dockH) + var(--dockGap));
+
+      background:
+        radial-gradient(1100px 650px at 14% 10%, rgba(251,113,133,.20), transparent 60%),
+        radial-gradient(1050px 650px at 88% 18%, rgba(96,165,250,.20), transparent 60%),
+        radial-gradient(950px 650px at 55% 105%, rgba(34,197,94,.14), transparent 62%),
+        linear-gradient(180deg, #050718, #080e24 55%, #050718);
+      overflow-x:hidden;
+      position:relative;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.06;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+    }
+
+    .wrap{
+      width:min(1120px, 100%);
+      display:grid;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero{
+      text-align:center;
+      padding:10px;
+      display:grid;
+      gap:7px;
+    }
+
+    h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:22px;
+      line-height:1.25;
+      letter-spacing:.4px;
+      text-shadow: 0 10px 28px rgba(0,0,0,.55);
+    }
+
+    .sub{
+      color:var(--muted2);
+      font-size:13px;
+    }
+
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding:16px;
+      backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .panel::after{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background:
+        radial-gradient(520px 320px at 18% 12%, rgba(255,255,255,.10), transparent 62%),
+        radial-gradient(520px 320px at 88% 20%, rgba(167,139,250,.10), transparent 62%);
+      pointer-events:none;
+      opacity:.85;
+    }
+
+    /* =========================
+       ✅ BARRE DE FILTRE
+       ========================= */
+    .filters{
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px;
+      border:1px solid var(--line2);
+      border-radius: 18px;
+      background: rgba(0,0,0,.14);
+      margin-bottom: 14px;
+    }
+
+    .filtersLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .filtersLabel{
+      font-weight:900;
+      font-size:12px;
+      color: var(--muted2);
+      white-space:nowrap;
+      letter-spacing:.2px;
+    }
+
+    .select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      font-weight:900;
+      border-radius: 14px;
+      padding:10px 38px 10px 12px;
+      outline:none;
+      cursor:pointer;
+      transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      max-width: min(320px, 70vw);
+
+      /* ✅ Fix rendu menu natif (dark) */
+      color-scheme: dark;
+      background-color: rgba(255,255,255,.07);
+    }
+    .select:hover{
+      background: rgba(255,255,255,.11);
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+    }
+    .select:focus-visible{
+      box-shadow: var(--focus);
+      border-color: rgba(96,165,250,.45);
+    }
+
+    /* ✅ Fix affichage des options (dropdown) */
+    .select option{
+      background-color: #0b1226; /* fond sombre */
+      color: #e8eefc;            /* texte clair */
+    }
+    .select option:checked{
+      background-color: #1a2b5a;
+      color: #e8eefc;
+    }
+    .select option[value="all"]{
+      color: rgba(232,238,252,.92);
+    }
+
+    .selectWrap{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+    }
+    .selectWrap::after{
+      content:"▾";
+      position:absolute;
+      right:12px;
+      pointer-events:none;
+      color: rgba(255,255,255,.75);
+      font-size:14px;
+      transform: translateY(-1px);
+      text-shadow: 0 10px 18px rgba(0,0,0,.35);
+    }
+
+    .filtersMeta{
+      color: var(--muted2);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    /* Cat headers */
+    .cat{
+      margin-top:14px;
+      border:1px solid var(--line2);
+      border-radius: 18px;
+      overflow:hidden;
+      background: rgba(0,0,0,.14);
+      position:relative;
+    }
+    .cat:first-child{ margin-top:0; }
+
+    .cat::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 3px;
+      background: linear-gradient(180deg, rgba(96,165,250,.55), rgba(167,139,250,.35), rgba(34,197,94,.35));
+      opacity:.55;
+    }
+    .cat[data-cat="pokemon"]::before{
+      background: linear-gradient(180deg, rgba(251,113,133,.65), rgba(251,113,133,.25), rgba(167,139,250,.25));
+      opacity:.65;
+    }
+    .cat[data-cat="geo"]::before{
+      background: linear-gradient(180deg, rgba(96,165,250,.65), rgba(96,165,250,.25), rgba(167,139,250,.25));
+      opacity:.65;
+    }
+    .cat[data-cat="sport"]::before{
+      background: linear-gradient(180deg, rgba(34,197,94,.65), rgba(34,197,94,.25), rgba(96,165,250,.22));
+      opacity:.65;
+    }
+    /* ✅ Histoire */
+    .cat[data-cat="histoire"]::before{
+      background: linear-gradient(180deg, rgba(245,158,11,.70), rgba(251,113,133,.22), rgba(96,165,250,.20));
+      opacity:.70;
+    }
+
+    /* ✅ NEW: Films */
+    .cat[data-cat="films"]::before{
+      background: linear-gradient(180deg, rgba(96,165,250,.70), rgba(251,113,133,.18), rgba(167,139,250,.18));
+      opacity:.72;
+    }
+    /* ✅ NEW: Musique */
+    .cat[data-cat="musique"]::before{
+      background: linear-gradient(180deg, rgba(167,139,250,.75), rgba(96,165,250,.18), rgba(34,197,94,.18));
+      opacity:.72;
+    }
+    /* ✅ NEW: Jeux vidéos */
+    .cat[data-cat="jeux-videos"]::before{
+      background: linear-gradient(180deg, rgba(34,197,94,.70), rgba(96,165,250,.18), rgba(245,158,11,.16));
+      opacity:.72;
+    }
+    /* ✅ NEW: Pop culture */
+    .cat[data-cat="pop-culture"]::before{
+      background: linear-gradient(180deg, rgba(251,113,133,.72), rgba(245,158,11,.18), rgba(96,165,250,.18));
+      opacity:.74;
+    }
+
+    .catHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      background: rgba(255,255,255,.035);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      position:relative;
+    }
+    .catHead::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      opacity:.6;
+      pointer-events:none;
+    }
+
+    .catLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .catTitle{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:16px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .catCount{
+      color: var(--muted2);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .subWrap{
+      padding:12px;
+      border-top:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.012);
+    }
+    .subWrap:first-of-type{ border-top:none; }
+
+    .subHead{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      padding:0 2px;
+    }
+
+    .subLeft{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+
+    .subIco{
+      font-size:16px;
+      line-height:1;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      transform: translateY(-.5px);
+      flex: 0 0 auto;
+    }
+
+    .subFlag{
+      width:18px;
+      height:12px;
+      border-radius:3px;
+      overflow:hidden;
+      box-shadow: 0 10px 18px rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.18);
+      flex: 0 0 auto;
+      transform: translateY(-.5px);
+      background: rgba(0,0,0,.12);
+    }
+    .subFlag svg{ display:block; width:100%; height:100%; }
+
+    .subTitle{
+      font-weight:900;
+      font-size:13px;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .subCount{
+      color: var(--muted2);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .catIco{
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+      position:relative;
+      overflow:hidden;
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.04),
+        0 10px 22px rgba(0,0,0,.30);
+    }
+    .catIco::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(circle at 25% 25%, rgba(255,255,255,.24), transparent 55%);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .catIco.poke{ border-color: rgba(251,113,133,.35); }
+
+    .pokeball{
+      width:18px; height:18px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 3.5px, #111 3.5px 4.8px, #fff 4.8px 5.7px, transparent 5.7px),
+        linear-gradient(#fb7185 0 50%, #fff 50% 100%);
+      border:2px solid #111;
+      position:relative;
+      box-shadow: 0 10px 18px rgba(0,0,0,.40);
+    }
+    .pokeball::after{
+      content:"";
+      position:absolute;
+      left:-2px; right:-2px;
+      top:50%;
+      height:2px;
+      background:#111;
+      transform:translateY(-50%);
+    }
+
+    .emoji{
+      font-size:18px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      transform: translateY(-.5px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap:12px;
+      padding:0;
+    }
+
+    .card{
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
+      border-radius: 18px;
+      padding:14px;
+      cursor:pointer;
+      transition: transform .16s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      min-height:86px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:4px;
+      align-items:center;
+      text-align:center;
+      position:relative;
+      outline:none;
+      will-change: transform;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius: 18px;
+      background: radial-gradient(420px 180px at 20% 10%, rgba(96,165,250,.18), transparent 60%);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+    }
+
+    .card:hover{
+      transform: translateY(-4px);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.20));
+      border-color: rgba(255,255,255,.22);
+      box-shadow: var(--shadow2);
+    }
+    .card:hover::before{ opacity:1; }
+
+    .card:focus-visible{
+      box-shadow: var(--focus), var(--shadow2);
+      border-color: rgba(96,165,250,.45);
+    }
+
+    .card.selected{
+      border-color: rgba(34,197,94,.60);
+      background: linear-gradient(180deg, rgba(34,197,94,.16), rgba(0,0,0,.20));
+      box-shadow: 0 0 0 3px rgba(34,197,94,.16), var(--shadow2);
+    }
+    .card.selected::before{
+      background: radial-gradient(420px 180px at 20% 10%, rgba(34,197,94,.22), transparent 62%);
+      opacity:1;
+    }
+
+    .cTitle{
+      font-weight:900;
+      font-size:14px;
+      line-height:1.25;
+      letter-spacing:.15px;
+      position:relative;
+      z-index:1;
+    }
+
+    .cTitle .tYears{
+      display:block;
+      margin-top:4px;
+      font-weight:800;
+      opacity:.95;
+    }
+
+    .cDesc{
+      font-size:12.5px;
+      color:var(--muted2);
+      line-height:1.35;
+      position:relative;
+      z-index:1;
+    }
+
+    /* =========================
+       ✅ NEW: petit drapeau sur la card
+       ========================= */
+    .cardFlag{
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:20px;
+      height:13px;
+      border-radius:4px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.14);
+      box-shadow: 0 12px 22px rgba(0,0,0,.45);
+      transform: translateY(-.5px);
+      z-index:2;
+    }
+    .cardFlag svg{ display:block; width:100%; height:100%; }
+
+    .btn{
+      padding:12px 16px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      font-weight:900;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      outline:none;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.11);
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.26);
+    }
+    .btn:active{ transform: translateY(0) scale(.985); }
+    .btn:focus-visible{ box-shadow: var(--focus); border-color: rgba(96,165,250,.45); }
+
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: linear-gradient(180deg, rgba(34,197,94,.22), rgba(34,197,94,.14));
+      box-shadow: 0 10px 24px rgba(34,197,94,.10);
+    }
+    .btn.primary:hover{
+      background: linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.16));
+      border-color: rgba(34,197,94,.60);
+      box-shadow: 0 14px 34px rgba(34,197,94,.14);
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .foot{
+      margin-top:10px;
+      text-align:center;
+      color: var(--muted2);
+      font-size:12px;
+      position:relative;
+      z-index:1;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      padding:2px 6px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      white-space:nowrap;
+    }
+
+    ::-webkit-scrollbar{ width: 12px; height: 12px; }
+    ::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.14);
+      border: 3px solid rgba(0,0,0,.0);
+      background-clip: padding-box;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.20); }
+    ::-webkit-scrollbar-track{ background: rgba(0,0,0,.12); }
+
+    .launchDockFixed{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: var(--dockGap);
+      z-index: 999;
+
+      width: min(1120px, calc(100% - 52px));
+      display:flex;
+      justify-content:center;
+      padding: 10px;
+
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10, 14, 34, .55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 70px rgba(0,0,0,.45);
+    }
+
+    @media (max-width: 520px){
+      :root{ --dockGap: 12px; }
+      .launchDockFixed{ width: calc(100% - 32px); }
+      body{ padding:16px; padding-bottom: calc(16px + var(--dockH) + var(--dockGap)); }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .card, .btn, .select{ transition: none !important; }
+      .card:hover{ transform:none; }
+      .btn:hover{ transform:none; }
+      .btn:active{ transform:none; }
+      .select:hover{ transform:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="hero">
+      <h1>Mes Quiz</h1>
+      <div class="sub">Choisis un quiz (classé par catégories & sous-catégories), puis lance-le 🚀</div>
+    </div>
+
+    <div class="panel">
+
+      <!-- ✅ Filtre catégorie -->
+      <div class="filters" aria-label="Filtres">
+        <div class="filtersLeft">
+          <div class="filtersLabel">Catégorie</div>
+          <div class="selectWrap">
+            <select id="catFilter" class="select" aria-label="Filtrer par catégorie">
+              <option value="all">Toutes</option>
+            </select>
+          </div>
+        </div>
+        <div class="filtersMeta" id="filtersMeta"></div>
+      </div>
+
+      <!-- Sections générées automatiquement -->
+      <div id="sections"></div>
+
+      <div class="foot">
+        Astuce : si tes fichiers sont à côté de <code>index.html</code>, alors <code>file</code> = le nom exact du fichier (ex : <code>pokemon-gen1.html</code>).
+      </div>
+
+    </div>
+  </div>
+
+  <div class="launchDockFixed">
+    <button class="btn primary" id="btnGo" disabled>▶ Lancer le quiz</button>
+  </div>
+
+<script>
+  const QUIZZES = [
+    { key:"pokemon-gen1", title:"Pokédex — Génération 1", desc:"151 Pokémon • Kanto", file:"pokemon-gen1.html", cat:"pokemon", sub:"pokedex" },
+    { key:"pokemon-gen2", title:"Pokédex — Génération 2", desc:"100 Pokémon • Johto", file:"pokemon-gen2.html", cat:"pokemon", sub:"pokedex" },
+    { key:"pokemon-gen3", title:"Pokédex — Génération 3", desc:"135 Pokémon • Hoenn", file:"pokemon-gen3.html", cat:"pokemon", sub:"pokedex" },
+
+    { key:"tennis-grandslam-winners-f", title:"Tennis — Vainqueures Grand Chelem (F)", desc:"Depuis 2000", file:"tennis-grandslam-winners-f.html", cat:"sport", sub:"tennis" },
+    { key:"tennis-grandslam-winners-m", title:"Tennis — Vainqueurs Grand Chelem (M)", desc:"Depuis 2000", file:"tennis-grandslam-winners-m.html", cat:"sport", sub:"tennis" },
+
+    { key:"olympics-summer", title:"Jeux Olympiques d'été : villes & pays hôtes", desc:"Depuis 1896", file:"olympics-summer.html", cat:"sport", sub:"olympics" },
+    { key:"olympics-winter", title:"Jeux Olympiques d'hiver : villes & pays hôtes", desc:"Depuis 1924", file:"olympics-winter.html", cat:"sport", sub:"olympics" },
+
+    { key:"worldcup-winner", title:"Vainqueurs de la Coupe du monde de Football", desc:"Depuis 1930", file:"worldcup-winner.html", cat:"sport", sub:"football" },
+    { key:"euro-winner", title:"Pays vainqueurs de l'Euro de football", desc:"Depuis 1960", file:"euro-winner.html", cat:"sport", sub:"football" },
+    { key:"championsleague-winner", title:"Vainqueurs de la Ligue des Champions", desc:"Depuis 1956", file:"championsleague-winner.html", cat:"sport", sub:"football" },
+
+    /* ✅ Championnats (avec drapeau "country") */
+    { key:"ligue1-winner", title:"Champions de France (Ligue 1 / D1)", desc:"Depuis 1932-1933", file:"ligue1-winner.html", cat:"sport", sub:"football", country:"FR" },
+    { key:"lens-coach", title:"Entraîneurs du RC Lens", desc:"Depuis 1934", file:"lens-coach.html", cat:"sport", sub:"football", country:"FR" },
+    { key:"premierleague-winner", title:"Champions d’Angleterre (D1 / Premier League)", desc:"Depuis 1888-89", file:"premierleague-winner.html", cat:"sport", sub:"football", country:"GB" },
+    { key:"liga-winner", title:"Champions d’Espagne (La Liga)", desc:"Depuis 1929", file:"liga-winner.html", cat:"sport", sub:"football", country:"ES" },
+    { key:"bundesliga-winner", title:"Champions d’Allemagne (Bundesliga)", desc:"Depuis 1963-64", file:"bundesliga-winner.html", cat:"sport", sub:"football", country:"DE" },
+    { key:"seriea-winner", title:"Champions d’Italie (Serie A)", desc:"Depuis 1929-1930", file:"seriea-winner.html", cat:"sport", sub:"football", country:"IT" },
+
+    /* ✅ AJOUT : Surnoms des sélections (quiz demandé) */
+    { key:"national-teams-nicknames", title:"Surnoms des sélections", desc:"Trouve le pays à partir du surnom de son équipe (football)", file:"surnoms-selections-50.html", cat:"sport", sub:"football" },
+
+    { key:"rugby-worldcup-winner", title:"Vainqueurs de la Coupe du monde de Rugby", desc:"Depuis 1987", file:"rugby-worldcup-winner.html", cat:"sport", sub:"rugby" },
+    { key:"top14-winner", title:"Vainqueurs du Top 14 / Championnat de France", desc:"Depuis 1892", file:"top14-winner.html", cat:"sport", sub:"rugby", country:"FR" },
+
+    { key:"nba-winner", title:"Champions NBA", desc:"Depuis 1947", file:"nba-winner.html", cat:"sport", sub:"basket", country:"US" },
+	
+	{ key:"formula-one-winner", title:"Champions F1", desc:"Depuis 1950", file:"formula-one-winner.html", cat:"sport", sub:"formule 1" },
+
+    { key:"capitales-europeennes", title:"Capitales européennes", desc:"Saisie libre • pays → capitale", file:"capitales-europeennes.html", cat:"geo", sub:"europe" },
+    { key:"departements-français", title:"Départements français", desc:"Trouver les départements par numéro", file:"departements-français.html", cat:"geo", sub:"france" },
+
+    { key:"presidents-ve-republique", title:"Présidents — Ve République", desc:"Depuis 1959", file:"presidents-ve-republique.html", cat:"histoire", sub:"france", country:"FR" },
+    { key:"presidents-russes", title:"Dirigeants Russie & URSS", desc:"Depuis 1917", file:"presidents-russes.html", cat:"histoire", sub:"russie", country:"RU" },
+
+    { key:"box-office-monde", title:"Top 50 box-office mondial", desc:"(Box Office Mojo)", file:"box-office-monde.html", cat:"cinema", sub:"films" },
+
+    /* ✅ AJOUT : Disney + Pixar */
+    { key:"disney-pixar", title:"Disney + Pixar", desc:"Films à trouver", file:"disney-pixar.html", cat:"cinema", sub:"films" },
+
+    { key:"bilboard-world", title:"Top 20 artistes", desc:"(ventes mondiales)", file:"bilboard-world.html", cat:"musique", sub:"artistes" },
+    { key:"bilboard-france", title:"Top 20 artistes francophones", desc:"(ventes)", file:"bilboard-france.html", cat:"musique", sub:"artistes", country:"FR" },
+
+    /*
+    { key:"zelda-bosses", title:"Zelda — Boss", desc:"Trouver les boss", file:"zelda-bosses.html", cat:"jeux-videos", sub:"nintendo" },
+    { key:"marvel-phases", title:"Marvel — Films par phase", desc:"MCU", file:"mcu-phases.html", cat:"pop-culture", sub:"marvel" },
+    */
+  ];
+
+  const CATS = [
+    { id:"pokemon",      title:"Pokémon",     icon:"poke" },
+    { id:"geo",          title:"Géographie",  icon:"earth" },
+    { id:"sport",        title:"Sport",       icon:"ball" },
+    { id:"histoire",     title:"Histoire",    icon:"history" },
+    { id:"cinema",       title:"Cinéma",      icon:"films" },
+    { id:"musique",      title:"Musique",     icon:"music" },
+    { id:"jeux-videos",  title:"Jeux vidéos", icon:"games" },
+    { id:"pop-culture",  title:"Pop culture", icon:"pop" }
+  ];
+
+  const SUBCATS = {
+    sport: [
+      { id:"olympics", title:"Jeux Olympiques", icon:"olympics" },
+      { id:"football", title:"Football",        icon:"football" },
+      { id:"tennis",   title:"Tennis",          icon:"tennis" },
+      { id:"rugby",    title:"Rugby",           icon:"rugby" },
+      { id:"basket",   title:"Basket",          icon:"basket" },
+
+      /* ✅ MODIF: on met une clé d'icône propre à la F1 */
+      { id:"formule 1", title:"Formule 1",      icon:"formula1" }
+    ],
+    geo: [
+      { id:"monde",  title:"Monde",  icon:"earth" },
+      { id:"europe", title:"Europe", icon:"europe" },
+      { id:"france", title:"France", icon:"france" }
+    ],
+    pokemon: [
+      { id:"pokedex", title:"Pokédex", icon:"poke" }
+    ],
+    histoire: [
+      { id:"france",      title:"France",      icon:"france" },
+      { id:"angleterre",  title:"Angleterre",  icon:"uk" },
+      { id:"etats-unis",  title:"Etats-Unis",  icon:"us" },
+      { id:"russie",      title:"Russie",      icon:"ru" }
+    ],
+    cinema: [
+      { id:"films",   title:"Films",   icon:"🎬" },
+      { id:"series",   title:"Séries",   icon:"📺" },
+      { id:"acteurs",  title:"Acteurs",  icon:"⭐" }
+    ],
+    musique: [
+      { id:"artistes", title:"Artistes", icon:"🎤" },
+      { id:"albums",   title:"Albums",   icon:"💿" },
+      { id:"titres",   title:"Titres",   icon:"🎵" }
+    ],
+    "jeux-videos": [
+      { id:"nintendo", title:"Nintendo", icon:"🎮" },
+      { id:"playstation", title:"PlayStation", icon:"🕹️" },
+      { id:"pc",       title:"PC",       icon:"💻" }
+    ],
+    "pop-culture": [
+      { id:"marvel",  title:"Marvel",  icon:"🦸" },
+      { id:"starwars",title:"Star Wars", icon:"✨" },
+      { id:"anime",   title:"Anime",   icon:"🌸" }
+    ]
+  };
+
+  const SUBICON = {
+    olympics: "🏅",
+    football: "⚽",
+    tennis:   "🎾",
+    rugby:    "🏉",
+    basket:   "🏀",
+
+    /* ✅ AJOUT: emoji voiture F1 */
+    formula1: "🏎️",
+
+    monde:    "🌍",
+    earth:    "🌍",
+    poke:     "🔴",
+    history:  "📜",
+    films:    "🎬",
+    music:    "🎵",
+    games:    "🎮",
+    pop:      "✨"
+  };
+
+  const sections = document.getElementById("sections");
+  const btnGo = document.getElementById("btnGo");
+  const catFilter = document.getElementById("catFilter");
+  const filtersMeta = document.getElementById("filtersMeta");
+
+  let selectedFile = null;
+
+  function formatTitleHTML(title){
+    const m = title.match(/^(.*?)(\s*\((?:\d{3,4})(?:[^)]*)\))\s*$/);
+    if (!m) return title;
+    return `${m[1]}<span class="tYears">${m[2].trim()}</span>`;
+  }
+
+  function catIconHTML(icon){
+    if (icon === "poke") return `<div class="catIco poke" aria-hidden="true"><div class="pokeball"></div></div>`;
+    if (icon === "ball") return `<div class="catIco" aria-hidden="true"><span class="emoji">⚽</span></div>`;
+    if (icon === "history") return `<div class="catIco" aria-hidden="true"><span class="emoji">📜</span></div>`;
+    if (icon === "films") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎬</span></div>`;
+    if (icon === "music") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎵</span></div>`;
+    if (icon === "games") return `<div class="catIco" aria-hidden="true"><span class="emoji">🎮</span></div>`;
+    if (icon === "pop")   return `<div class="catIco" aria-hidden="true"><span class="emoji">✨</span></div>`;
+    return `<div class="catIco" aria-hidden="true"><span class="emoji">🌍</span></div>`;
+  }
+
+  /* ====== FLAGS (SVG inline) ====== */
+  function euFlagSVG(){
+    return `
+      <span class="subFlag" aria-hidden="true">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="12" fill="#003399"/>
+          <g fill="#FFCC00" transform="translate(9 6)">
+            ${Array.from({length:12}).map((_,i)=>{
+              const a = (i*30) * Math.PI/180;
+              const x = Math.cos(a)*3.2;
+              const y = Math.sin(a)*3.2;
+              return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.55"/>`;
+            }).join("")}
+          </g>
+        </svg>
+      </span>
+    `;
+  }
+
+  function frFlagSVG(){
+    return `
+      <span class="subFlag" aria-hidden="true">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="6" height="12" x="0"  fill="#0055A4"/>
+          <rect width="6" height="12" x="6"  fill="#FFFFFF"/>
+          <rect width="6" height="12" x="12" fill="#EF4135"/>
+        </svg>
+      </span>
+    `;
+  }
+
+  function ukFlagSVG(){
+    return `
+      <span class="subFlag" aria-hidden="true">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="12" fill="#012169"/>
+          <path d="M0,0 L2,0 L18,10 L18,12 L16,12 L0,2 Z" fill="#FFFFFF" opacity=".92"/>
+          <path d="M18,0 L16,0 L0,10 L0,12 L2,12 L18,2 Z" fill="#FFFFFF" opacity=".92"/>
+          <path d="M0,0 L1.3,0 L18,9.3 L18,10.6 L16.7,10.6 L0,1.3 Z" fill="#C8102E" opacity=".95"/>
+          <path d="M18,0 L16.7,0 L0,9.3 L0,10.6 L1.3,10.6 L18,1.3 Z" fill="#C8102E" opacity=".95"/>
+          <rect x="7" y="0" width="4" height="12" fill="#FFFFFF"/>
+          <rect x="0" y="4" width="18" height="4" fill="#FFFFFF"/>
+          <rect x="7.7" y="0" width="2.6" height="12" fill="#C8102E"/>
+          <rect x="0" y="4.7" width="18" height="2.6" fill="#C8102E"/>
+        </svg>
+      </span>
+    `;
+  }
+
+  function usFlagSVG(){
+    const stripes = Array.from({length:7}).map((_,i)=>{
+      const y = i* (12/7);
+      return `<rect x="0" y="${y.toFixed(3)}" width="18" height="${(12/7/2).toFixed(3)}" fill="#B22234"/>`;
+    }).join("");
+    return `
+      <span class="subFlag" aria-hidden="true">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="12" fill="#FFFFFF"/>
+          ${stripes}
+          <rect x="0" y="0" width="8" height="6.5" fill="#3C3B6E"/>
+          <g fill="#FFFFFF" opacity=".95">
+            ${Array.from({length:12}).map((_,i)=>{
+              const cols = 4;
+              const r = Math.floor(i/cols);
+              const c = i%cols;
+              const x = 1.1 + c*1.8;
+              const y = 1.0 + r*1.6;
+              return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.28"/>`;
+            }).join("")}
+          </g>
+        </svg>
+      </span>
+    `;
+  }
+
+  function ruFlagSVG(){
+    return `
+      <span class="subFlag" aria-hidden="true">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="4" y="0" fill="#FFFFFF"/>
+          <rect width="18" height="4" y="4" fill="#0039A6"/>
+          <rect width="18" height="4" y="8" fill="#D52B1E"/>
+        </svg>
+      </span>
+    `;
+  }
+
+  /* ✅ NEW: drapeaux pays (championnats & autres) */
+  function deFlagSVG(){
+    return `
+      <span class="cardFlag" aria-hidden="true" title="Allemagne">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="4" y="0" fill="#000000"/>
+          <rect width="18" height="4" y="4" fill="#DD0000"/>
+          <rect width="18" height="4" y="8" fill="#FFCE00"/>
+        </svg>
+      </span>
+    `;
+  }
+  function itFlagSVG(){
+    return `
+      <span class="cardFlag" aria-hidden="true" title="Italie">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="6" height="12" x="0"  fill="#009246"/>
+          <rect width="6" height="12" x="6"  fill="#FFFFFF"/>
+          <rect width="6" height="12" x="12" fill="#CE2B37"/>
+        </svg>
+      </span>
+    `;
+  }
+  function esFlagSVG(){
+    return `
+      <span class="cardFlag" aria-hidden="true" title="Espagne">
+        <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+          <rect width="18" height="12" fill="#AA151B"/>
+          <rect width="18" height="6" y="3" fill="#F1BF00"/>
+        </svg>
+      </span>
+    `;
+  }
+
+  function cardFlagHTML(code){
+    if (!code) return "";
+    const c = String(code).toUpperCase();
+
+    if (c === "FR") return frFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
+    if (c === "GB" || c === "UK") return ukFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
+    if (c === "US") return usFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
+    if (c === "RU") return ruFlagSVG().replace('subFlag','cardFlag').replace('width:18px','width:20px').replace('height:12px','height:13px').replace('transform: translateY(-.5px);','');
+
+    if (c === "DE") return deFlagSVG();
+    if (c === "IT") return itFlagSVG();
+    if (c === "ES") return esFlagSVG();
+
+    return "";
+  }
+
+  function subIconHTML(iconKey){
+    if (iconKey === "europe") return euFlagSVG();
+    if (iconKey === "france") return frFlagSVG();
+    if (iconKey === "uk" || iconKey === "angleterre") return ukFlagSVG();
+    if (iconKey === "us" || iconKey === "etats-unis") return usFlagSVG();
+    if (iconKey === "ru" || iconKey === "russie") return ruFlagSVG();
+
+    const emoji = SUBICON[iconKey] || iconKey || "•";
+    return `<span class="subIco" aria-hidden="true">${emoji}</span>`;
+  }
+
+  function clearSelection(){
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+    selectedFile = null;
+    btnGo.disabled = true;
+  }
+
+  function selectCard(cardEl, file){
+    clearSelection();
+    cardEl.classList.add("selected");
+    selectedFile = file;
+    btnGo.disabled = false;
+  }
+
+  function renderSubSection(catWrap, subTitle, subIconKey, items){
+    if (!items.length) return;
+
+    const subWrap = document.createElement("div");
+    subWrap.className = "subWrap";
+
+    const subHead = document.createElement("div");
+    subHead.className = "subHead";
+    subHead.innerHTML = `
+      <div class="subLeft">
+        ${subIconHTML(subIconKey)}
+        <div class="subTitle">${subTitle}</div>
+      </div>
+      <div class="subCount">${items.length} quiz</div>
+    `;
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    items.forEach(q => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.dataset.key = q.key;
+
+      card.innerHTML = `
+        ${cardFlagHTML(q.country)}
+        <div class="cTitle">${formatTitleHTML(q.title)}</div>
+        <div class="cDesc">${q.desc || ""}</div>
+      `;
+
+      card.addEventListener("click", () => selectCard(card, q.file));
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          selectCard(card, q.file);
+        }
+      });
+
+      grid.appendChild(card);
+    });
+
+    subWrap.appendChild(subHead);
+    subWrap.appendChild(grid);
+    catWrap.appendChild(subWrap);
+  }
+
+  function buildCatFilter(){
+    const opts = [
+      { value: "all", label: "Toutes" },
+      ...CATS.map(c => ({ value: c.id, label: c.title }))
+    ];
+    catFilter.innerHTML = opts.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+  }
+
+  function renderSections(){
+    const selectedCat = catFilter.value || "all";
+
+    clearSelection();
+    sections.innerHTML = "";
+
+    const visibleQuizzes = (selectedCat === "all")
+      ? QUIZZES
+      : QUIZZES.filter(q => q.cat === selectedCat);
+
+    filtersMeta.textContent = `${visibleQuizzes.length} quiz affiché${visibleQuizzes.length>1 ? "s" : ""}`;
+
+    const catsToRender = (selectedCat === "all")
+      ? CATS
+      : CATS.filter(c => c.id === selectedCat);
+
+    catsToRender.forEach(cat => {
+      const catItems = visibleQuizzes.filter(q => q.cat === cat.id);
+      if (!catItems.length) return;
+
+      const catWrap = document.createElement("div");
+      catWrap.className = "cat";
+      catWrap.dataset.cat = cat.id;
+
+      const head = document.createElement("div");
+      head.className = "catHead";
+      head.innerHTML = `
+        <div class="catLeft">
+          ${catIconHTML(cat.icon)}
+          <div class="catTitle">${cat.title}</div>
+        </div>
+        <div class="catCount">${catItems.length} quiz</div>
+      `;
+      catWrap.appendChild(head);
+
+      const subDefs = SUBCATS[cat.id] || [];
+      const seen = new Set();
+
+      subDefs.forEach(sub => {
+        const items = catItems.filter(q => q.sub === sub.id);
+        if (!items.length) return;
+        seen.add(sub.id);
+        renderSubSection(catWrap, sub.title, sub.icon || sub.id, items);
+      });
+
+      const otherItems = catItems.filter(q => !q.sub || !seen.has(q.sub));
+      if (otherItems.length && subDefs.length){
+        renderSubSection(catWrap, "Autres", "dot", otherItems);
+      } else if (otherItems.length && !subDefs.length){
+        renderSubSection(catWrap, "Quiz", "dot", otherItems);
+      }
+
+      sections.appendChild(catWrap);
+    });
+  }
+
+  buildCatFilter();
+  renderSections();
+
+  catFilter.addEventListener("change", renderSections);
+
+  btnGo.addEventListener("click", () => {
+    if (!selectedFile) return;
+    location.href = selectedFile;
+  });
+</script>
+
+</body>
+</html>

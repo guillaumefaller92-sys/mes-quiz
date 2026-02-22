@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Top 50 box-office mondial (Box Office Mojo)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(239,68,68,.18), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(59,130,246,.14), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.25) 0 10px, transparent 10px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 45%),
+        linear-gradient(135deg, rgba(245,158,11,.95), rgba(239,68,68,.92));
+      border:3px solid rgba(0,0,0,.55);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:66px; height:18px;
+      border:2px solid rgba(0,0,0,.55);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-22deg);
+      opacity:.6;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(22deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
+    .btn.primary:hover{ background: rgba(245,158,11,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(245,158,11,1), rgba(239,68,68,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 380px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .poster{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:0;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+      transform: scale(.65);
+      opacity: 0;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .cell.found .poster{ display:block; }
+    .cell.revealed .poster{ display:block; }
+
+    .poster.pop{
+      animation: posterPop 420ms cubic-bezier(.2,1.25,.25,1) both;
+    }
+    @keyframes posterPop{
+      0%   { transform: scale(.65) rotate(-6deg); opacity: 0; }
+      55%  { transform: scale(1.08) rotate(2deg); opacity: 1; }
+      80%  { transform: scale(.96) rotate(-1deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:64px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .mid{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .sub{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.1;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      min-width: 20px;
+      text-align:right;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Top 50 box-office mondial</h1>
+          <p>Tape un titre : affiche + année + recettes se dévoilent quand tu trouves.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          Accents/espaces/ponctuation ignorés (ex: <em>Spider-Man: No Way Home</em> = <em>spidermannowayhome</em>).<br>
+          ✅ Validation auto si tu tapes exactement un titre (ou un alias).<br>
+          ℹ️ Images : miniatures Wikipédia (overrides sur Avatar/Titanic/Barbie). Recettes : Box Office Mojo (Worldwide Lifetime Gross).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un film… (ex: avatar, titanic, barbie…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","the","a","an","and","of","to","part","episode"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(245,158,11,0.90)"/>
+      <stop offset="1" stop-color="rgba(239,68,68,0.90)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // --------- Posters (Wikipedia REST) ----------
+  // ✅ Overrides pour forcer les BONNES affiches (Avatar de Cameron, Titanic 1997, Barbie 2023)
+  const wikiOverride = new Map([
+    ["Avatar", "Avatar_(2009_film)"],
+    ["Titanic", "Titanic_(1997_film)"],
+    ["Barbie", "Barbie_(film)"],
+
+    ["The Avengers", "The_Avengers_(2012_film)"],
+    ["Beauty and the Beast", "Beauty_and_the_Beast_(2017_film)"],
+    ["Aladdin", "Aladdin_(2019_film)"],
+    ["Star Wars: Episode VII - The Force Awakens", "Star_Wars:_The_Force_Awakens"],
+    ["Star Wars: Episode VIII - The Last Jedi", "Star_Wars:_The_Last_Jedi"],
+    ["Star Wars: Episode IX - The Rise of Skywalker", "Star_Wars:_The_Rise_of_Skywalker"],
+    ["Pirates of the Caribbean: Dead Man's Chest", "Pirates_of_the_Caribbean:_Dead_Man%27s_Chest"],
+    ["Pirates of the Caribbean: On Stranger Tides", "Pirates_of_the_Caribbean:_On_Stranger_Tides"],
+    ["The Lord of the Rings: The Return of the King", "The_Lord_of_the_Rings:_The_Return_of_the_King"],
+    ["Spider-Man: Far from Home", "Spider-Man:_Far_From_Home"],
+    ["Captain America: Civil War", "Captain_America:_Civil_War"],
+    ["Top Gun: Maverick", "Top_Gun:_Maverick"],
+    ["The Super Mario Bros. Movie", "The_Super_Mario_Bros._Movie"],
+  ]);
+
+  const posterCache = new Map(); // key -> url (or badge)
+
+  async function fetchWikiThumbByTitle(pageTitle){
+    const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(pageTitle);
+    const r = await fetch(url, { cache:"force-cache" });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    return j && j.thumbnail && j.thumbnail.source ? j.thumbnail.source : null;
+  }
+
+  async function fetchWikiThumb(film){
+    const cacheKey = film.title + "@" + film.year;
+    if (posterCache.has(cacheKey)) return posterCache.get(cacheKey);
+
+    const candidates = [];
+    const ovr = wikiOverride.get(film.title);
+    if (ovr) candidates.push(ovr);
+
+    candidates.push(film.title);
+    candidates.push(film.title.replace(/\s+/g,"_"));
+
+    const base = film.title.replace(/\s+/g,"_");
+    candidates.push(`${base}_(${film.year}_film)`);
+
+    for (const c of candidates){
+      try{
+        const src = await fetchWikiThumbByTitle(c);
+        if (src){
+          posterCache.set(cacheKey, src);
+          return src;
+        }
+      }catch(e){}
+    }
+
+    const out = badgeUrl(film.titleFr || film.title);
+    posterCache.set(cacheKey, out);
+    return out;
+  }
+
+  function setPoster(imgEl, film){
+    imgEl.classList.remove("pop");
+
+    imgEl.onerror = () => {
+      imgEl.onerror = null;
+      imgEl.src = badgeUrl(film.titleFr || film.title);
+      requestAnimationFrame(() => {
+        imgEl.classList.remove("pop");
+        void imgEl.offsetWidth;
+        imgEl.classList.add("pop");
+      });
+    };
+
+    (async () => {
+      const src = await fetchWikiThumb(film);
+      imgEl.src = src;
+      imgEl.alt = `Affiche ${film.titleFr || film.title}`;
+
+      imgEl.onload = () => {
+        imgEl.onload = null;
+        requestAnimationFrame(() => {
+          imgEl.classList.remove("pop");
+          void imgEl.offsetWidth;
+          imgEl.classList.add("pop");
+        });
+      };
+
+      if (String(src).startsWith("data:image/")){
+        requestAnimationFrame(() => {
+          imgEl.classList.remove("pop");
+          void imgEl.offsetWidth;
+          imgEl.classList.add("pop");
+        });
+      }
+    })();
+  }
+
+  // --------- Data (Top 50 Worldwide Lifetime Gross — Box Office Mojo) ----------
+  // ✅ Ajout : titleFr + gross pour les 50
+  const films = [
+    { rank: 1,  title: "Avatar", year: 2009, titleFr: "Avatar", gross: "$2,923,710,708" },
+    { rank: 2,  title: "Avengers: Endgame", year: 2019, titleFr: "Avengers : Endgame", gross: "$2,799,439,100" },
+    { rank: 3,  title: "Avatar: The Way of Water", year: 2022, titleFr: "Avatar : La Voie de l'eau", gross: "$2,334,484,620" },
+    { rank: 4,  title: "Titanic", year: 1997, titleFr: "Titanic", gross: "$2,264,812,968" },
+    { rank: 5,  title: "Ne Zha 2", year: 2025, titleFr: "Ne Zha 2", gross: "$2,259,822,417" },
+    { rank: 6,  title: "Star Wars: Episode VII - The Force Awakens", year: 2015, titleFr: "Star Wars, épisode VII : Le Réveil de la Force", gross: "$2,071,310,218" },
+    { rank: 7,  title: "Avengers: Infinity War", year: 2018, titleFr: "Avengers : Infinity War", gross: "$2,052,415,039" },
+    { rank: 8,  title: "Spider-Man: No Way Home", year: 2021, titleFr: "Spider-Man : No Way Home", gross: "$1,921,426,073" },
+    { rank: 9,  title: "Zootopia 2", year: 2025, titleFr: "Zootopie 2", gross: "$1,830,211,739" },
+    { rank:10,  title: "Inside Out 2", year: 2024, titleFr: "Vice-versa 2", gross: "$1,698,863,816" },
+    { rank:11,  title: "Jurassic World", year: 2015, titleFr: "Jurassic World", gross: "$1,671,537,444" },
+    { rank:12,  title: "The Lion King", year: 2019, titleFr: "Le Roi lion", gross: "$1,662,020,819" },
+    { rank:13,  title: "The Avengers", year: 2012, titleFr: "Avengers", gross: "$1,520,538,536" },
+    { rank:14,  title: "Furious 7", year: 2015, titleFr: "Fast & Furious 7", gross: "$1,515,342,457" },
+    { rank:15,  title: "Top Gun: Maverick", year: 2022, titleFr: "Top Gun : Maverick", gross: "$1,495,696,292" },
+    { rank:16,  title: "Avatar: Fire and Ash", year: 2025, titleFr: "Avatar : Feu et cendres", gross: "$1,460,066,244" },
+    { rank:17,  title: "Frozen II", year: 2019, titleFr: "La Reine des neiges II", gross: "$1,453,683,476" },
+    { rank:18,  title: "Barbie", year: 2023, titleFr: "Barbie", gross: "$1,447,138,421" },
+    { rank:19,  title: "Avengers: Age of Ultron", year: 2015, titleFr: "Avengers : L'Ère d'Ultron", gross: "$1,405,018,048" },
+    { rank:20,  title: "The Super Mario Bros. Movie", year: 2023, titleFr: "Super Mario Bros., le film", gross: "$1,360,879,735" },
+    { rank:21,  title: "Black Panther", year: 2018, titleFr: "Black Panther", gross: "$1,349,926,083" },
+    { rank:22,  title: "Harry Potter and the Deathly Hallows: Part 2", year: 2011, titleFr: "Harry Potter et les Reliques de la Mort - Partie 2", gross: "$1,342,942,050" },
+    { rank:23,  title: "Deadpool & Wolverine", year: 2024, titleFr: "Deadpool et Wolverine", gross: "$1,338,073,645" },
+    { rank:24,  title: "Star Wars: Episode VIII - The Last Jedi", year: 2017, titleFr: "Star Wars, épisode VIII : Les Derniers Jedi", gross: "$1,334,407,706" },
+    { rank:25,  title: "Jurassic World: Fallen Kingdom", year: 2018, titleFr: "Jurassic World : Fallen Kingdom", gross: "$1,308,566,455" },
+    { rank:26,  title: "Frozen", year: 2013, titleFr: "La Reine des neiges", gross: "$1,286,513,286" },
+    { rank:27,  title: "Beauty and the Beast", year: 2017, titleFr: "La Belle et la Bête", gross: "$1,266,115,964" },
+    { rank:28,  title: "Incredibles 2", year: 2018, titleFr: "Les Indestructibles 2", gross: "$1,243,225,667" },
+    { rank:29,  title: "The Fate of the Furious", year: 2017, titleFr: "Fast & Furious 8", gross: "$1,236,009,236" },
+    { rank:30,  title: "Iron Man 3", year: 2013, titleFr: "Iron Man 3", gross: "$1,215,577,205" },
+    { rank:31,  title: "Minions", year: 2015, titleFr: "Les Minions", gross: "$1,159,457,503" },
+    { rank:32,  title: "Captain America: Civil War", year: 2016, titleFr: "Captain America : Civil War", gross: "$1,155,046,416" },
+    { rank:33,  title: "Aquaman", year: 2018, titleFr: "Aquaman", gross: "$1,152,028,393" },
+    { rank:34,  title: "The Lord of the Rings: The Return of the King", year: 2003, titleFr: "Le Seigneur des anneaux : Le Retour du roi", gross: "$1,148,812,312" },
+    { rank:35,  title: "Spider-Man: Far from Home", year: 2019, titleFr: "Spider-Man : Far From Home", gross: "$1,132,723,226" },
+    { rank:36,  title: "Captain Marvel", year: 2019, titleFr: "Captain Marvel", gross: "$1,131,416,446" },
+    { rank:37,  title: "Transformers: Dark of the Moon", year: 2011, titleFr: "Transformers 3 : La Face cachée de la Lune", gross: "$1,123,794,079" },
+    { rank:38,  title: "Skyfall", year: 2012, titleFr: "Skyfall", gross: "$1,108,594,137" },
+    { rank:39,  title: "Transformers: Age of Extinction", year: 2014, titleFr: "Transformers : L'Âge de l'extinction", gross: "$1,105,261,713" },
+    { rank:40,  title: "Jurassic Park", year: 1993, titleFr: "Jurassic Park", gross: "$1,103,110,411" },
+    { rank:41,  title: "The Dark Knight Rises", year: 2012, titleFr: "The Dark Knight Rises", gross: "$1,085,429,532" },
+    { rank:42,  title: "Joker", year: 2019, titleFr: "Joker", gross: "$1,078,958,629" },
+    { rank:43,  title: "Star Wars: Episode IX - The Rise of Skywalker", year: 2019, titleFr: "Star Wars, épisode IX : L'Ascension de Skywalker", gross: "$1,077,022,372" },
+    { rank:44,  title: "Toy Story 4", year: 2019, titleFr: "Toy Story 4", gross: "$1,073,841,394" },
+    { rank:45,  title: "Toy Story 3", year: 2010, titleFr: "Toy Story 3", gross: "$1,067,316,101" },
+    { rank:46,  title: "Pirates of the Caribbean: Dead Man's Chest", year: 2006, titleFr: "Pirates des Caraïbes : Le Secret du coffre maudit", gross: "$1,066,179,747" },
+    { rank:47,  title: "Moana 2", year: 2024, titleFr: "Vaiana 2", gross: "$1,059,242,164" },
+    { rank:48,  title: "Rogue One: A Star Wars Story", year: 2016, titleFr: "Rogue One: A Star Wars Story", gross: "$1,058,684,742" },
+    { rank:49,  title: "Aladdin", year: 2019, titleFr: "Aladdin", gross: "$1,054,304,000" },
+    { rank:50,  title: "Pirates of the Caribbean: On Stranger Tides", year: 2011, titleFr: "Pirates des Caraïbes : La Fontaine de jouvence", gross: "$1,046,721,266" },
+  ];
+
+  // Index
+  const byRank = new Map();
+  const keyToFilm = new Map(); // normalized title -> film
+  for(const f of films){
+    byRank.set(f.rank, f);
+
+    // ✅ saisie possible en EN + FR
+    keyToFilm.set(normalize(f.title), f);
+    if (f.titleFr && normalize(f.titleFr) !== normalize(f.title)) {
+      keyToFilm.set(normalize(f.titleFr), f);
+    }
+  }
+
+  // Aliases (tu peux en ajouter)
+  const aliasToKey = new Map([
+    // Avatar
+    [normalize("avatar"), normalize("Avatar")],
+    [normalize("avatar 2009"), normalize("Avatar")],
+    [normalize("avatar la voie de leau"), normalize("Avatar: The Way of Water")],
+    [normalize("avatar la voie de l eau"), normalize("Avatar: The Way of Water")],
+    [normalize("la voie de leau"), normalize("Avatar: The Way of Water")],
+    [normalize("way of water"), normalize("Avatar: The Way of Water")],
+    [normalize("avatar 2"), normalize("Avatar: The Way of Water")],
+
+    // Titanic / Barbie
+    [normalize("titanic 1997"), normalize("Titanic")],
+    [normalize("barbie 2023"), normalize("Barbie")],
+
+    // Avengers
+    [normalize("endgame"), normalize("Avengers: Endgame")],
+    [normalize("avengers endgame"), normalize("Avengers: Endgame")],
+    [normalize("infinity war"), normalize("Avengers: Infinity War")],
+    [normalize("avengers infinity war"), normalize("Avengers: Infinity War")],
+    [normalize("age of ultron"), normalize("Avengers: Age of Ultron")],
+    [normalize("ultron"), normalize("Avengers: Age of Ultron")],
+    [normalize("l ere d ultron"), normalize("Avengers: Age of Ultron")],
+
+    // Star Wars
+    [normalize("force awakens"), normalize("Star Wars: Episode VII - The Force Awakens")],
+    [normalize("the force awakens"), normalize("Star Wars: Episode VII - The Force Awakens")],
+    [normalize("episode vii"), normalize("Star Wars: Episode VII - The Force Awakens")],
+    [normalize("star wars 7"), normalize("Star Wars: Episode VII - The Force Awakens")],
+    [normalize("episode 7"), normalize("Star Wars: Episode VII - The Force Awakens")],
+    [normalize("le reveil de la force"), normalize("Star Wars: Episode VII - The Force Awakens")],
+
+    [normalize("the last jedi"), normalize("Star Wars: Episode VIII - The Last Jedi")],
+    [normalize("episode viii"), normalize("Star Wars: Episode VIII - The Last Jedi")],
+    [normalize("star wars 8"), normalize("Star Wars: Episode VIII - The Last Jedi")],
+    [normalize("episode 8"), normalize("Star Wars: Episode VIII - The Last Jedi")],
+    [normalize("les derniers jedi"), normalize("Star Wars: Episode VIII - The Last Jedi")],
+
+    [normalize("rise of skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+    [normalize("the rise of skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+    [normalize("episode ix"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+    [normalize("star wars 9"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+    [normalize("episode 9"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+    [normalize("l ascension de skywalker"), normalize("Star Wars: Episode IX - The Rise of Skywalker")],
+
+    [normalize("rogue one"), normalize("Rogue One: A Star Wars Story")],
+
+    // Spider-Man
+    [normalize("spiderman no way home"), normalize("Spider-Man: No Way Home")],
+    [normalize("spider man no way home"), normalize("Spider-Man: No Way Home")],
+    [normalize("no way home"), normalize("Spider-Man: No Way Home")],
+    [normalize("far from home"), normalize("Spider-Man: Far from Home")],
+
+    // Misc
+    [normalize("mario"), normalize("The Super Mario Bros. Movie")],
+    [normalize("top gun maverick"), normalize("Top Gun: Maverick")],
+    [normalize("jurassic world"), normalize("Jurassic World")],
+    [normalize("jurassic park"), normalize("Jurassic Park")],
+    [normalize("dark knight rises"), normalize("The Dark Knight Rises")],
+    [normalize("le secret du coffre maudit"), normalize("Pirates of the Caribbean: Dead Man's Chest")],
+    [normalize("la fontaine de jouvence"), normalize("Pirates of the Caribbean: On Stranger Tides")],
+  ]);
+
+  // --------- State ----------
+  const found = new Set(); // ranks found
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = found.size;
+    countEl.textContent = `${n} / ${films.length}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / films.length) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const f of films) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${f.rank}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="poster" id="poster-${f.rank}" alt="" />
+          <div class="num">#${String(f.rank).padStart(2,"0")}</div>
+          <div class="mid">
+            <div class="name masked" id="name-${f.rank}">??????</div>
+            <div class="sub" id="sub-${f.rank}">Année : —</div>
+            <div class="sub" id="gross-${f.rank}">Recettes mondiales : —</div>
+          </div>
+        </div>
+        <div class="status" id="status-${f.rank}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealRank(rank, mode /* "found" | "revealed" */) {
+    const f = byRank.get(rank);
+    if (!f) return;
+
+    const cell = document.getElementById(`cell-${rank}`);
+    const nameEl = document.getElementById(`name-${rank}`);
+    const subEl = document.getElementById(`sub-${rank}`);
+    const grossEl = document.getElementById(`gross-${rank}`);
+    const statusEl = document.getElementById(`status-${rank}`);
+    const imgEl = document.getElementById(`poster-${rank}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = f.titleFr || f.title;
+    nameEl.classList.remove("masked");
+
+    subEl.textContent = `Année : ${f.year}`;
+    grossEl.textContent = `Recettes mondiales : ${f.gross || "—"}`;
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+    setPoster(imgEl, f);
+  }
+
+  function revealMissingSolutions() {
+    for (const f of films) {
+      if (found.has(f.rank)) continue;
+      revealRank(f.rank, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = found.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${films.length} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${films.length}/${films.length} ! Top complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundTitle(normKey) {
+    if (!normKey) return false;
+    for (const [k, film] of keyToFilm.entries()) {
+      if (k === normKey) continue;
+      if (found.has(film.rank)) continue;
+      if (k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateTitle(raw) {
+    const norm = normalize(raw);
+    if (!norm) return { ok:false, reason:"empty" };
+
+    const key = aliasToKey.get(norm) || norm;
+    const film = keyToFilm.get(key);
+    if (!film) return { ok:false, reason:"unknown" };
+
+    startTimerIfNeeded();
+
+    if (found.has(film.rank)) {
+      setToast("warn", `⚠️ Déjà trouvé : ${film.titleFr || film.title} (${film.year}).`);
+      return { ok:true, changed:false };
+    }
+
+    found.add(film.rank);
+    revealRank(film.rank, "found");
+    updateStats();
+
+    const extra = film.gross ? ` — ${film.gross}` : "";
+    setToast("good", `✅ Bien joué : ${film.titleFr || film.title} (${film.year})${extra}`);
+
+    const cell = document.getElementById(`cell-${film.rank}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (found.size === films.length) finish();
+    return { ok:true, changed:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    if (!normalize(raw)) { setToast("warn", "⚠️ Tape un titre de film."); return; }
+
+    const r = validateTitle(raw);
+    if (!r.ok) setToast("bad", "❌ Film non reconnu (ou orthographe non reconnue).");
+  }
+
+  function resetQuiz() {
+    found.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+    if (isPrefixOfAnotherUnfoundTitle(key)) return;
+
+    if (keyToFilm.has(key)) {
+      input.value = "";
+      const r = validateTitle(raw);
+      if (!r.ok) setToast("bad", "❌ Film non reconnu.");
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  document.getElementById("totalTop").textContent = films.length;
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

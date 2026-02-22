@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Champions F1 (1950–2025)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .badge{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      box-shadow: 0 12px 22px rgba(0,0,0,.25);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      font-size:22px;
+    }
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+
+    .hintPanel{
+      margin: 0 18px 12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      padding:12px 12px 10px;
+      display:none;
+    }
+    .hintPanel.show{ display:block; }
+    .hintPanelTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .hintTitle{ font-weight:900; color: var(--text); font-size:13px; }
+    .hintSub{ color: var(--muted); font-size:12px; margin-top:2px; }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      max-height: 140px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:12px;
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .chip span{ color: var(--muted); font-weight:800; font-size:11px; }
+
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{ color: var(--bad); font-weight: 900; }
+
+    .left{ display:flex; align-items:center; gap:10px; min-width: 0; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:110px;
+      text-align:center;
+      flex: 0 0 auto;
+      white-space:nowrap;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+    .name small{ font-weight:700; color: rgba(231,238,252,.86); }
+
+    /* ✅ drapeau en image (fiable partout) */
+    .flagImg{
+      width:18px;
+      height:12px;
+      border-radius:3px;
+      vertical-align:-2px;
+      margin-left:8px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      object-fit:cover;
+    }
+
+    .status{ flex: 0 0 auto; font-size: 14px; opacity:.9; white-space:nowrap; }
+    .masked{ letter-spacing:.6px; font-weight:700; color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true">🏎️</div>
+        <div class="title">
+          <h1>Quiz — Champions de Formule 1</h1>
+          <p>De 1950 à 2025 (pilote + écurie + drapeau)</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          ✅ Tu peux taper <strong>nom complet</strong> ou <strong>nom de famille</strong> (ordre libre).<br/>
+          Exemple : <strong>Verstappen</strong>, <strong>Lewis Hamilton</strong>, <strong>Fangio</strong>…
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un champion F1 (ex : Senna, Schumacher, Norris…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div class="hintPanel" id="hintPanel">
+        <div class="hintPanelTop">
+          <div>
+            <div class="hintTitle">💡 Initiales des pilotes restants</div>
+            <div class="hintSub">Affiché par pilote (si un pilote a gagné plusieurs saisons, il n’apparaît qu’une fois ici).</div>
+          </div>
+          <button class="btn" id="btnHintClose">✖</button>
+        </div>
+        <div class="chips" id="hintChips"></div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+  function lastName(fullName){
+    const s = (fullName || "").trim();
+    if (!s) return "";
+    const parts = s.split(/\s+/).filter(Boolean);
+    return parts[parts.length - 1] || s;
+  }
+  function buildAcceptedSet(fullName, extraAliases = []){
+    const set = new Set();
+    const full = normalize(fullName);
+    const ln = normalize(lastName(fullName));
+    if (full) set.add(full);
+    if (ln) set.add(ln);
+    set.add(full.replace(/-/g,""));
+    set.add(ln.replace(/-/g,""));
+    set.add(full.replace(/\s+/g,""));
+    set.add(ln.replace(/\s+/g,""));
+    set.add(full.replace(/de/g,""));
+    set.add(full.replace(/d/g,""));
+    (extraAliases || []).forEach(a => {
+      const n = normalize(a);
+      if (n) set.add(n);
+    });
+    return set;
+  }
+  function safeHTML(s){
+    return String(s || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+  function initialsOf(fullName){
+    const parts = String(fullName||"").trim().split(/\s+/).filter(Boolean);
+    const letters = parts.map(p => (p[0] || "").toUpperCase()).filter(Boolean);
+    return letters.join(" ");
+  }
+  function driverIdOf(s){ return normalize(s.driver); }
+
+  // ✅ drapeau image (FlagCDN)
+  function flagImgHTML(code2){
+    const cc = String(code2 || "").trim().toLowerCase();
+    if (!cc || cc.length !== 2) return "";
+    const alt = cc.toUpperCase();
+    // w20 + srcset w40 (retina)
+    return `<img class="flagImg" loading="lazy"
+      src="https://flagcdn.com/w20/${cc}.png"
+      srcset="https://flagcdn.com/w40/${cc}.png 2x"
+      alt="${alt}" title="${alt}" />`;
+  }
+
+  // --------- Data ----------
+  const seasons = [
+    { year:"1950", driver:"Giuseppe Farina", team:"Alfa Romeo", country:"IT", aliases:["Nino Farina"] },
+    { year:"1951", driver:"Juan Manuel Fangio", team:"Alfa Romeo", country:"AR", aliases:["Fangio"] },
+    { year:"1952", driver:"Alberto Ascari", team:"Ferrari", country:"IT", aliases:["Ascari"] },
+    { year:"1953", driver:"Alberto Ascari", team:"Ferrari", country:"IT", aliases:["Ascari"] },
+    { year:"1954", driver:"Juan Manuel Fangio", team:"Mercedes", country:"AR", aliases:["Fangio"] },
+    { year:"1955", driver:"Juan Manuel Fangio", team:"Mercedes", country:"AR", aliases:["Fangio"] },
+    { year:"1956", driver:"Juan Manuel Fangio", team:"Ferrari", country:"AR", aliases:["Fangio"] },
+    { year:"1957", driver:"Juan Manuel Fangio", team:"Maserati", country:"AR", aliases:["Fangio"] },
+    { year:"1958", driver:"Mike Hawthorn", team:"Ferrari", country:"GB", aliases:["Hawthorn"] },
+    { year:"1959", driver:"Jack Brabham", team:"Cooper", country:"AU", aliases:["Brabham"] },
+    { year:"1960", driver:"Jack Brabham", team:"Cooper", country:"AU", aliases:["Brabham"] },
+    { year:"1961", driver:"Phil Hill", team:"Ferrari", country:"US", aliases:["Hill"] },
+    { year:"1962", driver:"Graham Hill", team:"BRM", country:"GB", aliases:["Hill"] },
+    { year:"1963", driver:"Jim Clark", team:"Lotus", country:"GB", aliases:["Clark"] },
+    { year:"1964", driver:"John Surtees", team:"Ferrari", country:"GB", aliases:["Surtees"] },
+    { year:"1965", driver:"Jim Clark", team:"Lotus", country:"GB", aliases:["Clark"] },
+    { year:"1966", driver:"Jack Brabham", team:"Brabham", country:"AU", aliases:["Brabham"] },
+    { year:"1967", driver:"Denny Hulme", team:"Brabham", country:"NZ", aliases:["Hulme"] },
+    { year:"1968", driver:"Graham Hill", team:"Lotus", country:"GB", aliases:["Hill"] },
+    { year:"1969", driver:"Jackie Stewart", team:"Matra", country:"GB", aliases:["Stewart"] },
+    { year:"1970", driver:"Jochen Rindt", team:"Lotus", country:"AT", aliases:["Rindt"] },
+    { year:"1971", driver:"Jackie Stewart", team:"Tyrrell", country:"GB", aliases:["Stewart"] },
+    { year:"1972", driver:"Emerson Fittipaldi", team:"Lotus", country:"BR", aliases:["Fittipaldi","Emmo"] },
+    { year:"1973", driver:"Jackie Stewart", team:"Tyrrell", country:"GB", aliases:["Stewart"] },
+    { year:"1974", driver:"Emerson Fittipaldi", team:"McLaren", country:"BR", aliases:["Fittipaldi"] },
+    { year:"1975", driver:"Niki Lauda", team:"Ferrari", country:"AT", aliases:["Lauda"] },
+    { year:"1976", driver:"James Hunt", team:"McLaren", country:"GB", aliases:["Hunt"] },
+    { year:"1977", driver:"Niki Lauda", team:"Ferrari", country:"AT", aliases:["Lauda"] },
+    { year:"1978", driver:"Mario Andretti", team:"Lotus", country:"US", aliases:["Andretti"] },
+    { year:"1979", driver:"Jody Scheckter", team:"Ferrari", country:"ZA", aliases:["Scheckter"] },
+    { year:"1980", driver:"Alan Jones", team:"Williams", country:"AU", aliases:["Jones"] },
+    { year:"1981", driver:"Nelson Piquet", team:"Brabham", country:"BR", aliases:["Piquet"] },
+    { year:"1982", driver:"Keke Rosberg", team:"Williams", country:"FI", aliases:["Rosberg"] },
+    { year:"1983", driver:"Nelson Piquet", team:"Brabham", country:"BR", aliases:["Piquet"] },
+    { year:"1984", driver:"Niki Lauda", team:"McLaren", country:"AT", aliases:["Lauda"] },
+    { year:"1985", driver:"Alain Prost", team:"McLaren", country:"FR", aliases:["Prost"] },
+    { year:"1986", driver:"Alain Prost", team:"McLaren", country:"FR", aliases:["Prost"] },
+    { year:"1987", driver:"Nelson Piquet", team:"Williams", country:"BR", aliases:["Piquet"] },
+    { year:"1988", driver:"Ayrton Senna", team:"McLaren", country:"BR", aliases:["Senna"] },
+    { year:"1989", driver:"Alain Prost", team:"McLaren", country:"FR", aliases:["Prost"] },
+    { year:"1990", driver:"Ayrton Senna", team:"McLaren", country:"BR", aliases:["Senna"] },
+    { year:"1991", driver:"Ayrton Senna", team:"McLaren", country:"BR", aliases:["Senna"] },
+    { year:"1992", driver:"Nigel Mansell", team:"Williams", country:"GB", aliases:["Mansell"] },
+    { year:"1993", driver:"Alain Prost", team:"Williams", country:"FR", aliases:["Prost"] },
+    { year:"1994", driver:"Michael Schumacher", team:"Benetton", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"1995", driver:"Michael Schumacher", team:"Benetton", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"1996", driver:"Damon Hill", team:"Williams", country:"GB", aliases:["Hill"] },
+    { year:"1997", driver:"Jacques Villeneuve", team:"Williams", country:"CA", aliases:["Villeneuve"] },
+    { year:"1998", driver:"Mika Häkkinen", team:"McLaren", country:"FI", aliases:["Hakkinen","Häkkinen"] },
+    { year:"1999", driver:"Mika Häkkinen", team:"McLaren", country:"FI", aliases:["Hakkinen","Häkkinen"] },
+    { year:"2000", driver:"Michael Schumacher", team:"Ferrari", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"2001", driver:"Michael Schumacher", team:"Ferrari", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"2002", driver:"Michael Schumacher", team:"Ferrari", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"2003", driver:"Michael Schumacher", team:"Ferrari", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"2004", driver:"Michael Schumacher", team:"Ferrari", country:"DE", aliases:["Schumacher","M Schumacher"] },
+    { year:"2005", driver:"Fernando Alonso", team:"Renault", country:"ES", aliases:["Alonso"] },
+    { year:"2006", driver:"Fernando Alonso", team:"Renault", country:"ES", aliases:["Alonso"] },
+    { year:"2007", driver:"Kimi Räikkönen", team:"Ferrari", country:"FI", aliases:["Raikkonen","Räikkönen","Kimi"] },
+    { year:"2008", driver:"Lewis Hamilton", team:"McLaren", country:"GB", aliases:["Hamilton"] },
+    { year:"2009", driver:"Jenson Button", team:"Brawn GP", country:"GB", aliases:["Button"] },
+    { year:"2010", driver:"Sebastian Vettel", team:"Red Bull", country:"DE", aliases:["Vettel"] },
+    { year:"2011", driver:"Sebastian Vettel", team:"Red Bull", country:"DE", aliases:["Vettel"] },
+    { year:"2012", driver:"Sebastian Vettel", team:"Red Bull", country:"DE", aliases:["Vettel"] },
+    { year:"2013", driver:"Sebastian Vettel", team:"Red Bull", country:"DE", aliases:["Vettel"] },
+    { year:"2014", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2015", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2016", driver:"Nico Rosberg", team:"Mercedes", country:"DE", aliases:["Rosberg"] },
+    { year:"2017", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2018", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2019", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2020", driver:"Lewis Hamilton", team:"Mercedes", country:"GB", aliases:["Hamilton"] },
+    { year:"2021", driver:"Max Verstappen", team:"Red Bull", country:"NL", aliases:["Verstappen","Max"] },
+    { year:"2022", driver:"Max Verstappen", team:"Red Bull", country:"NL", aliases:["Verstappen","Max"] },
+    { year:"2023", driver:"Max Verstappen", team:"Red Bull", country:"NL", aliases:["Verstappen","Max"] },
+    { year:"2024", driver:"Max Verstappen", team:"Red Bull", country:"NL", aliases:["Verstappen","Max"] },
+    { year:"2025", driver:"Lando Norris", team:"McLaren", country:"GB", aliases:["Norris","Lando"] },
+  ];
+
+  // --------- Indexes ----------
+  const TOTAL = seasons.length;
+  document.getElementById("totalTop").textContent = String(TOTAL);
+
+  const acceptedByIndex = seasons.map(s => buildAcceptedSet(s.driver, s.aliases));
+  const aliasToIndices = new Map();
+  acceptedByIndex.forEach((set, i) => {
+    for (const a of set) {
+      if (!aliasToIndices.has(a)) aliasToIndices.set(a, []);
+      aliasToIndices.get(a).push(i);
+    }
+  });
+
+  const driverToIndices = new Map();
+  seasons.forEach((s, i) => {
+    const id = driverIdOf(s);
+    if (!driverToIndices.has(id)) driverToIndices.set(id, []);
+    driverToIndices.get(id).push(i);
+  });
+
+  // --------- State ----------
+  const foundIdx = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  const btnHint = document.getElementById("btnHint");
+  const hintPanel = document.getElementById("hintPanel");
+  const hintChips = document.getElementById("hintChips");
+  const btnHintClose = document.getElementById("btnHintClose");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIdx.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    seasons.forEach((s, i) => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${i}`;
+      cell.innerHTML = `
+        <div class="left">
+          <div class="num">${safeHTML(s.year)}</div>
+          <div class="name masked" id="name-${i}">??????</div>
+        </div>
+        <div class="status" id="status-${i}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    });
+  }
+
+  function renderDriverLineHTML(s){
+    // ✅ demandé : drapeau à droite des parenthèses
+    // "Pilote (Écurie) [flag image]"
+    const driver = safeHTML(s.driver);
+    const team = safeHTML(s.team);
+    const flag = flagImgHTML(s.country);
+    return `${driver} <small>(${team})</small>${flag ? ` ${flag}` : ""}`;
+  }
+
+  function revealIndex(i, mode /* "found" | "revealed" */) {
+    const s = seasons[i];
+    if (!s) return;
+
+    const cell = document.getElementById(`cell-${i}`);
+    const nameEl = document.getElementById(`name-${i}`);
+    const statusEl = document.getElementById(`status-${i}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.innerHTML = renderDriverLineHTML(s);
+    nameEl.classList.remove("masked");
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+  }
+
+  function revealMissingSolutions() {
+    seasons.forEach((_, i) => {
+      if (foundIdx.has(i)) return;
+      revealIndex(i, "revealed");
+    });
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    renderHint();
+
+    const n = foundIdx.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function pickIndexForAlias(norm){
+    const list = aliasToIndices.get(norm);
+    if (!list || !list.length) return -1;
+
+    for (const i of list) if (!foundIdx.has(i)) return i;
+    return -1;
+  }
+
+  function revealAllSeasonsOfDriver(driverId){
+    const indices = driverToIndices.get(driverId) || [];
+    for (const i of indices) {
+      if (foundIdx.has(i)) continue;
+      foundIdx.add(i);
+      revealIndex(i, "found");
+    }
+    return indices;
+  }
+
+  function validateDriver(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const idx = pickIndexForAlias(norm);
+
+    if (idx === -1) {
+      if (aliasToIndices.has(norm)) {
+        setToast("warn", "⚠️ Déjà trouvé (toutes les entrées correspondant à ce nom sont déjà validées).");
+      } else {
+        setToast("bad", "❌ Champion non reconnu (ou orthographe non reconnue).");
+      }
+      return;
+    }
+
+    startTimerIfNeeded();
+
+    const driverId = driverIdOf(seasons[idx]);
+    const indices = revealAllSeasonsOfDriver(driverId);
+
+    updateStats();
+    renderHint();
+
+    const s = seasons[idx];
+    if (indices.length > 1) setToast("good", `✅ Bien joué : ${s.driver} — ${indices.length} saisons validées d’un coup !`);
+    else setToast("good", `✅ Bien joué : ${s.driver} — ${s.year}.`);
+
+    const first = indices[0];
+    const cell = document.getElementById(`cell-${first}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (foundIdx.size === TOTAL) finish();
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom de champion."); return; }
+
+    validateDriver(raw);
+  }
+
+  function resetQuiz() {
+    foundIdx.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+    renderHint();
+  }
+
+  // --------- Auto-validate ----------
+  let autoT = null;
+  function isAnyAliasPrefix(typed){
+    if (!typed) return false;
+    for (const k of aliasToIndices.keys()) {
+      if (k.startsWith(typed) && k !== typed) return true;
+    }
+    return false;
+  }
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    if (isAnyAliasPrefix(norm)) return;
+
+    if (aliasToIndices.has(norm)) {
+      input.value = "";
+      validateDriver(raw);
+      input.focus();
+    }
+  }
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // --------- Hint feature ----------
+  function remainingDriverIds(){
+    const ids = [];
+    for (const [id, idxs] of driverToIndices.entries()) {
+      let anyMissing = false;
+      for (const i of idxs) { if (!foundIdx.has(i)) { anyMissing = true; break; } }
+      if (anyMissing) ids.push(id);
+    }
+    return ids;
+  }
+
+  function renderHint(){
+    hintChips.innerHTML = "";
+    const ids = remainingDriverIds();
+
+    const items = ids.map(id => {
+      const anyIndex = (driverToIndices.get(id) || [])[0];
+      const s = seasons[anyIndex];
+      const init = initialsOf(s.driver);
+      const missingCount = (driverToIndices.get(id) || []).filter(i => !foundIdx.has(i)).length;
+      const totalCount = (driverToIndices.get(id) || []).length;
+      return { driver: s.driver, init, missingCount, totalCount };
+    }).sort((a,b) => a.driver.localeCompare(b.driver, "fr"));
+
+    items.forEach(it => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = `${safeHTML(it.init)} <span>${it.totalCount > 1 ? `${it.missingCount}/${it.totalCount}` : ""}</span>`;
+      hintChips.appendChild(chip);
+    });
+
+    if (!items.length) {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = "✅ Plus aucun pilote restant !";
+      hintChips.appendChild(chip);
+    }
+  }
+
+  function toggleHint(){
+    const show = !hintPanel.classList.contains("show");
+    if (show) {
+      renderHint();
+      hintPanel.classList.add("show");
+      btnHint.textContent = "💡 Indice (ON)";
+    } else {
+      hintPanel.classList.remove("show");
+      btnHint.textContent = "💡 Indice";
+    }
+  }
+
+  // --------- Events ----------
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  btnHint.addEventListener("click", toggleHint);
+  btnHintClose.addEventListener("click", () => {
+    hintPanel.classList.remove("show");
+    btnHint.textContent = "💡 Indice";
+  });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  renderHint();
+  input.focus();
+</script>
+</body>
+</html>

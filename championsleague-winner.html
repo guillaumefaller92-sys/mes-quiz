@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Vainqueurs de la Ligue des Champions (1956–2025)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        linear-gradient(180deg, #ffffff 0 45%, #0b1024 45% 55%, #ffffff 55% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:60px; height:18px;
+      border:2px solid rgba(17,17,17,.75);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-18deg);
+      opacity:.55;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(18deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* ✅ logo (fallback immédiat = badge, puis Wikipédia si dispo) */
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:4px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:contain;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:74px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Vainqueurs de la Ligue des Champions (1956–2025)</h1>
+          <p>Années visibles, clubs masqués, validation auto.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          Accents/espaces/points ignorés (ex: <em>Paris Saint-Germain</em> = <em>parissaintgermain</em>).<br>
+          ✅ Un club trouvé révèle <strong>toutes</strong> ses années de victoire (ex: Real Madrid → plusieurs années).<br>
+          ℹ️ Année = <strong>année de la finale</strong> (ex: 2025 = saison 2024–2025).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un club… (ex: real madrid, barca, bayern, liverpool, psg, ac milan, inter)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ✅ mini “logo” SVG (data-url) à partir des initiales
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","fc","sc","sv","ac","afc","cf"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(34,197,94,0.85)"/>
+      <stop offset="1" stop-color="rgba(59,130,246,0.85)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // ✅ Logos clubs via Wikipédia (fallback = badgeUrl)
+  const logoCache = new Map(); // clubNormalized -> url (string) ou null si introuvable
+
+  // ✅ PATCH : Logos "forcés" (Wikimedia Commons) pour Real Madrid & Red Star Belgrade
+  // (On évite le cas où l'API Wikipedia summary ne renvoie pas de thumbnail)
+  const directLogoByKey = new Map([
+    [normalize("Real Madrid"), "https://commons.wikimedia.org/wiki/Special:FilePath/Real_Madrid_CF_(ancien_logo).svg"],
+    [normalize("Red Star Belgrade"), "https://commons.wikimedia.org/wiki/Special:FilePath/Red_Star_Belgrade_crest.svg"],
+  ]);
+
+  // Titres Wikipédia “fiables” (FR) pour les clubs (tu peux en ajouter)
+  const wikiTitleByClubKey = new Map([
+    [normalize("Real Madrid"), "Real_Madrid_Club_de_F%C3%BAtbol"],
+    [normalize("Barcelona"), "FC_Barcelona"],
+    [normalize("FC Barcelone"), "FC_Barcelona"],
+    [normalize("Bayern Munich"), "FC_Bayern_Munich"],
+    [normalize("Liverpool"), "Liverpool_FC"],
+    [normalize("Manchester United"), "Manchester_United_FC"],
+    [normalize("Manchester City"), "Manchester_City_FC"],
+    [normalize("AC Milan"), "AC_Milan"],
+    [normalize("Inter Milan"), "Inter_Milan"],
+    [normalize("Juventus"), "Juventus_FC"],
+    [normalize("Chelsea"), "Chelsea_FC"],
+    [normalize("Paris Saint-Germain"), "Paris_Saint-Germain_FC"],
+    [normalize("Marseille"), "Olympique_de_Marseille"],
+    [normalize("Porto"), "FC_Porto"],
+    [normalize("Benfica"), "SL_Benfica"],
+    [normalize("Ajax"), "AFC_Ajax"],
+    [normalize("Feyenoord"), "Feyenoord_Rotterdam"],
+    [normalize("Celtic"), "Celtic_FC"],
+    [normalize("Aston Villa"), "Aston_Villa_FC"],
+    [normalize("Hamburg"), "Hamburger_SV"],
+    [normalize("Borussia Dortmund"), "Borussia_Dortmund"],
+    [normalize("Nottingham Forest"), "Nottingham_Forest_FC"],
+    [normalize("PSV Eindhoven"), "PSV_Eindhoven"],
+    [normalize("Steaua București"), "Steaua_Bucarest"],
+    [normalize("Red Star Belgrade"), "%C3%89toile_rouge_de_Belgrade"],
+    [normalize("Etoile rouge"), "%C3%89toile_rouge_de_Belgrade"],
+    [normalize("Étoile rouge"), "%C3%89toile_rouge_de_Belgrade"],
+  ]);
+
+  function wikiSummaryUrlFromClub(clubName, lang = "fr"){
+    const key = normalize(clubName);
+    const title = wikiTitleByClubKey.get(key) || clubName.replace(/\s+/g, "_");
+    return `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+  }
+
+  async function fetchWikiLogo(clubName){
+    const key = normalize(clubName);
+    if (logoCache.has(key)) return logoCache.get(key);
+
+    const tryLang = async (lang) => {
+      const res = await fetch(wikiSummaryUrlFromClub(clubName, lang), {
+        method: "GET",
+        headers: { "accept": "application/json" }
+      });
+      if(!res.ok) return null;
+      const data = await res.json();
+      return data?.thumbnail?.source || data?.originalimage?.source || null;
+    };
+
+    try{
+      let url = await tryLang("fr");
+      if(!url) url = await tryLang("en"); // fallback EN
+      logoCache.set(key, url);
+      return url;
+    }catch(e){
+      logoCache.set(key, null);
+      return null;
+    }
+  }
+
+  // ✅ PATCH : utilise d'abord directLogoByKey (Commons), sinon badge puis Wikipedia
+  function setClubLogo(imgEl, clubName){
+    const key = normalize(clubName);
+
+    // 0) logo forcé
+    const forced = directLogoByKey.get(key);
+    if (forced) {
+      imgEl.src = forced;
+      imgEl.alt = `Logo ${clubName}`;
+      return;
+    }
+
+    // 1) fallback immédiat
+    imgEl.src = badgeUrl(clubName);
+    imgEl.alt = `Logo ${clubName}`;
+
+    // 2) tentative asynchrone
+    imgEl.dataset.clubKey = key;
+    fetchWikiLogo(clubName).then((url) => {
+      if (imgEl.dataset.clubKey !== key) return;
+      if (url) imgEl.src = url;
+    });
+  }
+
+  // --------- Data (vainqueurs par année) ----------
+  // Année = année de la finale (1956 = saison 1955-56, ... 2025 = saison 2024-25)
+  const editions = [
+    { year:2025, winner:"Paris Saint-Germain" },
+    { year:2024, winner:"Real Madrid" },
+    { year:2023, winner:"Manchester City" },
+    { year:2022, winner:"Real Madrid" },
+    { year:2021, winner:"Chelsea" },
+    { year:2020, winner:"Bayern Munich" },
+    { year:2019, winner:"Liverpool" },
+    { year:2018, winner:"Real Madrid" },
+    { year:2017, winner:"Real Madrid" },
+    { year:2016, winner:"Real Madrid" },
+    { year:2015, winner:"Barcelona" },
+    { year:2014, winner:"Real Madrid" },
+    { year:2013, winner:"Bayern Munich" },
+    { year:2012, winner:"Chelsea" },
+    { year:2011, winner:"Barcelona" },
+    { year:2010, winner:"Inter Milan" },
+    { year:2009, winner:"Barcelona" },
+    { year:2008, winner:"Manchester United" },
+    { year:2007, winner:"AC Milan" },
+    { year:2006, winner:"Barcelona" },
+    { year:2005, winner:"Liverpool" },
+    { year:2004, winner:"Porto" },
+    { year:2003, winner:"AC Milan" },
+    { year:2002, winner:"Real Madrid" },
+    { year:2001, winner:"Bayern Munich" },
+    { year:2000, winner:"Real Madrid" },
+    { year:1999, winner:"Manchester United" },
+    { year:1998, winner:"Real Madrid" },
+    { year:1997, winner:"Borussia Dortmund" },
+    { year:1996, winner:"Juventus" },
+    { year:1995, winner:"Ajax" },
+    { year:1994, winner:"AC Milan" },
+    { year:1993, winner:"Marseille" },
+    { year:1992, winner:"Barcelona" },
+    { year:1991, winner:"Red Star Belgrade" },
+    { year:1990, winner:"AC Milan" },
+    { year:1989, winner:"AC Milan" },
+    { year:1988, winner:"PSV Eindhoven" },
+    { year:1987, winner:"Porto" },
+    { year:1986, winner:"Steaua București" },
+    { year:1985, winner:"Juventus" },
+    { year:1984, winner:"Liverpool" },
+    { year:1983, winner:"Hamburg" },
+    { year:1982, winner:"Aston Villa" },
+    { year:1981, winner:"Liverpool" },
+    { year:1980, winner:"Nottingham Forest" },
+    { year:1979, winner:"Nottingham Forest" },
+    { year:1978, winner:"Liverpool" },
+    { year:1977, winner:"Liverpool" },
+    { year:1976, winner:"Bayern Munich" },
+    { year:1975, winner:"Bayern Munich" },
+    { year:1974, winner:"Bayern Munich" },
+    { year:1973, winner:"Ajax" },
+    { year:1972, winner:"Ajax" },
+    { year:1971, winner:"Ajax" },
+    { year:1970, winner:"Feyenoord" },
+    { year:1969, winner:"AC Milan" },
+    { year:1968, winner:"Manchester United" },
+    { year:1967, winner:"Celtic" },
+    { year:1966, winner:"Real Madrid" },
+    { year:1965, winner:"Inter Milan" },
+    { year:1964, winner:"Inter Milan" },
+    { year:1963, winner:"AC Milan" },
+    { year:1962, winner:"Benfica" },
+    { year:1961, winner:"Benfica" },
+    { year:1960, winner:"Real Madrid" },
+    { year:1959, winner:"Real Madrid" },
+    { year:1958, winner:"Real Madrid" },
+    { year:1957, winner:"Real Madrid" },
+    { year:1956, winner:"Real Madrid" }
+  ];
+
+  const TOTAL = editions.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // Index par année + par club
+  const byYear = new Map();
+  const yearsByClub = new Map();
+  const displayNameByKey = new Map();
+
+  for (const e of editions) {
+    byYear.set(e.year, e);
+    const k = normalize(e.winner);
+    if (!yearsByClub.has(k)) yearsByClub.set(k, []);
+    yearsByClub.get(k).push(e.year);
+    displayNameByKey.set(k, e.winner);
+  }
+
+  // Aliases (abréviations / noms usuels)
+  const aliasToKey = new Map([
+    // Real Madrid
+    [normalize("real madrid"), normalize("Real Madrid")],
+    [normalize("réal madrid"), normalize("Real Madrid")],
+    [normalize("rm"), normalize("Real Madrid")],
+    [normalize("rma"), normalize("Real Madrid")],
+    [normalize("madrid"), normalize("Real Madrid")],
+    [normalize("real"), normalize("Real Madrid")],
+
+    // Barcelona
+    [normalize("barcelona"), normalize("Barcelona")],
+    [normalize("fc barcelona"), normalize("Barcelona")],
+    [normalize("fc barcelone"), normalize("Barcelona")],
+    [normalize("barcelone"), normalize("Barcelona")],
+    [normalize("barca"), normalize("Barcelona")],
+    [normalize("barça"), normalize("Barcelona")],
+    [normalize("fcb"), normalize("Barcelona")],
+
+    // Bayern
+    [normalize("bayern"), normalize("Bayern Munich")],
+    [normalize("bayern munich"), normalize("Bayern Munich")],
+    [normalize("bayern munchen"), normalize("Bayern Munich")],
+    [normalize("bayern münchen"), normalize("Bayern Munich")],
+    [normalize("fcbayern"), normalize("Bayern Munich")],
+
+    // Liverpool
+    [normalize("liverpool"), normalize("Liverpool")],
+    [normalize("liverpool fc"), normalize("Liverpool")],
+    [normalize("lfc"), normalize("Liverpool")],
+
+    // Manchester United
+    [normalize("man united"), normalize("Manchester United")],
+    [normalize("manchester united"), normalize("Manchester United")],
+    [normalize("mu"), normalize("Manchester United")],
+    [normalize("mufc"), normalize("Manchester United")],
+
+    // Manchester City
+    [normalize("man city"), normalize("Manchester City")],
+    [normalize("manchester city"), normalize("Manchester City")],
+    [normalize("mcfc"), normalize("Manchester City")],
+    [normalize("city"), normalize("Manchester City")],
+
+    // AC Milan
+    [normalize("milan"), normalize("AC Milan")],
+    [normalize("ac milan"), normalize("AC Milan")],
+    [normalize("a c milan"), normalize("AC Milan")],
+    [normalize("acmilan"), normalize("AC Milan")],
+    [normalize("acm"), normalize("AC Milan")],
+
+    // Inter
+    [normalize("inter"), normalize("Inter Milan")],
+    [normalize("inter milan"), normalize("Inter Milan")],
+    [normalize("intermilan"), normalize("Inter Milan")],
+    [normalize("internazionale"), normalize("Inter Milan")],
+
+    // Juventus
+    [normalize("juventus"), normalize("Juventus")],
+    [normalize("juve"), normalize("Juventus")],
+
+    // Chelsea
+    [normalize("chelsea"), normalize("Chelsea")],
+    [normalize("chelsea fc"), normalize("Chelsea")],
+    [normalize("cfc"), normalize("Chelsea")],
+
+    // PSG
+    [normalize("psg"), normalize("Paris Saint-Germain")],
+    [normalize("paris"), normalize("Paris Saint-Germain")],
+    [normalize("paris sg"), normalize("Paris Saint-Germain")],
+    [normalize("paris saint germain"), normalize("Paris Saint-Germain")],
+    [normalize("paris saint-germain"), normalize("Paris Saint-Germain")],
+    [normalize("parissaintgermain"), normalize("Paris Saint-Germain")],
+
+    // Marseille
+    [normalize("marseille"), normalize("Marseille")],
+    [normalize("om"), normalize("Marseille")],
+    [normalize("olympique de marseille"), normalize("Marseille")],
+
+    // Porto
+    [normalize("porto"), normalize("Porto")],
+    [normalize("fc porto"), normalize("Porto")],
+    [normalize("fcp"), normalize("Porto")],
+
+    // Benfica
+    [normalize("benfica"), normalize("Benfica")],
+    [normalize("sl benfica"), normalize("Benfica")],
+
+    // Ajax
+    [normalize("ajax"), normalize("Ajax")],
+    [normalize("afc ajax"), normalize("Ajax")],
+
+    // Feyenoord
+    [normalize("feyenoord"), normalize("Feyenoord")],
+
+    // Celtic
+    [normalize("celtic"), normalize("Celtic")],
+
+    // Aston Villa
+    [normalize("aston villa"), normalize("Aston Villa")],
+    [normalize("villa"), normalize("Aston Villa")],
+
+    // Hamburg
+    [normalize("hamburg"), normalize("Hamburg")],
+    [normalize("hamburger sv"), normalize("Hamburg")],
+	[normalize("hambourg"), normalize("Hamburg")],
+    [normalize("hsv"), normalize("Hamburg")],
+
+    // Dortmund
+    [normalize("dortmund"), normalize("Borussia Dortmund")],
+    [normalize("borussia dortmund"), normalize("Borussia Dortmund")],
+    [normalize("bvb"), normalize("Borussia Dortmund")],
+
+    // Nottingham Forest
+    [normalize("nottingham forest"), normalize("Nottingham Forest")],
+    [normalize("forest"), normalize("Nottingham Forest")],
+
+    // PSV
+    [normalize("psv"), normalize("PSV Eindhoven")],
+    [normalize("psv eindhoven"), normalize("PSV Eindhoven")],
+
+    // Steaua
+    [normalize("steaua"), normalize("Steaua București")],
+    [normalize("steaua bucuresti"), normalize("Steaua București")],
+    [normalize("steaua bucurești"), normalize("Steaua București")],
+    [normalize("steaua bucarest"), normalize("Steaua București")],
+    [normalize("steaua bucaresti"), normalize("Steaua București")],
+
+    // Red Star / Étoile Rouge
+    [normalize("red star"), normalize("Red Star Belgrade")],
+    [normalize("red star belgrade"), normalize("Red Star Belgrade")],
+    [normalize("etoile rouge"), normalize("Red Star Belgrade")],
+    [normalize("étoile rouge"), normalize("Red Star Belgrade")],
+    [normalize("etoile rouge de belgrade"), normalize("Red Star Belgrade")],
+    [normalize("étoile rouge de belgrade"), normalize("Red Star Belgrade")],
+    [normalize("crvena zvezda"), normalize("Red Star Belgrade")],
+  ]);
+
+  // --------- State ----------
+  const foundYears = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundYears.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.year}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.year}" alt="" />
+          <div class="num">${e.year}</div>
+          <div class="name masked" id="name-${e.year}">??????</div>
+        </div>
+        <div class="status" id="status-${e.year}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealYear(year, mode /* "found" | "revealed" */) {
+    const e = byYear.get(year);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${year}`);
+    const nameEl = document.getElementById(`name-${year}`);
+    const statusEl = document.getElementById(`status-${year}`);
+    const imgEl = document.getElementById(`flag-${year}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+
+    setClubLogo(imgEl, e.winner);
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundYears.has(e.year)) continue;
+      revealYear(e.year, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundYears.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundClub(normKey) {
+    if (!normKey) return false;
+    for (const k of yearsByClub.keys()) {
+      if (k === normKey) continue;
+      const allYears = yearsByClub.get(k) || [];
+      const missing = allYears.some(y => !foundYears.has(y));
+      if (missing && k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateClub(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (!yearsByClub.has(key)) {
+      return { ok:false, reason:"unknown" };
+    }
+
+    startTimerIfNeeded();
+
+    const years = yearsByClub.get(key);
+    const newly = [];
+    for (const y of years) {
+      if (!foundYears.has(y)) {
+        foundYears.add(y);
+        revealYear(y, "found");
+        newly.push(y);
+      }
+    }
+
+    updateStats();
+
+    const display = displayNameByKey.get(key) || raw;
+
+    if (newly.length === 0) {
+      setToast("warn", `⚠️ Déjà trouvé : ${display} (toutes ses années sont déjà révélées).`);
+      return { ok:true, changed:false };
+    } else {
+      const list = newly.sort((a,b)=>a-b).join(", ");
+      setToast("good", `✅ Bien joué : ${display} → ${list}`);
+
+      const last = newly[newly.length - 1];
+      const cell = document.getElementById(`cell-${last}`);
+      cell && cell.animate(
+        [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+        { duration: 160, easing: "ease-out" }
+      );
+      cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+      if (foundYears.size === TOTAL) finish();
+      return { ok:true, changed:true };
+    }
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un club."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!yearsByClub.has(key)) {
+      setToast("bad", "❌ Club non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    validateClub(raw);
+  }
+
+  function resetQuiz() {
+    foundYears.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (isPrefixOfAnotherUnfoundClub(key)) return;
+
+    if (yearsByClub.has(key)) {
+      input.value = "";
+      validateClub(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

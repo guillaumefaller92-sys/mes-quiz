@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Champions de France (Ligue 1 / D1) (depuis 1932-1933)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+
+    /* ✅ Logo Ligue 1 dans le titre */
+    .leagueLogo{
+      width:44px;
+      height:44px;
+      object-fit:contain;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 10px 28px rgba(0,0,0,.35));
+    }
+
+    /* (On garde .ball au cas où tu veux le réutiliser ailleurs, mais il n’est plus affiché ici) */
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        linear-gradient(180deg, #ffffff 0 45%, #0b1024 45% 55%, #ffffff 55% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+      display:none; /* ✅ remplacé par le logo ligue1.png */
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:60px; height:18px;
+      border:2px solid rgba(17,17,17,.75);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-18deg);
+      opacity:.55;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(18deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* ✅ blason */
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:4px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:contain;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:110px;
+      text-align:center;
+      flex: 0 0 auto;
+      white-space:nowrap;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <!-- ✅ Logo Ligue 1 (ligue1.png dans le même dossier que ce fichier HTML) -->
+        <img class="leagueLogo" src="ligue1.png" alt="Logo Ligue 1" />
+        <div class="title">
+          <h1>Quiz — Champions de France (D1/Ligue 1) (depuis 1932–33)</h1>
+          <p>Saisons visibles, clubs masqués, validation auto + blason au bon moment.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:600px;">
+          Accents/espaces/points ignorés (ex: <em>Saint-Étienne</em> = <em>saintetienne</em>).<br>
+          ✅ Un club trouvé révèle <strong>toutes</strong> ses saisons de titre (ex: PSG → plusieurs saisons).<br>
+          🟡 Période 1939–1945 : les saisons “zones” sont incluses comme lignes séparées (Zone Nord/Sud, etc.).<br>
+          ❌ Saison 1992–1993 : <em>titre non attribué</em> (non incluse, puisqu’aucun club à deviner).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un club… (ex: psg, om, monaco, asse, nantes, lyon, lille)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ✅ mini “logo” SVG (data-url) à partir des initiales (fallback)
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","fc","rc","ac","as","osc","ogc","co","equipe","federale","fédérale"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(34,197,94,0.85)"/>
+      <stop offset="1" stop-color="rgba(59,130,246,0.85)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // ✅ “blason” custom (SVG) pour Équipe Fédérale Lens-Artois (pas de logo standard fiable)
+  function efLensArtoisLogoUrl(){
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,.35)"/>
+    </filter>
+  </defs>
+
+  <!-- contour bouclier -->
+  <path filter="url(#s)"
+        d="M110 14
+           C158 14 192 26 192 26
+           V106
+           C192 156 150 192 110 206
+           C70 192 28 156 28 106
+           V26
+           C28 26 62 14 110 14 Z"
+        fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.35)" stroke-width="5"/>
+
+  <!-- fond sang et or -->
+  <path d="M110 22
+           C152 22 182 32 182 32
+           V104
+           C182 150 145 182 110 194
+           C75 182 38 150 38 104
+           V32
+           C38 32 68 22 110 22 Z"
+        fill="url(#g)"/>
+
+  <!-- bandes -->
+  <path d="M48 44 L92 44 L52 180 L42 174 Z" fill="rgba(0,0,0,.12)"/>
+  <path d="M128 44 L172 44 L178 52 L142 180 Z" fill="rgba(0,0,0,.10)"/>
+
+  <!-- texte -->
+  <text x="110" y="112" text-anchor="middle" font-family="Inter, Arial, sans-serif"
+        font-weight="900" font-size="56" fill="rgba(11,16,36,.92)">EF</text>
+  <text x="110" y="145" text-anchor="middle" font-family="Inter, Arial, sans-serif"
+        font-weight="800" font-size="22" fill="rgba(11,16,36,.92)">Lens-Artois</text>
+  <text x="110" y="172" text-anchor="middle" font-family="Inter, Arial, sans-serif"
+        font-weight="800" font-size="18" fill="rgba(11,16,36,.92)">1943–1944</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // ✅ Logos : overrides “hard” (résout tes 3 manquants)
+  // On utilise Special:FilePath de Wikimedia Commons → URL directe du fichier (SVG/PNG)
+  function commonsFilePath(filename){
+    return "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(filename);
+  }
+
+  const hardLogoByClubKey = new Map([
+    // ✅ Olympique Lillois (logo SVG sur Commons)
+    [normalize("Olympique Lillois"), commonsFilePath("Olympique lillois.svg")],
+
+    // ✅ Montpellier HSC (logo 2000 sur Commons)
+    [normalize("Montpellier HSC"), commonsFilePath("Montpellier Hérault Sport Club (logo, 2000).svg")],
+
+    // ✅ Équipe Fédérale Lens-Artois : blason custom (SVG) fiable/offline
+    [normalize("Equipe Fédérale de Lens-Artois"), efLensArtoisLogoUrl()],
+  ]);
+
+  // ✅ Logos clubs via Wikipédia (fallback = badgeUrl)
+  const logoCache = new Map(); // clubNormalized -> url (string) ou null
+
+  // Titres Wikipédia “fiables” (football) pour éviter les ambiguïtés
+  const wikiTitleByClubKey = new Map([
+    [normalize("Paris Saint-Germain"), "Paris_Saint-Germain_Football_Club"],
+    [normalize("Olympique de Marseille"), "Olympique_de_Marseille"],
+    [normalize("AS Monaco"), "Association_sportive_de_Monaco_football_club"],
+    [normalize("AS Saint-Étienne"), "Association_sportive_de_Saint-Étienne"],
+    [normalize("FC Nantes"), "Football_Club_de_Nantes"],
+    [normalize("Olympique Lyonnais"), "Olympique_lyonnais"],
+    [normalize("LOSC Lille"), "LOSC_Lille"],
+    [normalize("Girondins de Bordeaux"), "Football_Club_des_Girondins_de_Bordeaux"],
+    [normalize("Montpellier HSC"), "Montpellier_Hérault_Sport_Club_(football)"],
+    [normalize("AJ Auxerre"), "Association_de_la_jeunesse_auxerroise"],
+    [normalize("RC Lens"), "Racing_Club_de_Lens"],
+    [normalize("RC Strasbourg"), "Racing_Club_de_Strasbourg_Alsace"],
+    [normalize("Stade de Reims"), "Stade_de_Reims"],
+    [normalize("OGC Nice"), "Olympique_Gymnaste_Club_Nice"],
+    [normalize("FC Sochaux-Montbéliard"), "Football_Club_Sochaux-Montbéliard"],
+    [normalize("FC Sète"), "Football_Club_de_Sète_34"],
+    [normalize("FC Rouen"), "Football_Club_de_Rouen_1899"],
+    [normalize("Red Star"), "Red_Star_Football_Club"],
+    [normalize("Lille OSC"), "LOSC_Lille"],
+    [normalize("Olympique Lillois"), "Olympique_lillois"],
+    [normalize("CO Roubaix-Tourcoing"), "Club_olympique_Roubaix-Tourcoing"],
+    [normalize("Racing Club de Paris"), "Racing_Club_de_France_Football"],
+    [normalize("Toulouse FC"), "Toulouse_Football_Club"],
+  ]);
+
+  function wikiSummaryUrlFromClub(clubName){
+    const key = normalize(clubName);
+    const title = wikiTitleByClubKey.get(key) || clubName.replace(/\s+/g, "_");
+    return `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+  }
+
+  async function fetchWikiLogo(clubName){
+    const key = normalize(clubName);
+    if (logoCache.has(key)) return logoCache.get(key);
+
+    try{
+      const res = await fetch(wikiSummaryUrlFromClub(clubName), {
+        method: "GET",
+        headers: { "accept": "application/json" }
+      });
+      if(!res.ok){ logoCache.set(key, null); return null; }
+
+      const data = await res.json();
+      const url = data?.thumbnail?.source || data?.originalimage?.source || null;
+
+      logoCache.set(key, url);
+      return url;
+    }catch(e){
+      logoCache.set(key, null);
+      return null;
+    }
+  }
+
+  function setClubLogo(imgEl, clubName){
+    const key = normalize(clubName);
+
+    // ✅ 1) override “hard” (tes manquants) — immédiat et fiable
+    const hard = hardLogoByClubKey.get(key);
+    if (hard){
+      imgEl.src = hard;
+      imgEl.alt = `Blason ${clubName}`;
+      imgEl.dataset.clubKey = key;
+      return;
+    }
+
+    // ✅ 2) fallback immédiat (fluide)
+    imgEl.src = badgeUrl(clubName);
+    imgEl.alt = `Blason ${clubName}`;
+
+    // ✅ 3) tentative asynchrone Wikipédia
+    imgEl.dataset.clubKey = key;
+    fetchWikiLogo(clubName).then((url) => {
+      if (imgEl.dataset.clubKey !== key) return;
+      if (url) imgEl.src = url;
+    });
+  }
+
+  // --------- Data (champions par saison) ----------
+  function canonWinner(w){
+    const n = normalize(w);
+    if (n === normalize("Paris Saint-Germain FC") || n === normalize("Paris Saint-Germain")) return "Paris Saint-Germain";
+    if (n === normalize("Girondins ASP de Bordeaux") || n === normalize("FC Girondins de Bordeaux") || n === normalize("Girondins de Bordeaux")) return "Girondins de Bordeaux";
+    if (n === normalize("LOSC Lille Métropole") || n === normalize("LOSC Lille")) return "LOSC Lille";
+    if (n === normalize("FC Nantes-Atlantique") || n === normalize("FC Nantes")) return "FC Nantes";
+    if (n === normalize("AS Monaco FC") || n === normalize("AS Monaco")) return "AS Monaco";
+    if (n === normalize("AS Saint-Etienne") || n === normalize("AS Saint-Étienne")) return "AS Saint-Étienne";
+    if (n === normalize("RC Paris") || n === normalize("Racing Club de Paris") || n === normalize("Racing Club de France")) return "Racing Club de Paris";
+    // 🔧 harmonisation pour l’EF
+    if (n === normalize("equipe federale de lens artois") || n === normalize("équipe fédérale de lens-artois") || n === normalize("equipe federale lens artois")) return "Equipe Fédérale de Lens-Artois";
+    return w;
+  }
+
+  const editions = [
+    { id:"S1933", season:"1932-1933", winner: canonWinner("Olympique Lillois") },
+    { id:"S1934", season:"1933-1934", winner: canonWinner("FC Sète") },
+    { id:"S1935", season:"1934-1935", winner: canonWinner("FC Sochaux-Montbéliard") },
+    { id:"S1936", season:"1935-1936", winner: canonWinner("RC Paris") },
+    { id:"S1937", season:"1936-1937", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1938", season:"1937-1938", winner: canonWinner("FC Sochaux-Montbéliard") },
+    { id:"S1939", season:"1938-1939", winner: canonWinner("FC Sète") },
+
+    { id:"S1940ZN",  season:"1939-1940 (Zone Nord)",     winner: canonWinner("FC Rouen") },
+    { id:"S1940ZSE", season:"1939-1940 (Zone Sud-Est)",  winner: canonWinner("OGC Nice") },
+    { id:"S1940ZSO", season:"1939-1940 (Zone Sud-Ouest)",winner: canonWinner("FC Girondins de Bordeaux") },
+
+    { id:"S1941ZN", season:"1940-1941 (Zone Nord)", winner: canonWinner("Red Star") },
+    { id:"S1941ZS", season:"1940-1941 (Zone Sud)",  winner: canonWinner("Olympique de Marseille") },
+
+    { id:"S1942ZN", season:"1941-1942 (Zone Nord)", winner: canonWinner("Stade de Reims") },
+    { id:"S1942ZS", season:"1941-1942 (Zone Sud)",  winner: canonWinner("FC Sète") },
+
+    { id:"S1943ZN", season:"1942-1943 (Zone Nord)", winner: canonWinner("RC Lens") },
+    { id:"S1943ZS", season:"1942-1943 (Zone Sud)",  winner: canonWinner("Toulouse FC") },
+
+    { id:"S1944EF", season:"1943-1944", winner: canonWinner("Equipe Fédérale de Lens-Artois") },
+    { id:"S1945",   season:"1944-1945", winner: canonWinner("FC Rouen") },
+
+    { id:"S1946", season:"1945-1946", winner: canonWinner("Lille OSC") },
+    { id:"S1947", season:"1946-1947", winner: canonWinner("CO Roubaix-Tourcoing") },
+    { id:"S1948", season:"1947-1948", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1949", season:"1948-1949", winner: canonWinner("Stade de Reims") },
+    { id:"S1950", season:"1949-1950", winner: canonWinner("Girondins ASP de Bordeaux") },
+    { id:"S1951", season:"1950-1951", winner: canonWinner("OGC Nice") },
+    { id:"S1952", season:"1951-1952", winner: canonWinner("OGC Nice") },
+    { id:"S1953", season:"1952-1953", winner: canonWinner("Stade de Reims") },
+    { id:"S1954", season:"1953-1954", winner: canonWinner("Lille OSC") },
+    { id:"S1955", season:"1954-1955", winner: canonWinner("Stade de Reims") },
+    { id:"S1956", season:"1955-1956", winner: canonWinner("OGC Nice") },
+    { id:"S1957", season:"1956-1957", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1958", season:"1957-1958", winner: canonWinner("Stade de Reims") },
+    { id:"S1959", season:"1958-1959", winner: canonWinner("OGC Nice") },
+    { id:"S1960", season:"1959-1960", winner: canonWinner("Stade de Reims") },
+    { id:"S1961", season:"1960-1961", winner: canonWinner("AS Monaco FC") },
+    { id:"S1962", season:"1961-1962", winner: canonWinner("Stade de Reims") },
+    { id:"S1963", season:"1962-1963", winner: canonWinner("AS Monaco FC") },
+    { id:"S1964", season:"1963-1964", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1965", season:"1964-1965", winner: canonWinner("FC Nantes") },
+    { id:"S1966", season:"1965-1966", winner: canonWinner("FC Nantes") },
+    { id:"S1967", season:"1966-1967", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1968", season:"1967-1968", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1969", season:"1968-1969", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1970", season:"1969-1970", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1971", season:"1970-1971", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1972", season:"1971-1972", winner: canonWinner("Olympique de Marseille") },
+
+    { id:"S1973", season:"1972-1973", winner: canonWinner("FC Nantes") },
+    { id:"S1974", season:"1973-1974", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1975", season:"1974-1975", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1976", season:"1975-1976", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1977", season:"1976-1977", winner: canonWinner("FC Nantes") },
+    { id:"S1978", season:"1977-1978", winner: canonWinner("AS Monaco FC") },
+    { id:"S1979", season:"1978-1979", winner: canonWinner("RC Strasbourg") },
+    { id:"S1980", season:"1979-1980", winner: canonWinner("FC Nantes") },
+    { id:"S1981", season:"1980-1981", winner: canonWinner("AS Saint-Étienne") },
+    { id:"S1982", season:"1981-1982", winner: canonWinner("AS Monaco FC") },
+    { id:"S1983", season:"1982-1983", winner: canonWinner("FC Nantes") },
+    { id:"S1984", season:"1983-1984", winner: canonWinner("FC Girondins de Bordeaux") },
+    { id:"S1985", season:"1984-1985", winner: canonWinner("FC Girondins de Bordeaux") },
+    { id:"S1986", season:"1985-1986", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S1987", season:"1986-1987", winner: canonWinner("FC Girondins de Bordeaux") },
+    { id:"S1988", season:"1987-1988", winner: canonWinner("AS Monaco FC") },
+    { id:"S1989", season:"1988-1989", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1990", season:"1989-1990", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1991", season:"1990-1991", winner: canonWinner("Olympique de Marseille") },
+    { id:"S1992", season:"1991-1992", winner: canonWinner("Olympique de Marseille") },
+
+    { id:"S1994", season:"1993-1994", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S1995", season:"1994-1995", winner: canonWinner("FC Nantes-Atlantique") },
+    { id:"S1996", season:"1995-1996", winner: canonWinner("AJ Auxerre") },
+    { id:"S1997", season:"1996-1997", winner: canonWinner("AS Monaco FC") },
+    { id:"S1998", season:"1997-1998", winner: canonWinner("RC Lens") },
+    { id:"S1999", season:"1998-1999", winner: canonWinner("FC Girondins de Bordeaux") },
+    { id:"S2000", season:"1999-2000", winner: canonWinner("AS Monaco FC") },
+    { id:"S2001", season:"2000-2001", winner: canonWinner("FC Nantes-Atlantique") },
+    { id:"S2002", season:"2001-2002", winner: canonWinner("Olympique Lyonnais") },
+
+    { id:"S2003", season:"2002-2003", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2004", season:"2003-2004", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2005", season:"2004-2005", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2006", season:"2005-2006", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2007", season:"2006-2007", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2008", season:"2007-2008", winner: canonWinner("Olympique Lyonnais") },
+    { id:"S2009", season:"2008-2009", winner: canonWinner("FC Girondins de Bordeaux") },
+    { id:"S2010", season:"2009-2010", winner: canonWinner("Olympique de Marseille") },
+    { id:"S2011", season:"2010-2011", winner: canonWinner("LOSC Lille Métropole") },
+    { id:"S2012", season:"2011-2012", winner: canonWinner("Montpellier HSC") },
+    { id:"S2013", season:"2012-2013", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S2014", season:"2013-2014", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S2015", season:"2014-2015", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S2016", season:"2015-2016", winner: canonWinner("Paris Saint-Germain FC") },
+    { id:"S2017", season:"2016-2017", winner: canonWinner("AS Monaco FC") },
+    { id:"S2018", season:"2017-2018", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2019", season:"2018-2019", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2020", season:"2019-2020", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2021", season:"2020-2021", winner: canonWinner("LOSC Lille") },
+    { id:"S2022", season:"2021-2022", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2023", season:"2022-2023", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2024", season:"2023-2024", winner: canonWinner("Paris Saint-Germain") },
+    { id:"S2025", season:"2024-2025", winner: canonWinner("Paris Saint-Germain") },
+  ];
+
+  const TOTAL = editions.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // Index par id + par club
+  const byId = new Map();
+  const idsByClub = new Map();
+  const displayNameByKey = new Map();
+
+  for (const e of editions) {
+    byId.set(e.id, e);
+    const k = normalize(e.winner);
+    if (!idsByClub.has(k)) idsByClub.set(k, []);
+    idsByClub.get(k).push(e.id);
+    displayNameByKey.set(k, e.winner);
+  }
+
+  // Aliases (abréviations / noms usuels)
+  const aliasToKey = new Map([
+    [normalize("psg"), normalize("Paris Saint-Germain")],
+    [normalize("paris"), normalize("Paris Saint-Germain")],
+    [normalize("paris sg"), normalize("Paris Saint-Germain")],
+    [normalize("paris saint germain"), normalize("Paris Saint-Germain")],
+    [normalize("paris saint-germain"), normalize("Paris Saint-Germain")],
+
+    [normalize("om"), normalize("Olympique de Marseille")],
+    [normalize("marseille"), normalize("Olympique de Marseille")],
+    [normalize("olympique marseille"), normalize("Olympique de Marseille")],
+    [normalize("olympique de marseille"), normalize("Olympique de Marseille")],
+
+    [normalize("monaco"), normalize("AS Monaco")],
+    [normalize("asm"), normalize("AS Monaco")],
+    [normalize("as monaco"), normalize("AS Monaco")],
+
+    [normalize("asse"), normalize("AS Saint-Étienne")],
+    [normalize("saint etienne"), normalize("AS Saint-Étienne")],
+    [normalize("saint-étienne"), normalize("AS Saint-Étienne")],
+    [normalize("as saint etienne"), normalize("AS Saint-Étienne")],
+    [normalize("as saint-etienne"), normalize("AS Saint-Étienne")],
+    [normalize("as saint-étienne"), normalize("AS Saint-Étienne")],
+
+    [normalize("nantes"), normalize("FC Nantes")],
+    [normalize("fc nantes"), normalize("FC Nantes")],
+
+    [normalize("ol"), normalize("Olympique Lyonnais")],
+    [normalize("lyon"), normalize("Olympique Lyonnais")],
+    [normalize("olympique lyonnais"), normalize("Olympique Lyonnais")],
+
+    [normalize("lille"), normalize("LOSC Lille")],
+    [normalize("losc"), normalize("LOSC Lille")],
+    [normalize("losc lille"), normalize("LOSC Lille")],
+
+    [normalize("bordeaux"), normalize("Girondins de Bordeaux")],
+    [normalize("girondins"), normalize("Girondins de Bordeaux")],
+    [normalize("girondins de bordeaux"), normalize("Girondins de Bordeaux")],
+
+    [normalize("montpellier"), normalize("Montpellier HSC")],
+    [normalize("mhsc"), normalize("Montpellier HSC")],
+    [normalize("montpellier hsc"), normalize("Montpellier HSC")],
+
+    [normalize("auxerre"), normalize("AJ Auxerre")],
+    [normalize("aja"), normalize("AJ Auxerre")],
+
+    [normalize("lens"), normalize("RC Lens")],
+    [normalize("rc lens"), normalize("RC Lens")],
+
+    [normalize("strasbourg"), normalize("RC Strasbourg")],
+    [normalize("rc strasbourg"), normalize("RC Strasbourg")],
+    [normalize("racing strasbourg"), normalize("RC Strasbourg")],
+
+    [normalize("reims"), normalize("Stade de Reims")],
+    [normalize("stade de reims"), normalize("Stade de Reims")],
+
+    [normalize("nice"), normalize("OGC Nice")],
+    [normalize("ogc nice"), normalize("OGC Nice")],
+
+    [normalize("sochaux"), normalize("FC Sochaux-Montbéliard")],
+    [normalize("fc sochaux"), normalize("FC Sochaux-Montbéliard")],
+
+    [normalize("sete"), normalize("FC Sète")],
+    [normalize("sète"), normalize("FC Sète")],
+    [normalize("fc sete"), normalize("FC Sète")],
+
+    [normalize("rouen"), normalize("FC Rouen")],
+    [normalize("fc rouen"), normalize("FC Rouen")],
+
+    [normalize("redstar"), normalize("Red Star")],
+    [normalize("red star"), normalize("Red Star")],
+
+    [normalize("lille osc"), normalize("Lille OSC")],
+    [normalize("osc lille"), normalize("Lille OSC")],
+    [normalize("olympique lillois"), normalize("Olympique Lillois")],
+
+    [normalize("roubaix tourcoing"), normalize("CO Roubaix-Tourcoing")],
+    [normalize("co roubaix tourcoing"), normalize("CO Roubaix-Tourcoing")],
+
+    [normalize("rc paris"), normalize("Racing Club de Paris")],
+    [normalize("racing club de paris"), normalize("Racing Club de Paris")],
+    [normalize("racing"), normalize("Racing Club de Paris")],
+
+    [normalize("toulouse"), normalize("Toulouse FC")],
+    [normalize("toulouse fc"), normalize("Toulouse FC")],
+    [normalize("tfc"), normalize("Toulouse FC")],
+
+    // ✅ EF Lens-Artois (plein d’orthographes)
+    [normalize("ef lens artois"), normalize("Equipe Fédérale de Lens-Artois")],
+    [normalize("equipe federale lens artois"), normalize("Equipe Fédérale de Lens-Artois")],
+    [normalize("équipe fédérale lens-artois"), normalize("Equipe Fédérale de Lens-Artois")],
+    [normalize("equipe federale de lens artois"), normalize("Equipe Fédérale de Lens-Artois")],
+    [normalize("équipe fédérale de lens-artois"), normalize("Equipe Fédérale de Lens-Artois")],
+  ]);
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.id}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.id}" alt="" />
+          <div class="num">${e.season}</div>
+          <div class="name masked" id="name-${e.id}">??????</div>
+        </div>
+        <div class="status" id="status-${e.id}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealEntry(id, mode /* "found" | "revealed" */) {
+    const e = byId.get(id);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${id}`);
+    const nameEl = document.getElementById(`name-${id}`);
+    const statusEl = document.getElementById(`status-${id}`);
+    const imgEl = document.getElementById(`flag-${id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+
+    setClubLogo(imgEl, e.winner);
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundIds.has(e.id)) continue;
+      revealEntry(e.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundClub(normKey) {
+    if (!normKey) return false;
+    for (const k of idsByClub.keys()) {
+      if (k === normKey) continue;
+      const allIds = idsByClub.get(k) || [];
+      const missing = allIds.some(id => !foundIds.has(id));
+      if (missing && k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateClub(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (!idsByClub.has(key)) {
+      return { ok:false, reason:"unknown" };
+    }
+
+    startTimerIfNeeded();
+
+    const ids = idsByClub.get(key);
+    const newly = [];
+    for (const id of ids) {
+      if (!foundIds.has(id)) {
+        foundIds.add(id);
+        revealEntry(id, "found");
+        newly.push(id);
+      }
+    }
+
+    updateStats();
+
+    const display = displayNameByKey.get(key) || raw;
+
+    if (newly.length === 0) {
+      setToast("warn", `⚠️ Déjà trouvé : ${display} (toutes ses saisons sont déjà révélées).`);
+      return { ok:true, changed:false };
+    } else {
+      const seasons = newly.map(id => byId.get(id)?.season).filter(Boolean);
+      setToast("good", `✅ Bien joué : ${display} → ${seasons.join(", ")}`);
+
+      const lastId = newly[newly.length - 1];
+      const cell = document.getElementById(`cell-${lastId}`);
+      cell && cell.animate(
+        [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+        { duration: 160, easing: "ease-out" }
+      );
+      cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+      if (foundIds.size === TOTAL) finish();
+      return { ok:true, changed:true };
+    }
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un club."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!idsByClub.has(key)) {
+      setToast("bad", "❌ Club non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    validateClub(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+    if (isPrefixOfAnotherUnfoundClub(key)) return;
+
+    if (idsByClub.has(key)) {
+      input.value = "";
+      validateClub(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

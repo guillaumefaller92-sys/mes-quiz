@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Disney + Pixar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --line2:#ffffff14;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(147,51,234,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(34,197,94,.16), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#1f2a44 0 50%, #0a0f1f 50% 100%);
+      background-size: 90px 90px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1220px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .castle{
+      width:44px; height:44px; border-radius:14px;
+      border:1px solid var(--line);
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.22), transparent 70%),
+        linear-gradient(135deg, rgba(59,130,246,.28), rgba(147,51,234,.22));
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      display:grid; place-items:center;
+      font-size:20px;
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(59,130,246,.55);
+      background: rgba(59,130,246,.16);
+    }
+    .btn.primary:hover{ background: rgba(59,130,246,.22); }
+    .btn.danger{
+      border-color: rgba(239,68,68,.45);
+      background: rgba(239,68,68,.14);
+    }
+    .btn.danger:hover{ background: rgba(239,68,68,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    /* petit groupe de filtres */
+    .seg{
+      display:inline-flex;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .seg button{
+      border:0;
+      background: transparent;
+      color: var(--muted);
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .seg button + button{ border-left:1px solid var(--line); }
+    .seg button.active{
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(59,130,246,.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+
+    .hintPanel{
+      display:none;
+      margin: 0 18px 14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      padding:12px 12px;
+    }
+    .hintPanel.show{ display:block; }
+    .hintPanel .hTitle{
+      font-weight:900;
+      color:var(--text);
+      margin-bottom:8px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .chips{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .toast{ min-height:18px; font-weight:900; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap:12px;
+      max-height: 660px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:12px 14px;
+      display:flex;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:12px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .titleLine{ color: var(--bad); }
+
+    /* ✅ POSTERS PLUS GRANDS */
+    .poster{
+      width:88px;
+      height:132px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      flex: 0 0 auto;
+      display:none;
+    }
+    .cell.found .poster{ display:block; }
+    .cell.revealed .poster{ display:block; }
+
+    /* ✅ bloc central centré (num + titre) */
+    .centerBlock{
+      flex: 1 1 auto;
+      min-width: 0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      gap:10px;
+      padding:4px 6px;
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:999px;
+      padding:5px 10px;
+      color: var(--text);
+      min-width:84px;
+    }
+
+    /* ✅ TITRES EN ENTIER : multi-lignes */
+    .titleLine{
+      font-weight:900;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.25;
+      word-break:break-word;
+      font-size:14px;
+    }
+
+    .badgeStudio{
+      font-size:11px;
+      font-weight:900;
+      color: var(--muted);
+      border:1px solid var(--line2);
+      background: rgba(255,255,255,.05);
+      padding:5px 10px;
+      border-radius:999px;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.95;
+      display:flex;
+      align-items:flex-start;
+      padding-top:6px;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:800;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="castle" aria-hidden="true">🏰</div>
+        <div class="title">
+          <h1>Disney + Pixar Quiz</h1>
+          <p>Films Disney & Pixar — titres masqués.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+
+        <div class="seg" role="tablist" aria-label="Filtre studio">
+          <button id="tabAll" class="active" type="button">Tous</button>
+          <button id="tabWDAS" type="button">Disney</button>
+          <button id="tabPIXAR" type="button">Pixar</button>
+        </div>
+
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="total">0</span></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn danger" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div style="min-width:260px;">
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+
+        <div class="hint" style="padding:0; max-width:720px;">
+          Accents/espaces/ponctuation ignorés (ex: <em>Le Bossu de Notre-Dame</em> = bossudenotredame).<br>
+          ✅ Validation auto dès que le titre correspond (pas besoin d’Entrée).<br>
+          💡 “Rebelle” = Pixar.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un film… (ex: rebelle, toy story, vaiana)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div id="hintPanel" class="hintPanel" aria-live="polite">
+        <div class="hTitle">💡 Initiales des films restants (selon filtre)</div>
+        <div class="chips" id="hintChips"></div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/œ/g, "oe")
+      .replace(/&/g, "et")
+      .replace(/['’]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+  function pad3(n){ return String(n).padStart(3, "0"); }
+
+  // fallback poster
+  const FALLBACK_POSTER =
+    "data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="300" height="450">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1f2a44"/>
+            <stop offset="1" stop-color="#0a0f1f"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" rx="22" ry="22" fill="url(#g)"/>
+        <g fill="white" opacity="0.85" font-family="Arial, sans-serif" text-anchor="middle">
+          <text x="150" y="220" font-size="18">Poster ?</text>
+          <text x="150" y="250" font-size="12" opacity="0.75">Wikipedia / Commons</text>
+        </g>
+      </svg>
+    `);
+
+  // ---------- Posters en ligne (Wikipedia REST summary) ----------
+  const posterCache = new Map(); // wikiTitle -> url|null
+
+  async function fetchWikiThumb(wikiTitle){
+    if (!wikiTitle) return null;
+    if (posterCache.has(wikiTitle)) return posterCache.get(wikiTitle);
+
+    const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(wikiTitle);
+    try{
+      const r = await fetch(url, { headers: { "accept": "application/json" } });
+      if (!r.ok) { posterCache.set(wikiTitle, null); return null; }
+      const data = await r.json();
+      const thumb =
+        (data && data.thumbnail && data.thumbnail.source) ||
+        (data && data.originalimage && data.originalimage.source) ||
+        null;
+      posterCache.set(wikiTitle, thumb);
+      return thumb;
+    }catch{
+      posterCache.set(wikiTitle, null);
+      return null;
+    }
+  }
+
+  async function ensurePosterLoaded(id){
+    const m = moviesById.get(id);
+    if (!m) return;
+
+    const img = document.getElementById(`poster-${id}`);
+    if (!img) return;
+
+    if (img.dataset.loaded === "1") return;
+
+    img.src = FALLBACK_POSTER;
+
+    const thumb = await fetchWikiThumb(m.wiki);
+    if (thumb) img.src = thumb;
+
+    img.dataset.loaded = "1";
+    img.alt = m.title;
+  }
+
+  // ---------- DATA ----------
+  // studio: "WDAS" (Walt Disney Animation Studios) | "PIXAR"
+  // IMPORTANT : "Rebelle" = Brave (PIXAR)
+  const WDAS = [
+    ["WDAS", "Blanche-Neige et les Sept Nains", 1937, "Snow_White_and_the_Seven_Dwarfs_(1937_film)"],
+    ["WDAS", "Pinocchio", 1940, "Pinocchio_(1940_film)"],
+    ["WDAS", "Fantasia", 1940, "Fantasia_(1940_film)"],
+    ["WDAS", "Dumbo", 1941, "Dumbo_(1941_film)"],
+    ["WDAS", "Bambi", 1942, "Bambi"],
+    ["WDAS", "Saludos Amigos", 1942, "Saludos_Amigos"],
+    ["WDAS", "Les Trois Caballeros", 1944, "The_Three_Caballeros"],
+    ["WDAS", "La Boîte à musique", 1946, "Make_Mine_Music"],
+    ["WDAS", "Coquin de printemps", 1947, "Fun_and_Fancy_Free"],
+    ["WDAS", "Mélodie Cocktail", 1948, "Melody_Time"],
+    ["WDAS", "Le Crapaud et le Maître d'école", 1949, "The_Adventures_of_Ichabod_and_Mr._Toad"],
+    ["WDAS", "Cendrillon", 1950, "Cinderella_(1950_film)"],
+    ["WDAS", "Alice au pays des merveilles", 1951, "Alice_in_Wonderland_(1951_film)"],
+    ["WDAS", "Peter Pan", 1953, "Peter_Pan_(1953_film)"],
+    ["WDAS", "La Belle et le Clochard", 1955, "Lady_and_the_Tramp"],
+    ["WDAS", "La Belle au bois dormant", 1959, "Sleeping_Beauty_(1959_film)"],
+    ["WDAS", "Les 101 Dalmatiens", 1961, "One_Hundred_and_One_Dalmatians"],
+    ["WDAS", "Merlin l'Enchanteur", 1963, "The_Sword_in_the_Stone_(1963_film)"],
+    ["WDAS", "Le Livre de la jungle", 1967, "The_Jungle_Book_(1967_film)"],
+    ["WDAS", "Les Aristochats", 1970, "The_Aristocats"],
+    ["WDAS", "Robin des Bois", 1973, "Robin_Hood_(1973_film)"],
+    ["WDAS", "Les Aventures de Winnie l'ourson", 1977, "The_Many_Adventures_of_Winnie_the_Pooh"],
+    ["WDAS", "Les Aventures de Bernard et Bianca", 1977, "The_Rescuers"],
+    ["WDAS", "Rox et Rouky", 1981, "The_Fox_and_the_Hound"],
+    ["WDAS", "Taram et le Chaudron magique", 1985, "The_Black_Cauldron_(film)"],
+    ["WDAS", "Basil, détective privé", 1986, "The_Great_Mouse_Detective"],
+    ["WDAS", "Oliver et Compagnie", 1988, "Oliver_%26_Company"],
+    ["WDAS", "La Petite Sirène", 1989, "The_Little_Mermaid_(1989_film)"],
+    ["WDAS", "Bernard et Bianca au pays des kangourous", 1990, "The_Rescuers_Down_Under"],
+    ["WDAS", "La Belle et la Bête", 1991, "Beauty_and_the_Beast_(1991_film)"],
+    ["WDAS", "Aladdin", 1992, "Aladdin_(1992_Disney_film)"],
+    ["WDAS", "Le Roi Lion", 1994, "The_Lion_King"],
+    ["WDAS", "Pocahontas", 1995, "Pocahontas_(1995_film)"],
+    ["WDAS", "Le Bossu de Notre-Dame", 1996, "The_Hunchback_of_Notre_Dame_(1996_film)"],
+    ["WDAS", "Hercule", 1997, "Hercules_(1997_film)"],
+    ["WDAS", "Mulan", 1998, "Mulan_(1998_film)"],
+    ["WDAS", "Tarzan", 1999, "Tarzan_(1999_film)"],
+    ["WDAS", "Fantasia 2000", 2000, "Fantasia_2000"],
+    ["WDAS", "Dinosaure", 2000, "Dinosaur_(film)"],
+    ["WDAS", "Kuzco, l'empereur mégalo", 2000, "The_Emperor%27s_New_Groove"],
+    ["WDAS", "Atlantide, l'empire perdu", 2001, "Atlantis:_The_Lost_Empire"],
+    ["WDAS", "Lilo & Stitch", 2002, "Lilo_&_Stitch"],
+    ["WDAS", "La Planète au trésor : Un nouvel univers", 2002, "Treasure_Planet"],
+    ["WDAS", "Frère des ours", 2003, "Brother_Bear"],
+    ["WDAS", "La Ferme se rebelle", 2004, "Home_on_the_Range_(film)"],
+    ["WDAS", "Chicken Little", 2005, "Chicken_Little_(film)"],
+    ["WDAS", "Bienvenue chez les Robinson", 2007, "Meet_the_Robinsons"],
+    ["WDAS", "Volt, star malgré lui", 2008, "Bolt_(2008_film)"],
+    ["WDAS", "La Princesse et la Grenouille", 2009, "The_Princess_and_the_Frog"],
+    ["WDAS", "Raiponce", 2010, "Tangled"],
+    ["WDAS", "Winnie l'ourson", 2011, "Winnie_the_Pooh_(2011_film)"],
+    ["WDAS", "Les Mondes de Ralph", 2012, "Wreck-It_Ralph"],
+    ["WDAS", "La Reine des neiges", 2013, "Frozen_(2013_film)"],
+    ["WDAS", "Les Nouveaux Héros", 2014, "Big_Hero_6_(film)"],
+    ["WDAS", "Zootopie", 2016, "Zootopia"],
+    ["WDAS", "Vaiana", 2016, "Moana_(2016_film)"],
+    ["WDAS", "Ralph 2.0", 2018, "Ralph_Breaks_the_Internet"],
+    ["WDAS", "La Reine des neiges 2", 2019, "Frozen_II"],
+    ["WDAS", "Raya et le Dernier Dragon", 2021, "Raya_and_the_Last_Dragon"],
+    ["WDAS", "Encanto", 2021, "Encanto"],
+    ["WDAS", "Avalonia, l'étrange voyage", 2022, "Strange_World"],
+    ["WDAS", "Wish", 2023, "Wish_(film)"],
+    ["WDAS", "Vaiana 2", 2024, "Moana_2"],
+    ["WDAS", "Zootopie 2", 2025, "Zootopia_2"]
+  ];
+
+  const PIXAR = [
+    ["PIXAR","Toy Story", 1995, "Toy_Story"],
+    ["PIXAR","1001 pattes", 1998, "A_Bug%27s_Life"],
+    ["PIXAR","Toy Story 2", 1999, "Toy_Story_2"],
+    ["PIXAR","Monstres & Cie", 2001, "Monsters,_Inc."],
+    ["PIXAR","Le Monde de Nemo", 2003, "Finding_Nemo"],
+    ["PIXAR","Les Indestructibles", 2004, "The_Incredibles"],
+    ["PIXAR","Cars", 2006, "Cars_(film)"],
+    ["PIXAR","Ratatouille", 2007, "Ratatouille_(film)"],
+    ["PIXAR","WALL·E", 2008, "WALL-E"],
+    ["PIXAR","Là-haut", 2009, "Up_(2009_film)"],
+    ["PIXAR","Toy Story 3", 2010, "Toy_Story_3"],
+    ["PIXAR","Cars 2", 2011, "Cars_2"],
+    ["PIXAR","Rebelle", 2012, "Brave_(2012_film)"],
+    ["PIXAR","Monstres Academy", 2013, "Monsters_University"],
+    ["PIXAR","Vice-Versa", 2015, "Inside_Out_(2015_film)"],
+    ["PIXAR","Le Voyage d'Arlo", 2015, "The_Good_Dinosaur"],
+    ["PIXAR","Le Monde de Dory", 2016, "Finding_Dory"],
+    ["PIXAR","Cars 3", 2017, "Cars_3"],
+    ["PIXAR","Coco", 2017, "Coco_(2017_film)"],
+    ["PIXAR","Les Indestructibles 2", 2018, "Incredibles_2"],
+    ["PIXAR","Toy Story 4", 2019, "Toy_Story_4"],
+    ["PIXAR","En avant", 2020, "Onward_(film)"],
+    ["PIXAR","Soul", 2020, "Soul_(2020_film)"],
+    ["PIXAR","Luca", 2021, "Luca_(2021_film)"],
+    ["PIXAR","Alerte rouge", 2022, "Turning_Red"],
+    ["PIXAR","Buzz l'Éclair", 2022, "Lightyear_(film)"],
+    ["PIXAR","Élémentaire", 2023, "Elemental_(2023_film)"],
+    ["PIXAR","Vice-Versa 2", 2024, "Inside_Out_2"],
+    ["PIXAR","Elio", 2025, "Elio_(film)"],
+    ["PIXAR","Hoppers", 2026, "Hoppers_(film)"],
+    ["PIXAR","Toy Story 5", 2026, "Toy_Story_5"]
+  ];
+
+  // ✅ dataset global mélangé (WDAS+PIXAR) et trié chronologiquement
+  const ALL = [...WDAS, ...PIXAR]
+    .map(row => {
+      const [studio, title, year, wiki] = row;
+      return { studio, title, year, wiki };
+    })
+    .sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.title.localeCompare(b.title);
+    })
+    .map((m, idx) => ({
+      id: idx + 1,
+      ...m
+    }));
+
+  // ---------- Aliases ----------
+  const aliasToKey = new Map([
+    // WDAS
+    ["blancheneige", normalize("Blanche-Neige et les Sept Nains")],
+    ["frozen", normalize("La Reine des neiges")],
+    ["frozen2", normalize("La Reine des neiges 2")],
+    ["moana", normalize("Vaiana")],
+    ["zootopia", normalize("Zootopie")],
+    ["kuzco", normalize("Kuzco, l'empereur mégalo")],
+    ["atlantide", normalize("Atlantide, l'empire perdu")],
+    ["winnie", normalize("Les Aventures de Winnie l'ourson")],
+    // PIXAR
+    ["brave", normalize("Rebelle")],
+    ["rebelle", normalize("Rebelle")],
+    ["toystory", normalize("Toy Story")],
+    ["wall-e", normalize("WALL·E")],
+    ["walle", normalize("WALL·E")],
+    ["up", normalize("Là-haut (Up)")],
+    ["insideout", normalize("Vice-Versa")],
+    ["vice versa", normalize("Vice-Versa")]
+  ]);
+
+  // ---------- Index ----------
+  // key unique = studio|normalizedTitle
+  const byKey = new Map();
+  const moviesById = new Map();
+  for (const m of ALL) {
+    const key = `${m.studio}|${normalize(m.title)}`;
+    byKey.set(key, m);
+    moviesById.set(m.id, m);
+  }
+
+  // ---------- State ----------
+  let filterStudio = "ALL"; // ALL | WDAS | PIXAR
+  const found = new Set();  // keys studio|norm(title)
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // ---------- Timer ----------
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // ---------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+  const totalEl = document.getElementById("total");
+
+  const btnPause = document.getElementById("btnPause");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+  const btnReset = document.getElementById("btnReset");
+  const btnHint = document.getElementById("btnHint");
+  const hintPanel = document.getElementById("hintPanel");
+  const hintChips = document.getElementById("hintChips");
+  const btnHome = document.getElementById("btnHome");
+
+  const tabAll = document.getElementById("tabAll");
+  const tabWDAS = document.getElementById("tabWDAS");
+  const tabPIXAR = document.getElementById("tabPIXAR");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function getVisibleList(){
+    if (filterStudio === "WDAS") return ALL.filter(m => m.studio === "WDAS");
+    if (filterStudio === "PIXAR") return ALL.filter(m => m.studio === "PIXAR");
+    return ALL;
+  }
+
+  function getVisibleFoundCount(){
+    const visible = getVisibleList();
+    let c = 0;
+    for (const m of visible) {
+      const key = `${m.studio}|${normalize(m.title)}`;
+      if (found.has(key)) c++;
+    }
+    return c;
+  }
+
+  function updateStats() {
+    const visible = getVisibleList();
+    const total = visible.length;
+    const n = getVisibleFoundCount();
+    countEl.textContent = `${n} / ${total}`;
+    scoreEl.textContent = n;
+    totalEl.textContent = total;
+    fillEl.style.width = total ? `${(n / total) * 100}%` : "0%";
+  }
+
+  function studioLabel(studio){
+    return studio === "WDAS" ? "Disney" : "Pixar";
+  }
+
+  function buildGrid() {
+    const visible = getVisibleList();
+    gridEl.innerHTML = "";
+
+    for (let idx = 0; idx < visible.length; idx++){
+      const m = visible[idx];
+      const key = `${m.studio}|${normalize(m.title)}`;
+
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${m.id}`;
+
+      const isFound = found.has(key);
+
+      if (isFound) cell.classList.add("found");
+
+      cell.innerHTML = `
+        <img class="poster" id="poster-${m.id}" alt="" data-loaded="0" />
+        <div class="centerBlock">
+          <div class="num">#${pad3(idx+1)}</div>
+          <div class="titleLine ${isFound ? "" : "masked"}" id="name-${m.id}">
+            ${isFound ? `${m.title} (${m.year})` : "??????"}
+          </div>
+          <div class="badgeStudio">${studioLabel(m.studio)}</div>
+        </div>
+        <div class="status" id="status-${m.id}">${isFound ? "✅" : "—"}</div>
+      `;
+
+      gridEl.appendChild(cell);
+
+      const img = cell.querySelector(`#poster-${m.id}`);
+      img.src = FALLBACK_POSTER;
+
+      // charge le poster si déjà trouvé (au rebuild)
+      if (isFound) ensurePosterLoaded(m.id);
+    }
+  }
+
+  // ✅ Scroll vers une cellule trouvée (dans la grille scrollable)
+  function scrollToCell(id){
+    const cell = document.getElementById(`cell-${id}`);
+    if (!cell) return;
+
+    cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+
+    // petit flash visuel
+    cell.animate(
+      [
+        { boxShadow: "0 0 0 0 rgba(59,130,246,0)" },
+        { boxShadow: "0 0 0 6px rgba(59,130,246,.22)" },
+        { boxShadow: "0 0 0 0 rgba(59,130,246,0)" }
+      ],
+      { duration: 520, easing: "ease-out" }
+    );
+  }
+
+  async function revealOne(m){
+    const key = `${m.studio}|${normalize(m.title)}`;
+    if (found.has(key)) return { changed:false, msg:`⚠️ Déjà trouvé : ${m.title} (${m.year})` };
+
+    found.add(key);
+
+    const cell = document.getElementById(`cell-${m.id}`);
+    if (!cell) return { changed:true, msg:`✅ ${m.title} (${m.year})` };
+
+    cell.classList.add("found");
+    cell.classList.remove("revealed");
+
+    const nameEl = document.getElementById(`name-${m.id}`);
+    const statusEl = document.getElementById(`status-${m.id}`);
+
+    nameEl.textContent = `${m.title} (${m.year})`;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = "✅";
+
+    await ensurePosterLoaded(m.id);
+
+    cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+
+    // ✅ scroll vers la case trouvée
+    scrollToCell(m.id);
+
+    return { changed:true, msg:`✅ Bien joué : ${m.title} (${m.year})` };
+  }
+
+  async function revealMissingSolutions() {
+    const visible = getVisibleList();
+    const tasks = [];
+
+    for (let idx=0; idx<visible.length; idx++){
+      const m = visible[idx];
+      const key = `${m.studio}|${normalize(m.title)}`;
+      if (found.has(key)) continue;
+
+      const cell = document.getElementById(`cell-${m.id}`);
+      if (!cell) continue;
+
+      cell.classList.add("revealed");
+      const nameEl = document.getElementById(`name-${m.id}`);
+      const statusEl = document.getElementById(`status-${m.id}`);
+
+      nameEl.textContent = `${m.title} (${m.year})`;
+      nameEl.classList.remove("masked");
+      statusEl.textContent = "❌";
+
+      tasks.push(ensurePosterLoaded(m.id));
+    }
+
+    await Promise.allSettled(tasks);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    const visible = getVisibleList();
+    setToast("good", `🏆 ${visible.length}/${visible.length} ! Complété en ${timerEl.textContent} !`);
+  }
+
+  async function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    await revealMissingSolutions();
+
+    const visible = getVisibleList();
+    const n = getVisibleFoundCount();
+    setToast("bad", `🏳️ Abandon : ${n}/${visible.length} trouvés en ${timerEl.textContent}. Solutions en rouge.`);
+  }
+
+  function resetQuiz() {
+    found.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    hintPanel.classList.remove("show");
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+    btnPause.disabled = false;
+
+    input.value = "";
+    input.focus();
+    updateHintPanel();
+  }
+
+  // ---------- Indices ----------
+  const STOP = new Set(["le","la","les","l","de","des","du","d","et","au","aux","une","un","a","à","en","dans","sur","pour","avec"]);
+  function initialsOf(title){
+    const words = (title || "")
+      .toLowerCase()
+      .replace(/['’()]/g, " ")
+      .replace(/[:.,!?/\-]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(w => !STOP.has(w));
+    if (!words.length) return "—";
+    return words.map(w => w[0].toUpperCase()).join(" ");
+  }
+
+  function updateHintPanel(){
+    const visible = getVisibleList();
+    const rest = [];
+    for (const m of visible) {
+      const key = `${m.studio}|${normalize(m.title)}`;
+      if (!found.has(key)) rest.push(initialsOf(m.title));
+    }
+    hintChips.innerHTML = rest.map(s => `<span class="chip">${s}</span>`).join("");
+  }
+
+  function toggleHint(){
+    hintPanel.classList.toggle("show");
+    if (hintPanel.classList.contains("show")) updateHintPanel();
+  }
+
+  // ---------- Validation ----------
+  // ✅ match EXACT du titre normalisé
+  function findMovieByInput(raw){
+    const normInput = normalize(raw);
+    if (!normInput) return null;
+
+    const aliasNorm = aliasToKey.get(normInput);
+    const targetNorm = aliasNorm || normInput;
+
+    for (const m of ALL){
+      const normTitle = normalize(m.title);
+      if (normTitle === targetNorm) return m;
+    }
+    return null;
+  }
+
+  async function validateRaw(raw) {
+    const m = findMovieByInput(raw);
+    if (!m) return { ok:false, reason:"unknown" };
+
+    if (isPaused || isFinished || isGivenUp) return { ok:false, reason:"blocked" };
+
+    startTimerIfNeeded();
+    const r = await revealOne(m);
+
+    updateStats();
+    updateHintPanel();
+    setToast(r.changed ? "good" : "warn", r.msg);
+
+    // fin si visible complété
+    const visible = getVisibleList();
+    if (getVisibleFoundCount() === visible.length) finish();
+
+    return { ok:true };
+  }
+
+  async function submit(){
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    if (!normalize(raw)) { setToast("warn", "⚠️ Tape un titre de film."); return; }
+
+    const res = await validateRaw(raw);
+    if (!res.ok) setToast("bad", "❌ Film non reconnu (ou orthographe non reconnue).");
+  }
+
+  // ---------- ✅ Auto-validation améliorée ----------
+  // Auto-valide seulement si le match exact est "unique" (pas un préfixe d'autres films).
+  function resolveNormInput(raw){
+    const norm = normalize(raw);
+    return aliasToKey.get(norm) || norm;
+  }
+
+  function countPrefixCandidates(resolvedNorm){
+    let count = 0;
+    for (const m of ALL){
+      const t = normalize(m.title);
+      if (t.startsWith(resolvedNorm)) count++;
+      if (count > 1) return count; // early exit
+    }
+    return count;
+  }
+
+  let autoT = null;
+  async function autoTryValidate(){
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const resolvedNorm = resolveNormInput(raw);
+    if (!resolvedNorm) return;
+
+    const m = findMovieByInput(raw);
+    if (!m) return;
+
+    const titleNorm = normalize(m.title);
+
+    // match exact uniquement
+    if (titleNorm !== resolvedNorm) return;
+
+    // si plusieurs titres commencent pareil, on n'auto-valide pas (Toy Story -> Toy Story 2/3/4/5)
+    const candidates = countPrefixCandidates(resolvedNorm);
+    if (candidates > 1) return;
+
+    input.value = "";
+    await validateRaw(raw);
+    input.focus();
+  }
+
+  // ---------- Filtre ----------
+  function setFilter(next){
+    filterStudio = next;
+
+    tabAll.classList.toggle("active", next === "ALL");
+    tabWDAS.classList.toggle("active", next === "WDAS");
+    tabPIXAR.classList.toggle("active", next === "PIXAR");
+
+    // rebuild + recalcul
+    buildGrid();
+    updateStats();
+    updateHintPanel();
+    setToast("", "");
+  }
+
+  // ---------- Events ----------
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(() => { autoTryValidate(); }, 140);
+  });
+
+  btnSubmit.addEventListener("click", () => { submit(); });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  btnPause.addEventListener("click", togglePause);
+  btnReset.addEventListener("click", resetQuiz);
+  btnGiveUp.addEventListener("click", () => { giveUp(); });
+
+  btnHint.addEventListener("click", toggleHint);
+
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  tabAll.addEventListener("click", () => setFilter("ALL"));
+  tabWDAS.addEventListener("click", () => setFilter("WDAS"));
+  tabPIXAR.addEventListener("click", () => setFilter("PIXAR"));
+
+  // init
+  setFilter("ALL");
+  input.focus();
+</script>
+</body>
+</html>

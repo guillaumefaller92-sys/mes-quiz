@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Champions NBA (1947–2025)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(239,68,68,.18), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(59,130,246,.14), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.25) 0 10px, transparent 10px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 45%),
+        linear-gradient(135deg, rgba(245,158,11,.95), rgba(239,68,68,.92));
+      border:3px solid rgba(0,0,0,.55);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:66px; height:18px;
+      border:2px solid rgba(0,0,0,.55);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-22deg);
+      opacity:.6;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(22deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
+    .btn.primary:hover{ background: rgba(245,158,11,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(245,158,11,1), rgba(239,68,68,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* ✅ logo */
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:4px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:contain;
+      /* pour animation */
+      transform: scale(.65);
+      opacity: 0;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    /* ✅ Animation apparition logo */
+    .flag.pop{
+      animation: logoPop 420ms cubic-bezier(.2,1.25,.25,1) both;
+    }
+    @keyframes logoPop{
+      0%   { transform: scale(.65) rotate(-6deg); opacity: 0; }
+      55%  { transform: scale(1.08) rotate(2deg); opacity: 1; }
+      80%  { transform: scale(.96) rotate(-1deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:74px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Champions NBA (1947–2025)</h1>
+          <p>Années visibles, franchises masquées, validation auto + logo.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          Accents/espaces/points ignorés (ex: <em>Los Angeles Lakers</em> = <em>losangeleslakers</em>).<br>
+          ✅ Une franchise trouvée révèle <strong>toutes</strong> ses années de titre.<br>
+          ℹ️ Année = <strong>année des Finals</strong> (ex: 2025 = saison 2024–2025).
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape une franchise… (ex: lakers, celtics, bulls, spurs, warriors, heat, knicks, thunder…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ✅ mini “logo” SVG (data-url) à partir des initiales
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","fc","sc","sv","ac","afc","cf","the"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(245,158,11,0.90)"/>
+      <stop offset="1" stop-color="rgba(239,68,68,0.90)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // ✅ Logos OFFICIELS NBA CDN + fallback robuste
+  // (IDs d'équipe NBA officiels)
+  const directLogoByKey = new Map([
+    [normalize("Boston Celtics"),        "https://cdn.nba.com/logos/nba/1610612738/global/L/logo.svg"],
+    [normalize("Cleveland Cavaliers"),   "https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg"],
+    [normalize("Chicago Bulls"),         "https://cdn.nba.com/logos/nba/1610612741/global/L/logo.svg"],
+    [normalize("Dallas Mavericks"),      "https://cdn.nba.com/logos/nba/1610612742/global/L/logo.svg"],
+    [normalize("Denver Nuggets"),        "https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg"],
+    [normalize("Golden State Warriors"), "https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg"],
+    [normalize("Houston Rockets"),       "https://cdn.nba.com/logos/nba/1610612745/global/L/logo.svg"],
+    [normalize("Los Angeles Lakers"),    "https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg"],
+    [normalize("Miami Heat"),            "https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg"],
+    [normalize("Milwaukee Bucks"),       "https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg"],
+    [normalize("New York Knicks"),       "https://cdn.nba.com/logos/nba/1610612752/global/L/logo.svg"],
+    [normalize("Philadelphia 76ers"),    "https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg"],
+    [normalize("Portland Trail Blazers"),"https://cdn.nba.com/logos/nba/1610612757/global/L/logo.svg"],
+    [normalize("San Antonio Spurs"),     "https://cdn.nba.com/logos/nba/1610612759/global/L/logo.svg"],
+    [normalize("Oklahoma City Thunder"), "https://cdn.nba.com/logos/nba/1610612760/global/L/logo.svg"],
+    [normalize("Toronto Raptors"),       "https://cdn.nba.com/logos/nba/1610612761/global/L/logo.svg"],
+    [normalize("Detroit Pistons"),       "https://cdn.nba.com/logos/nba/1610612765/global/L/logo.svg"],
+    // NB: franchises historiques/défuntes -> badge (pas d'ID NBA actuel)
+  ]);
+
+  // ✅ logo: NBA CDN -> badge ; + onerror => badge ; + animation au chargement
+  function setTeamLogo(imgEl, teamName){
+    const key = normalize(teamName);
+
+    // reset visuel (important quand on rejoue)
+    imgEl.classList.remove("pop");
+
+    // fallback si l'image ne charge pas
+    imgEl.onerror = () => {
+      imgEl.onerror = null;
+      imgEl.src = badgeUrl(teamName);
+      // (badge = data-url -> "charge" instant, mais on force quand même anim)
+      requestAnimationFrame(() => {
+        imgEl.classList.remove("pop");
+        void imgEl.offsetWidth;
+        imgEl.classList.add("pop");
+      });
+    };
+
+    // animation quand l'image est réellement chargée
+    imgEl.onload = () => {
+      imgEl.onload = null;
+      requestAnimationFrame(() => {
+        imgEl.classList.remove("pop");
+        void imgEl.offsetWidth; // reflow pour relancer l'animation même si plusieurs fois
+        imgEl.classList.add("pop");
+      });
+    };
+
+    const url = directLogoByKey.get(key);
+    imgEl.src = url || badgeUrl(teamName);
+    imgEl.alt = `Logo ${teamName}`;
+  }
+
+  // --------- Data (champions par année) ----------
+  const editions = [
+    { year:2025, winner:"Oklahoma City Thunder" },
+    { year:2024, winner:"Boston Celtics" },
+    { year:2023, winner:"Denver Nuggets" },
+    { year:2022, winner:"Golden State Warriors" },
+    { year:2021, winner:"Milwaukee Bucks" },
+    { year:2020, winner:"Los Angeles Lakers" },
+    { year:2019, winner:"Toronto Raptors" },
+    { year:2018, winner:"Golden State Warriors" },
+    { year:2017, winner:"Golden State Warriors" },
+    { year:2016, winner:"Cleveland Cavaliers" },
+    { year:2015, winner:"Golden State Warriors" },
+    { year:2014, winner:"San Antonio Spurs" },
+    { year:2013, winner:"Miami Heat" },
+    { year:2012, winner:"Miami Heat" },
+    { year:2011, winner:"Dallas Mavericks" },
+    { year:2010, winner:"Los Angeles Lakers" },
+    { year:2009, winner:"Los Angeles Lakers" },
+    { year:2008, winner:"Boston Celtics" },
+    { year:2007, winner:"San Antonio Spurs" },
+    { year:2006, winner:"Miami Heat" },
+    { year:2005, winner:"San Antonio Spurs" },
+    { year:2004, winner:"Detroit Pistons" },
+    { year:2003, winner:"San Antonio Spurs" },
+    { year:2002, winner:"Los Angeles Lakers" },
+    { year:2001, winner:"Los Angeles Lakers" },
+    { year:2000, winner:"Los Angeles Lakers" },
+    { year:1999, winner:"San Antonio Spurs" },
+    { year:1998, winner:"Chicago Bulls" },
+    { year:1997, winner:"Chicago Bulls" },
+    { year:1996, winner:"Chicago Bulls" },
+    { year:1995, winner:"Houston Rockets" },
+    { year:1994, winner:"Houston Rockets" },
+    { year:1993, winner:"Chicago Bulls" },
+    { year:1992, winner:"Chicago Bulls" },
+    { year:1991, winner:"Chicago Bulls" },
+    { year:1990, winner:"Detroit Pistons" },
+    { year:1989, winner:"Detroit Pistons" },
+    { year:1988, winner:"Los Angeles Lakers" },
+    { year:1987, winner:"Los Angeles Lakers" },
+    { year:1986, winner:"Boston Celtics" },
+    { year:1985, winner:"Los Angeles Lakers" },
+    { year:1984, winner:"Boston Celtics" },
+    { year:1983, winner:"Philadelphia 76ers" },
+    { year:1982, winner:"Los Angeles Lakers" },
+    { year:1981, winner:"Boston Celtics" },
+    { year:1980, winner:"Los Angeles Lakers" },
+    { year:1979, winner:"Seattle SuperSonics" },
+    { year:1978, winner:"Washington Bullets" },
+    { year:1977, winner:"Portland Trail Blazers" },
+    { year:1976, winner:"Boston Celtics" },
+    { year:1975, winner:"Golden State Warriors" },
+    { year:1974, winner:"Boston Celtics" },
+    { year:1973, winner:"New York Knicks" },
+    { year:1972, winner:"Los Angeles Lakers" },
+    { year:1971, winner:"Milwaukee Bucks" },
+    { year:1970, winner:"New York Knicks" },
+    { year:1969, winner:"Boston Celtics" },
+    { year:1968, winner:"Boston Celtics" },
+    { year:1967, winner:"Philadelphia 76ers" },
+    { year:1966, winner:"Boston Celtics" },
+    { year:1965, winner:"Boston Celtics" },
+    { year:1964, winner:"Boston Celtics" },
+    { year:1963, winner:"Boston Celtics" },
+    { year:1962, winner:"Boston Celtics" },
+    { year:1961, winner:"Boston Celtics" },
+    { year:1960, winner:"Boston Celtics" },
+    { year:1959, winner:"Boston Celtics" },
+    { year:1958, winner:"St. Louis Hawks" },
+    { year:1957, winner:"Boston Celtics" },
+    { year:1956, winner:"Philadelphia Warriors" },
+    { year:1955, winner:"Syracuse Nationals" },
+    { year:1954, winner:"Minneapolis Lakers" },
+    { year:1953, winner:"Minneapolis Lakers" },
+    { year:1952, winner:"Minneapolis Lakers" },
+    { year:1951, winner:"Rochester Royals" },
+    { year:1950, winner:"Minneapolis Lakers" },
+    { year:1949, winner:"Minneapolis Lakers" },
+    { year:1948, winner:"Baltimore Bullets (1947–1954)" },
+    { year:1947, winner:"Philadelphia Warriors" }
+  ];
+
+  const TOTAL = editions.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // Index par année + par franchise
+  const byYear = new Map();
+  const yearsByTeam = new Map();
+  const displayNameByKey = new Map();
+
+  for (const e of editions) {
+    byYear.set(e.year, e);
+    const k = normalize(e.winner);
+    if (!yearsByTeam.has(k)) yearsByTeam.set(k, []);
+    yearsByTeam.get(k).push(e.year);
+    displayNameByKey.set(k, e.winner);
+  }
+
+  // Aliases
+  const aliasToKey = new Map([
+    [normalize("thunder"), normalize("Oklahoma City Thunder")],
+    [normalize("okc"), normalize("Oklahoma City Thunder")],
+    [normalize("oklahoma city"), normalize("Oklahoma City Thunder")],
+    [normalize("oklahoma city thunder"), normalize("Oklahoma City Thunder")],
+    [normalize("supersonics"), normalize("Seattle SuperSonics")],
+    [normalize("sonics"), normalize("Seattle SuperSonics")],
+    [normalize("seattle"), normalize("Seattle SuperSonics")],
+    [normalize("seattle supersonics"), normalize("Seattle SuperSonics")],
+
+    [normalize("celtics"), normalize("Boston Celtics")],
+    [normalize("boston"), normalize("Boston Celtics")],
+    [normalize("boston celtics"), normalize("Boston Celtics")],
+
+    [normalize("lakers"), normalize("Los Angeles Lakers")],
+    [normalize("la lakers"), normalize("Los Angeles Lakers")],
+    [normalize("los angeles"), normalize("Los Angeles Lakers")],
+    [normalize("los angeles lakers"), normalize("Los Angeles Lakers")],
+    [normalize("minneapolis lakers"), normalize("Minneapolis Lakers")],
+    [normalize("minneapolis"), normalize("Minneapolis Lakers")],
+
+    [normalize("warriors"), normalize("Golden State Warriors")],
+    [normalize("gsw"), normalize("Golden State Warriors")],
+    [normalize("golden state"), normalize("Golden State Warriors")],
+    [normalize("golden state warriors"), normalize("Golden State Warriors")],
+    [normalize("philadelphia warriors"), normalize("Philadelphia Warriors")],
+    [normalize("philadelphia"), normalize("Philadelphia Warriors")],
+
+    [normalize("bulls"), normalize("Chicago Bulls")],
+    [normalize("chicago"), normalize("Chicago Bulls")],
+    [normalize("chicago bulls"), normalize("Chicago Bulls")],
+
+    [normalize("spurs"), normalize("San Antonio Spurs")],
+    [normalize("san antonio"), normalize("San Antonio Spurs")],
+    [normalize("san antonio spurs"), normalize("San Antonio Spurs")],
+
+    [normalize("heat"), normalize("Miami Heat")],
+    [normalize("miami"), normalize("Miami Heat")],
+    [normalize("miami heat"), normalize("Miami Heat")],
+
+    [normalize("nuggets"), normalize("Denver Nuggets")],
+    [normalize("denver"), normalize("Denver Nuggets")],
+    [normalize("denver nuggets"), normalize("Denver Nuggets")],
+
+    [normalize("bucks"), normalize("Milwaukee Bucks")],
+    [normalize("milwaukee"), normalize("Milwaukee Bucks")],
+    [normalize("milwaukee bucks"), normalize("Milwaukee Bucks")],
+
+    [normalize("raptors"), normalize("Toronto Raptors")],
+    [normalize("toronto"), normalize("Toronto Raptors")],
+    [normalize("toronto raptors"), normalize("Toronto Raptors")],
+
+    [normalize("cavs"), normalize("Cleveland Cavaliers")],
+    [normalize("cavaliers"), normalize("Cleveland Cavaliers")],
+    [normalize("cleveland"), normalize("Cleveland Cavaliers")],
+    [normalize("cleveland cavaliers"), normalize("Cleveland Cavaliers")],
+
+    [normalize("rockets"), normalize("Houston Rockets")],
+    [normalize("houston"), normalize("Houston Rockets")],
+    [normalize("houston rockets"), normalize("Houston Rockets")],
+
+    [normalize("pistons"), normalize("Detroit Pistons")],
+    [normalize("detroit"), normalize("Detroit Pistons")],
+    [normalize("detroit pistons"), normalize("Detroit Pistons")],
+
+    [normalize("mavs"), normalize("Dallas Mavericks")],
+    [normalize("mavericks"), normalize("Dallas Mavericks")],
+    [normalize("dallas"), normalize("Dallas Mavericks")],
+    [normalize("dallas mavericks"), normalize("Dallas Mavericks")],
+
+    [normalize("knicks"), normalize("New York Knicks")],
+    [normalize("nyk"), normalize("New York Knicks")],
+    [normalize("new york"), normalize("New York Knicks")],
+    [normalize("new york knicks"), normalize("New York Knicks")],
+
+    [normalize("sixers"), normalize("Philadelphia 76ers")],
+    [normalize("76ers"), normalize("Philadelphia 76ers")],
+    [normalize("philadelphia 76ers"), normalize("Philadelphia 76ers")],
+    [normalize("syracuse nationals"), normalize("Syracuse Nationals")],
+    [normalize("nationals"), normalize("Syracuse Nationals")],
+
+    [normalize("blazers"), normalize("Portland Trail Blazers")],
+    [normalize("trail blazers"), normalize("Portland Trail Blazers")],
+    [normalize("portland"), normalize("Portland Trail Blazers")],
+    [normalize("portland trail blazers"), normalize("Portland Trail Blazers")],
+
+    [normalize("bullets"), normalize("Washington Bullets")],
+    [normalize("washington bullets"), normalize("Washington Bullets")],
+    [normalize("baltimore bullets"), normalize("Baltimore Bullets (1947–1954)")],
+    [normalize("baltimore bullets 1947 1954"), normalize("Baltimore Bullets (1947–1954)")],
+
+    [normalize("hawks"), normalize("St. Louis Hawks")],
+    [normalize("st louis hawks"), normalize("St. Louis Hawks")],
+    [normalize("st. louis hawks"), normalize("St. Louis Hawks")],
+    [normalize("saint louis hawks"), normalize("St. Louis Hawks")],
+
+    [normalize("royals"), normalize("Rochester Royals")],
+    [normalize("rochester royals"), normalize("Rochester Royals")],
+    [normalize("kings"), normalize("Rochester Royals")],
+  ]);
+
+  // --------- State ----------
+  const foundYears = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundYears.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.year}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.year}" alt="" />
+          <div class="num">${e.year}</div>
+          <div class="name masked" id="name-${e.year}">??????</div>
+        </div>
+        <div class="status" id="status-${e.year}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealYear(year, mode /* "found" | "revealed" */) {
+    const e = byYear.get(year);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${year}`);
+    const nameEl = document.getElementById(`name-${year}`);
+    const statusEl = document.getElementById(`status-${year}`);
+    const imgEl = document.getElementById(`flag-${year}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+
+    setTeamLogo(imgEl, e.winner);
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundYears.has(e.year)) continue;
+      revealYear(e.year, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundYears.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundTeam(normKey) {
+    if (!normKey) return false;
+    for (const k of yearsByTeam.keys()) {
+      if (k === normKey) continue;
+      const allYears = yearsByTeam.get(k) || [];
+      const missing = allYears.some(y => !foundYears.has(y));
+      if (missing && k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateTeam(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (!yearsByTeam.has(key)) {
+      return { ok:false, reason:"unknown" };
+    }
+
+    startTimerIfNeeded();
+
+    const years = yearsByTeam.get(key);
+    const newly = [];
+    for (const y of years) {
+      if (!foundYears.has(y)) {
+        foundYears.add(y);
+        revealYear(y, "found");
+        newly.push(y);
+      }
+    }
+
+    updateStats();
+
+    const display = displayNameByKey.get(key) || raw;
+
+    if (newly.length === 0) {
+      setToast("warn", `⚠️ Déjà trouvé : ${display} (toutes ses années sont déjà révélées).`);
+      return { ok:true, changed:false };
+    } else {
+      const list = newly.sort((a,b)=>a-b).join(", ");
+      setToast("good", `✅ Bien joué : ${display} → ${list}`);
+
+      const last = newly[newly.length - 1];
+      const cell = document.getElementById(`cell-${last}`);
+      cell && cell.animate(
+        [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+        { duration: 160, easing: "ease-out" }
+      );
+      cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+      if (foundYears.size === TOTAL) finish();
+      return { ok:true, changed:true };
+    }
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape une franchise."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!yearsByTeam.has(key)) {
+      setToast("bad", "❌ Franchise non reconnue (ou orthographe non reconnue).");
+      return;
+    }
+
+    validateTeam(raw);
+  }
+
+  function resetQuiz() {
+    foundYears.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (isPrefixOfAnotherUnfoundTeam(key)) return;
+
+    if (yearsByTeam.has(key)) {
+      input.value = "";
+      validateTeam(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

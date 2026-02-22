@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Champions d’Angleterre (D1 / First Division / Premier League) (depuis 1888-89)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+
+    /* ✅ Logo Premier League dans le titre */
+    .leagueLogo{
+      width:44px;
+      height:44px;
+      object-fit:contain;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 10px 28px rgba(0,0,0,.35));
+    }
+
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        linear-gradient(180deg, #ffffff 0 45%, #0b1024 45% 55%, #ffffff 55% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+      display:none; /* ✅ remplacé par premierleague.png */
+    }
+    .ball::before, .ball::after{
+      content:"";
+      position:absolute; left:50%; top:50%;
+      width:60px; height:18px;
+      border:2px solid rgba(17,17,17,.75);
+      border-left:none; border-right:none;
+      transform: translate(-50%,-50%) rotate(-18deg);
+      opacity:.55;
+      border-radius:999px;
+    }
+    .ball::after{ transform: translate(-50%,-50%) rotate(18deg); }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    /* ✅ Panneau d’indices (toggle) */
+    .hintBox{
+      display:none;
+      margin: 0 18px 14px;
+      padding: 10px 12px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+      max-height: 140px;
+      overflow:auto;
+    }
+    .hintBox strong{ color: var(--text); }
+    .hintBox code{
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      padding: 2px 6px;
+      border-radius: 10px;
+      white-space:nowrap;
+      display:inline-block;
+      margin: 3px 6px 0 0;
+    }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    /* ✅ blason */
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      padding:4px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:contain;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:110px;
+      text-align:center;
+      flex: 0 0 auto;
+      white-space:nowrap;
+    }
+
+    /* ✅ Noms : base un poil plus petit + classe "long" si besoin */
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+      font-size:14px;
+    }
+    .name.long{
+      font-size:12.5px;
+      -webkit-line-clamp:3;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <!-- ✅ Logo Premier League (premierleague.png dans le même dossier que ce fichier HTML) -->
+        <img class="leagueLogo" src="premierleague.png" alt="Logo Premier League" />
+        <div class="title">
+          <h1>Quiz — Champions d’Angleterre (D1) (depuis 1888–89)</h1>
+          <p>Saisons visibles, clubs masqués, validation auto + blason au bon moment.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:600px;">
+          Accents/espaces/points ignorés (ex: <em>Sheff Wed</em> = <em>sheffwed</em>).<br>
+          ✅ Un club trouvé révèle <strong>toutes</strong> ses saisons de titre (ex: Liverpool → plusieurs saisons).<br>
+          ℹ️ Périmètre : <strong>championnat d’Angleterre (D1)</strong> depuis 1888–89 (Football League / First Division / Premier League).<br>
+          ⛔ Saisons non incluses : 1915–16 à 1918–19 (1re GM), 1939–40 à 1945–46 (2e GM) — pas de champion officiel.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un club…" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+      <div id="hintBox" class="hintBox"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ✅ mini “logo” SVG (data-url) à partir des initiales (fallback)
+  function initials(name){
+    const s = (name || "").replace(/['’]/g," ").replace(/\s+/g," ").trim();
+    if(!s) return "??";
+    const parts = s.split(" ").filter(Boolean);
+    const keep = [];
+    for(const p of parts){
+      if(["de","du","des","la","le","les","d","fc","rc","ac","as","afc","cfc","sc","city","united","rovers","town","club","hotspur","wanderers","albion","north","end"].includes(p.toLowerCase())) continue;
+      keep.push(p);
+    }
+    const src = keep.length ? keep : parts;
+    const a = src[0] ? src[0][0] : "?";
+    const b = src[1] ? src[1][0] : (src[0] && src[0][1] ? src[0][1] : "");
+    return (a + b).toUpperCase().slice(0,2);
+  }
+
+  function badgeUrl(label){
+    const txt = initials(label);
+    const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="rgba(34,197,94,0.85)"/>
+      <stop offset="1" stop-color="rgba(59,130,246,0.85)"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="68" height="68" rx="16" fill="url(#g)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900"
+        fill="rgba(11,16,36,0.95)">${txt}</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  // On utilise Special:FilePath de Wikimedia Commons → URL directe du fichier (SVG/PNG)
+  function commonsFilePath(filename){
+    return "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(filename);
+  }
+
+  // ✅ Logos : overrides “hard” (si un jour un logo ne remonte pas, tu peux ajouter ici)
+  const hardLogoByClubKey = new Map([
+    // [normalize("Sheffield Wednesday"), commonsFilePath("Sheffield Wednesday FC crest.svg")],
+  ]);
+
+  // ✅ Logos clubs via Wikipédia (fallback = badgeUrl)
+  const logoCache = new Map(); // clubNormalized -> url (string) ou null
+
+  // Titres Wikipédia (anglais) “fiables” (football)
+  const wikiTitleByClubKey = new Map([
+    [normalize("Preston North End"), "Preston_North_End_F.C."],
+    [normalize("Aston Villa"), "Aston_Villa_F.C."],
+    [normalize("Everton"), "Everton_F.C."],
+    [normalize("Sunderland"), "Sunderland_A.F.C."],
+    [normalize("Sheffield United"), "Sheffield_United_F.C."],
+    [normalize("Sheffield Wednesday"), "Sheffield_Wednesday_F.C."],
+    [normalize("Newcastle United"), "Newcastle_United_F.C."],
+    [normalize("Liverpool"), "Liverpool_F.C."],
+    [normalize("Manchester United"), "Manchester_United_F.C."],
+    [normalize("Blackburn Rovers"), "Blackburn_Rovers_F.C."],
+    [normalize("Arsenal"), "Arsenal_F.C."],
+    [normalize("Huddersfield Town"), "Huddersfield_Town_A.F.C."],
+    [normalize("West Bromwich Albion"), "West_Bromwich_Albion_F.C."],
+    [normalize("Burnley"), "Burnley_F.C."],
+    [normalize("Portsmouth"), "Portsmouth_F.C."],
+    [normalize("Tottenham Hotspur"), "Tottenham_Hotspur_F.C."],
+    [normalize("Wolverhampton Wanderers"), "Wolverhampton_Wanderers_F.C."],
+    [normalize("Chelsea"), "Chelsea_F.C."],
+    [normalize("Manchester City"), "Manchester_City_F.C."],
+    [normalize("Ipswich Town"), "Ipswich_Town_F.C."],
+    [normalize("Leeds United"), "Leeds_United_F.C."],
+    [normalize("Derby County"), "Derby_County_F.C."],
+    [normalize("Nottingham Forest"), "Nottingham_Forest_F.C."],
+    [normalize("Leicester City"), "Leicester_City_F.C."],
+  ]);
+
+  function wikiSummaryUrlFromClub(clubName){
+    const key = normalize(clubName);
+    const title = wikiTitleByClubKey.get(key) || clubName.replace(/\s+/g, "_");
+    return `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+  }
+
+  async function fetchWikiLogo(clubName){
+    const key = normalize(clubName);
+    if (logoCache.has(key)) return logoCache.get(key);
+
+    try{
+      const res = await fetch(wikiSummaryUrlFromClub(clubName), {
+        method: "GET",
+        headers: { "accept": "application/json" }
+      });
+      if(!res.ok){ logoCache.set(key, null); return null; }
+
+      const data = await res.json();
+      const url = data?.thumbnail?.source || data?.originalimage?.source || null;
+
+      logoCache.set(key, url);
+      return url;
+    }catch(e){
+      logoCache.set(key, null);
+      return null;
+    }
+  }
+
+  function setClubLogo(imgEl, clubName){
+    const key = normalize(clubName);
+
+    // ✅ 1) override “hard”
+    const hard = hardLogoByClubKey.get(key);
+    if (hard){
+      imgEl.src = hard;
+      imgEl.alt = `Blason ${clubName}`;
+      imgEl.dataset.clubKey = key;
+      return;
+    }
+
+    // ✅ 2) fallback immédiat (fluide)
+    imgEl.src = badgeUrl(clubName);
+    imgEl.alt = `Blason ${clubName}`;
+
+    // ✅ 3) tentative asynchrone Wikipédia
+    imgEl.dataset.clubKey = key;
+    fetchWikiLogo(clubName).then((url) => {
+      if (imgEl.dataset.clubKey !== key) return;
+      if (url) imgEl.src = url;
+    });
+  }
+
+  // --------- Data (champions par saison) ----------
+  function canonWinner(w){
+    const n = normalize(w);
+
+    // Harmonisations / synonymes
+    if (n === normalize("Man United") || n === normalize("Manchester Utd") || n === normalize("Manchester United FC")) return "Manchester United";
+    if (n === normalize("Man City") || n === normalize("Manchester City FC")) return "Manchester City";
+    if (n === normalize("Liverpool FC")) return "Liverpool";
+    if (n === normalize("Chelsea FC")) return "Chelsea";
+    if (n === normalize("Arsenal FC")) return "Arsenal";
+    if (n === normalize("Blackburn") || n === normalize("Blackburn Rovers FC")) return "Blackburn Rovers";
+    if (n === normalize("Leicester") || n === normalize("Leicester City FC")) return "Leicester City";
+    if (n === normalize("Wolves") || n === normalize("Wolverhampton")) return "Wolverhampton Wanderers";
+    if (n === normalize("Spurs") || n === normalize("Tottenham")) return "Tottenham Hotspur";
+    if (n === normalize("West Brom") || n === normalize("WBA")) return "West Bromwich Albion";
+    if (n === normalize("Sheff Utd") || n === normalize("Sheffield Utd")) return "Sheffield United";
+    if (n === normalize("Sheff Wed") || n === normalize("Sheffield Wed")) return "Sheffield Wednesday";
+    if (n === normalize("Forest") || n === normalize("Nottm Forest") || n === normalize("Notts Forest")) return "Nottingham Forest";
+    if (n === normalize("Ipswich")) return "Ipswich Town";
+    if (n === normalize("Derby")) return "Derby County";
+    if (n === normalize("Huddersfield")) return "Huddersfield Town";
+    if (n === normalize("Preston")) return "Preston North End";
+    if (n === normalize("Pompey")) return "Portsmouth";
+
+    return w;
+  }
+
+  const editions = [
+    { id:"S1889", season:"1888-89", winner: canonWinner("Preston North End") },
+    { id:"S1890", season:"1889-90", winner: canonWinner("Preston North End") },
+    { id:"S1891", season:"1890-91", winner: canonWinner("Everton") },
+    { id:"S1892", season:"1891-92", winner: canonWinner("Sunderland") },
+    { id:"S1893", season:"1892-93", winner: canonWinner("Sunderland") },
+    { id:"S1894", season:"1893-94", winner: canonWinner("Aston Villa") },
+    { id:"S1895", season:"1894-95", winner: canonWinner("Sunderland") },
+    { id:"S1896", season:"1895-96", winner: canonWinner("Aston Villa") },
+    { id:"S1897", season:"1896-97", winner: canonWinner("Aston Villa") },
+    { id:"S1898", season:"1897-98", winner: canonWinner("Sheffield United") },
+    { id:"S1899", season:"1898-99", winner: canonWinner("Aston Villa") },
+    { id:"S1900", season:"1899-1900", winner: canonWinner("Aston Villa") },
+    { id:"S1901", season:"1900-01", winner: canonWinner("Liverpool") },
+    { id:"S1902", season:"1901-02", winner: canonWinner("Sunderland") },
+    { id:"S1903", season:"1902-03", winner: canonWinner("Sheffield Wednesday") },
+    { id:"S1904", season:"1903-04", winner: canonWinner("Sheffield Wednesday") },
+    { id:"S1905", season:"1904-05", winner: canonWinner("Newcastle United") },
+    { id:"S1906", season:"1905-06", winner: canonWinner("Liverpool") },
+    { id:"S1907", season:"1906-07", winner: canonWinner("Newcastle United") },
+    { id:"S1908", season:"1907-08", winner: canonWinner("Manchester United") },
+    { id:"S1909", season:"1908-09", winner: canonWinner("Newcastle United") },
+    { id:"S1910", season:"1909-10", winner: canonWinner("Aston Villa") },
+    { id:"S1911", season:"1910-11", winner: canonWinner("Manchester United") },
+    { id:"S1912", season:"1911-12", winner: canonWinner("Blackburn Rovers") },
+    { id:"S1913", season:"1912-13", winner: canonWinner("Sunderland") },
+    { id:"S1914", season:"1913-14", winner: canonWinner("Blackburn Rovers") },
+    { id:"S1915", season:"1914-15", winner: canonWinner("Everton") },
+
+    { id:"S1920", season:"1919-20", winner: canonWinner("West Bromwich Albion") },
+    { id:"S1921", season:"1920-21", winner: canonWinner("Burnley") },
+    { id:"S1922", season:"1921-22", winner: canonWinner("Liverpool") },
+    { id:"S1923", season:"1922-23", winner: canonWinner("Liverpool") },
+    { id:"S1924", season:"1923-24", winner: canonWinner("Huddersfield Town") },
+    { id:"S1925", season:"1924-25", winner: canonWinner("Huddersfield Town") },
+    { id:"S1926", season:"1925-26", winner: canonWinner("Huddersfield Town") },
+    { id:"S1927", season:"1926-27", winner: canonWinner("Newcastle United") },
+    { id:"S1928", season:"1927-28", winner: canonWinner("Everton") },
+    { id:"S1929", season:"1928-29", winner: canonWinner("Sheffield Wednesday") },
+    { id:"S1930", season:"1929-30", winner: canonWinner("Sheffield Wednesday") },
+    { id:"S1931", season:"1930-31", winner: canonWinner("Arsenal") },
+    { id:"S1932", season:"1931-32", winner: canonWinner("Everton") },
+    { id:"S1933", season:"1932-33", winner: canonWinner("Arsenal") },
+    { id:"S1934", season:"1933-34", winner: canonWinner("Arsenal") },
+    { id:"S1935", season:"1934-35", winner: canonWinner("Arsenal") },
+    { id:"S1936", season:"1935-36", winner: canonWinner("Sunderland") },
+    { id:"S1937", season:"1936-37", winner: canonWinner("Manchester City") },
+    { id:"S1938", season:"1937-38", winner: canonWinner("Arsenal") },
+    { id:"S1939", season:"1938-39", winner: canonWinner("Everton") },
+
+    { id:"S1947", season:"1946-47", winner: canonWinner("Liverpool") },
+    { id:"S1948", season:"1947-48", winner: canonWinner("Arsenal") },
+    { id:"S1949", season:"1948-49", winner: canonWinner("Portsmouth") },
+    { id:"S1950", season:"1949-50", winner: canonWinner("Portsmouth") },
+    { id:"S1951", season:"1950-51", winner: canonWinner("Tottenham Hotspur") },
+    { id:"S1952", season:"1951-52", winner: canonWinner("Manchester United") },
+    { id:"S1953", season:"1952-53", winner: canonWinner("Arsenal") },
+    { id:"S1954", season:"1953-54", winner: canonWinner("Wolverhampton Wanderers") },
+    { id:"S1955", season:"1954-55", winner: canonWinner("Chelsea") },
+    { id:"S1956", season:"1955-56", winner: canonWinner("Manchester United") },
+    { id:"S1957", season:"1956-57", winner: canonWinner("Manchester United") },
+    { id:"S1958", season:"1957-58", winner: canonWinner("Wolverhampton Wanderers") },
+    { id:"S1959", season:"1958-59", winner: canonWinner("Wolverhampton Wanderers") },
+    { id:"S1960", season:"1959-60", winner: canonWinner("Burnley") },
+    { id:"S1961", season:"1960-61", winner: canonWinner("Tottenham Hotspur") },
+    { id:"S1962", season:"1961-62", winner: canonWinner("Ipswich Town") },
+    { id:"S1963", season:"1962-63", winner: canonWinner("Everton") },
+    { id:"S1964", season:"1963-64", winner: canonWinner("Liverpool") },
+    { id:"S1965", season:"1964-65", winner: canonWinner("Manchester United") },
+    { id:"S1966", season:"1965-66", winner: canonWinner("Liverpool") },
+    { id:"S1967", season:"1966-67", winner: canonWinner("Manchester United") },
+    { id:"S1968", season:"1967-68", winner: canonWinner("Manchester City") },
+    { id:"S1969", season:"1968-69", winner: canonWinner("Leeds United") },
+    { id:"S1970", season:"1969-70", winner: canonWinner("Everton") },
+    { id:"S1971", season:"1970-71", winner: canonWinner("Arsenal") },
+    { id:"S1972", season:"1971-72", winner: canonWinner("Derby County") },
+    { id:"S1973", season:"1972-73", winner: canonWinner("Liverpool") },
+    { id:"S1974", season:"1973-74", winner: canonWinner("Leeds United") },
+    { id:"S1975", season:"1974-75", winner: canonWinner("Derby County") },
+    { id:"S1976", season:"1975-76", winner: canonWinner("Liverpool") },
+    { id:"S1977", season:"1976-77", winner: canonWinner("Liverpool") },
+    { id:"S1978", season:"1977-78", winner: canonWinner("Nottingham Forest") },
+    { id:"S1979", season:"1978-79", winner: canonWinner("Liverpool") },
+    { id:"S1980", season:"1979-80", winner: canonWinner("Liverpool") },
+    { id:"S1981", season:"1980-81", winner: canonWinner("Aston Villa") },
+    { id:"S1982", season:"1981-82", winner: canonWinner("Liverpool") },
+    { id:"S1983", season:"1982-83", winner: canonWinner("Liverpool") },
+    { id:"S1984", season:"1983-84", winner: canonWinner("Liverpool") },
+    { id:"S1985", season:"1984-85", winner: canonWinner("Everton") },
+    { id:"S1986", season:"1985-86", winner: canonWinner("Liverpool") },
+    { id:"S1987", season:"1986-87", winner: canonWinner("Everton") },
+    { id:"S1988", season:"1987-88", winner: canonWinner("Liverpool") },
+    { id:"S1989", season:"1988-89", winner: canonWinner("Arsenal") },
+    { id:"S1990", season:"1989-90", winner: canonWinner("Liverpool") },
+    { id:"S1991", season:"1990-91", winner: canonWinner("Arsenal") },
+    { id:"S1992", season:"1991-92", winner: canonWinner("Leeds United") },
+
+    { id:"S1993PL", season:"1992-93", winner: canonWinner("Manchester United") },
+    { id:"S1994PL", season:"1993-94", winner: canonWinner("Manchester United") },
+    { id:"S1995PL", season:"1994-95", winner: canonWinner("Blackburn Rovers") },
+    { id:"S1996PL", season:"1995-96", winner: canonWinner("Manchester United") },
+    { id:"S1997PL", season:"1996-97", winner: canonWinner("Manchester United") },
+    { id:"S1998PL", season:"1997-98", winner: canonWinner("Arsenal") },
+    { id:"S1999PL", season:"1998-99", winner: canonWinner("Manchester United") },
+    { id:"S2000PL", season:"1999-2000", winner: canonWinner("Manchester United") },
+    { id:"S2001PL", season:"2000-01", winner: canonWinner("Manchester United") },
+    { id:"S2002PL", season:"2001-02", winner: canonWinner("Arsenal") },
+    { id:"S2003PL", season:"2002-03", winner: canonWinner("Manchester United") },
+    { id:"S2004PL", season:"2003-04", winner: canonWinner("Arsenal") },
+    { id:"S2005PL", season:"2004-05", winner: canonWinner("Chelsea") },
+    { id:"S2006PL", season:"2005-06", winner: canonWinner("Chelsea") },
+    { id:"S2007PL", season:"2006-07", winner: canonWinner("Manchester United") },
+    { id:"S2008PL", season:"2007-08", winner: canonWinner("Manchester United") },
+    { id:"S2009PL", season:"2008-09", winner: canonWinner("Manchester United") },
+    { id:"S2010PL", season:"2009-10", winner: canonWinner("Chelsea") },
+    { id:"S2011PL", season:"2010-11", winner: canonWinner("Manchester United") },
+    { id:"S2012PL", season:"2011-12", winner: canonWinner("Manchester City") },
+    { id:"S2013PL", season:"2012-13", winner: canonWinner("Manchester United") },
+    { id:"S2014PL", season:"2013-14", winner: canonWinner("Manchester City") },
+    { id:"S2015PL", season:"2014-15", winner: canonWinner("Chelsea") },
+    { id:"S2016PL", season:"2015-16", winner: canonWinner("Leicester City") },
+    { id:"S2017PL", season:"2016-17", winner: canonWinner("Chelsea") },
+    { id:"S2018PL", season:"2017-18", winner: canonWinner("Manchester City") },
+    { id:"S2019PL", season:"2018-19", winner: canonWinner("Manchester City") },
+    { id:"S2020PL", season:"2019-20", winner: canonWinner("Liverpool") },
+    { id:"S2021PL", season:"2020-21", winner: canonWinner("Manchester City") },
+    { id:"S2022PL", season:"2021-22", winner: canonWinner("Manchester City") },
+    { id:"S2023PL", season:"2022-23", winner: canonWinner("Manchester City") },
+    { id:"S2024PL", season:"2023-24", winner: canonWinner("Manchester City") },
+    { id:"S2025PL", season:"2024-25", winner: canonWinner("Liverpool") },
+  ];
+
+  const TOTAL = editions.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // Index par id + par club
+  const byId = new Map();
+  const idsByClub = new Map();
+  const displayNameByKey = new Map();
+
+  for (const e of editions) {
+    byId.set(e.id, e);
+    const k = normalize(e.winner);
+    if (!idsByClub.has(k)) idsByClub.set(k, []);
+    idsByClub.get(k).push(e.id);
+    displayNameByKey.set(k, e.winner);
+  }
+
+  // Aliases (abréviations / noms usuels)
+  const aliasToKey = new Map([
+    // Manchester United
+    [normalize("mu"), normalize("Manchester United")],
+    [normalize("manu"), normalize("Manchester United")],
+    [normalize("man united"), normalize("Manchester United")],
+    [normalize("man utd"), normalize("Manchester United")],
+    [normalize("manchester united"), normalize("Manchester United")],
+    [normalize("manchester utd"), normalize("Manchester United")],
+    [normalize("united"), normalize("Manchester United")],
+
+    // Manchester City
+    [normalize("mc"), normalize("Manchester City")],
+    [normalize("mancity"), normalize("Manchester City")],
+    [normalize("man city"), normalize("Manchester City")],
+    [normalize("manchester city"), normalize("Manchester City")],
+    [normalize("city"), normalize("Manchester City")],
+
+    // Arsenal
+    [normalize("arsenal"), normalize("Arsenal")],
+    [normalize("gunners"), normalize("Arsenal")],
+
+    // Chelsea
+    [normalize("chelsea"), normalize("Chelsea")],
+    [normalize("cfc"), normalize("Chelsea")],
+
+    // Liverpool
+    [normalize("liverpool"), normalize("Liverpool")],
+    [normalize("lfc"), normalize("Liverpool")],
+    [normalize("pool"), normalize("Liverpool")],
+
+    // Everton
+    [normalize("everton"), normalize("Everton")],
+    [normalize("efc"), normalize("Everton")],
+    [normalize("toffees"), normalize("Everton")],
+
+    // Aston Villa
+    [normalize("villa"), normalize("Aston Villa")],
+    [normalize("aston villa"), normalize("Aston Villa")],
+    [normalize("avfc"), normalize("Aston Villa")],
+
+    // Spurs
+    [normalize("spurs"), normalize("Tottenham Hotspur")],
+    [normalize("tottenham"), normalize("Tottenham Hotspur")],
+    [normalize("tottenham hotspur"), normalize("Tottenham Hotspur")],
+
+    // Wolves
+    [normalize("wolves"), normalize("Wolverhampton Wanderers")],
+    [normalize("wolverhampton"), normalize("Wolverhampton Wanderers")],
+    [normalize("wolverhampton wanderers"), normalize("Wolverhampton Wanderers")],
+
+    // Leeds
+    [normalize("leeds"), normalize("Leeds United")],
+    [normalize("leeds united"), normalize("Leeds United")],
+    [normalize("lufc"), normalize("Leeds United")],
+
+    // Blackburn
+    [normalize("blackburn"), normalize("Blackburn Rovers")],
+    [normalize("blackburn rovers"), normalize("Blackburn Rovers")],
+    [normalize("rovers"), normalize("Blackburn Rovers")],
+
+    // Leicester
+    [normalize("leicester"), normalize("Leicester City")],
+    [normalize("leicester city"), normalize("Leicester City")],
+    [normalize("foxes"), normalize("Leicester City")],
+
+    // Newcastle
+    [normalize("newcastle"), normalize("Newcastle United")],
+    [normalize("newcastle united"), normalize("Newcastle United")],
+    [normalize("nufc"), normalize("Newcastle United")],
+
+    // Sunderland
+    [normalize("sunderland"), normalize("Sunderland")],
+    [normalize("safc"), normalize("Sunderland")],
+
+    // Sheffield Wednesday
+    [normalize("sheffield wednesday"), normalize("Sheffield Wednesday")],
+    [normalize("sheff wed"), normalize("Sheffield Wednesday")],
+    [normalize("swfc"), normalize("Sheffield Wednesday")],
+
+    // Sheffield United
+    [normalize("sheffield united"), normalize("Sheffield United")],
+    [normalize("sheff utd"), normalize("Sheffield United")],
+    [normalize("sufc"), normalize("Sheffield United")],
+
+    // Preston
+    [normalize("preston"), normalize("Preston North End")],
+    [normalize("preston north end"), normalize("Preston North End")],
+    [normalize("pne"), normalize("Preston North End")],
+
+    // West Brom
+    [normalize("west brom"), normalize("West Bromwich Albion")],
+    [normalize("west bromwich albion"), normalize("West Bromwich Albion")],
+    [normalize("wba"), normalize("West Bromwich Albion")],
+
+    // Huddersfield
+    [normalize("huddersfield"), normalize("Huddersfield Town")],
+    [normalize("huddersfield town"), normalize("Huddersfield Town")],
+
+    // Burnley
+    [normalize("burnley"), normalize("Burnley")],
+
+    // Portsmouth
+    [normalize("portsmouth"), normalize("Portsmouth")],
+    [normalize("pompey"), normalize("Portsmouth")],
+
+    // Ipswich
+    [normalize("ipswich"), normalize("Ipswich Town")],
+    [normalize("ipswich town"), normalize("Ipswich Town")],
+
+    // Derby
+    [normalize("derby"), normalize("Derby County")],
+    [normalize("derby county"), normalize("Derby County")],
+    [normalize("dcfc"), normalize("Derby County")],
+
+    // Forest
+    [normalize("forest"), normalize("Nottingham Forest")],
+    [normalize("nottingham forest"), normalize("Nottingham Forest")],
+    [normalize("nottm forest"), normalize("Nottingham Forest")],
+  ]);
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const hintBox = document.getElementById("hintBox");
+  const btnHint = document.getElementById("btnHint");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  // ✅ Indice : 1ère lettre de chaque mot (sans dévoiler le nom)
+  function initialsWords(label){
+    return (label || "")
+      .trim()
+      .replace(/['’]/g, " ")
+      .replace(/\s+/g, " ")
+      .split(" ")
+      .filter(Boolean)
+      .map(w => w[0].toUpperCase())
+      .join(" ");
+  }
+
+  function remainingClubHints(){
+    const left = [];
+    for (const [k, ids] of idsByClub.entries()){
+      const missing = ids.some(id => !foundIds.has(id));
+      if (!missing) continue;
+      const name = displayNameByKey.get(k) || k;
+      left.push(name);
+    }
+    left.sort((a,b) => a.localeCompare(b, "fr"));
+    return left.map(n => ({ name:n, hint: initialsWords(n) }));
+  }
+
+  function toggleHints(){
+    const items = remainingClubHints();
+    if (!items.length){
+      hintBox.style.display = "none";
+      hintBox.innerHTML = "";
+      setToast("good", "✅ Plus aucun club à trouver !");
+      return;
+    }
+
+    const isOpen = hintBox.style.display === "block";
+    if (isOpen){
+      hintBox.style.display = "none";
+      return;
+    }
+
+    const chunks = items.map(x => `<code title="${x.name}">${x.hint}</code>`);
+    hintBox.innerHTML = `<strong>💡 Indices (clubs restants) :</strong><br>${chunks.join(" ")}`;
+    hintBox.style.display = "block";
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.id}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.id}" alt="" />
+          <div class="num">${e.season}</div>
+          <div class="name masked" id="name-${e.id}">??????</div>
+        </div>
+        <div class="status" id="status-${e.id}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealEntry(id, mode /* "found" | "revealed" */) {
+    const e = byId.get(id);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${id}`);
+    const nameEl = document.getElementById(`name-${id}`);
+    const statusEl = document.getElementById(`status-${id}`);
+    const imgEl = document.getElementById(`flag-${id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+
+    // ✅ Noms longs (ex: Wolverhampton Wanderers) : taille réduite + 3 lignes
+    nameEl.classList.toggle("long", normalize(e.winner) === normalize("Wolverhampton Wanderers"));
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+    setClubLogo(imgEl, e.winner);
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundIds.has(e.id)) continue;
+      revealEntry(e.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundClub(normKey) {
+    if (!normKey) return false;
+    for (const k of idsByClub.keys()) {
+      if (k === normKey) continue;
+      const allIds = idsByClub.get(k) || [];
+      const missing = allIds.some(id => !foundIds.has(id));
+      if (missing && k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function validateClub(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (!idsByClub.has(key)) {
+      return { ok:false, reason:"unknown" };
+    }
+
+    startTimerIfNeeded();
+
+    const ids = idsByClub.get(key);
+    const newly = [];
+    for (const id of ids) {
+      if (!foundIds.has(id)) {
+        foundIds.add(id);
+        revealEntry(id, "found");
+        newly.push(id);
+      }
+    }
+
+    updateStats();
+
+    // ✅ si le panneau d’indices est ouvert, on le rafraîchit
+    if (hintBox.style.display === "block") toggleHints(), toggleHints();
+
+    const display = displayNameByKey.get(key) || raw;
+
+    if (newly.length === 0) {
+      setToast("warn", `⚠️ Déjà trouvé : ${display} (toutes ses saisons sont déjà révélées).`);
+      return { ok:true, changed:false };
+    } else {
+      const seasons = newly.map(id => byId.get(id)?.season).filter(Boolean);
+      setToast("good", `✅ Bien joué : ${display} → ${seasons.join(", ")}`);
+
+      const lastId = newly[newly.length - 1];
+      const cell = document.getElementById(`cell-${lastId}`);
+      cell && cell.animate(
+        [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+        { duration: 160, easing: "ease-out" }
+      );
+      cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+      if (foundIds.size === TOTAL) finish();
+      return { ok:true, changed:true };
+    }
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un club."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+    if (!idsByClub.has(key)) {
+      setToast("bad", "❌ Club non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    validateClub(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    // ✅ reset hints
+    hintBox.style.display = "none";
+    hintBox.innerHTML = "";
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = aliasToKey.get(norm) || norm;
+    if (isPrefixOfAnotherUnfoundClub(key)) return;
+
+    if (idsByClub.has(key)) {
+      input.value = "";
+      validateClub(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnHint.addEventListener("click", toggleHints);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

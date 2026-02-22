@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Jeux Olympiques d'été : villes & pays hôtes (1896–2024)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        radial-gradient(circle at 30% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 70% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 50% 72%, #111 0 5px, transparent 6px),
+        linear-gradient(#0b1024 0 50%, #fff 50% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .ball::after{
+      content:""; position:absolute; left:-3px; right:-3px; top:50%; height:3px;
+      background:#111; transform: translateY(-50%);
+      opacity:.55;
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 520px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      min-height: 92px;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.partial{
+      color: var(--text);
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.08);
+    }
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+
+    .left{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:2px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+      margin-top: 2px;
+    }
+    .cell.partial .flag{ display:block; }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:78px;
+      text-align:center;
+      flex: 0 0 auto;
+      margin-top: 4px;
+    }
+
+    .lines{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+      padding-top: 2px;
+    }
+
+    .label{
+      font-size:11px;
+      letter-spacing:.4px;
+      opacity:.85;
+      color: var(--muted);
+      font-weight:900;
+      text-transform: uppercase;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:800;
+      color: var(--muted);
+      opacity:.95;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.95;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      padding-top: 4px;
+    }
+    .miniPill{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:12px;
+      font-weight:900;
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      min-width: 56px;
+      text-align:center;
+    }
+    .miniPill.off{
+      color: var(--muted);
+      background: rgba(0,0,0,.12);
+    }
+
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Jeux Olympiques d'été</h1>
+          <p>Un seul champ : tape un <strong>pays</strong> OU une <strong>ville</strong>.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="total">0</span></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:680px;">
+          Accents/espaces/points ignorés (ex: <em>États-Unis</em> = <em>USA</em>, <em>Pékin</em> = <em>Beijing</em>).<br>
+          ✅ Si tu trouves un <strong>pays</strong> ou une <strong>ville</strong>, ils se révèlent partout où ils apparaissent.<br>
+          🏁 Une année est validée quand <strong>pays + ville</strong> sont trouvés pour cette année.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un pays ou une ville… (ex: France, Tokyo, Londres, USA, Pékin)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // drapeau (SVG) depuis flagcdn via ISO2
+  function flagUrl(iso2){
+    const code = (iso2 || "un").toLowerCase();
+    return `https://flagcdn.com/${code}.svg`;
+  }
+
+  // --------- Data (Jeux Olympiques d'été - hôtes) ----------
+  // années annulées (1916, 1940, 1944) exclues.
+  const editions = [
+    { year:1896, city:"Athènes",        country:"Grèce",        iso2:"gr" },
+    { year:1900, city:"Paris",          country:"France",       iso2:"fr" },
+    { year:1904, city:"Saint-Louis",    country:"États-Unis",   iso2:"us" },
+    { year:1908, city:"Londres",        country:"Royaume-Uni",  iso2:"gb" },
+    { year:1912, city:"Stockholm",      country:"Suède",        iso2:"se" },
+    { year:1920, city:"Anvers",         country:"Belgique",     iso2:"be" },
+    { year:1924, city:"Paris",          country:"France",       iso2:"fr" },
+    { year:1928, city:"Amsterdam",      country:"Pays-Bas",     iso2:"nl" },
+    { year:1932, city:"Los Angeles",    country:"États-Unis",   iso2:"us" },
+    { year:1936, city:"Berlin",         country:"Allemagne",    iso2:"de" },
+    { year:1948, city:"Londres",        country:"Royaume-Uni",  iso2:"gb" },
+    { year:1952, city:"Helsinki",       country:"Finlande",     iso2:"fi" },
+    { year:1956, city:"Melbourne",      country:"Australie",    iso2:"au" },
+    { year:1960, city:"Rome",           country:"Italie",       iso2:"it" },
+    { year:1964, city:"Tokyo",          country:"Japon",        iso2:"jp" },
+    { year:1968, city:"Mexico",         country:"Mexique",      iso2:"mx" },
+    { year:1972, city:"Munich",         country:"Allemagne",    iso2:"de" },
+    { year:1976, city:"Montréal",       country:"Canada",       iso2:"ca" },
+    { year:1980, city:"Moscou",         country:"URSS",         iso2:"ru" }, // approximé
+    { year:1984, city:"Los Angeles",    country:"États-Unis",   iso2:"us" },
+    { year:1988, city:"Séoul",          country:"Corée du Sud", iso2:"kr" },
+    { year:1992, city:"Barcelone",      country:"Espagne",      iso2:"es" },
+    { year:1996, city:"Atlanta",        country:"États-Unis",   iso2:"us" },
+    { year:2000, city:"Sydney",         country:"Australie",    iso2:"au" },
+    { year:2004, city:"Athènes",        country:"Grèce",        iso2:"gr" },
+    { year:2008, city:"Pékin",          country:"Chine",        iso2:"cn" },
+    { year:2012, city:"Londres",        country:"Royaume-Uni",  iso2:"gb" },
+    { year:2016, city:"Rio de Janeiro", country:"Brésil",       iso2:"br" },
+    { year:2020, city:"Tokyo",          country:"Japon",        iso2:"jp" },
+    { year:2024, city:"Paris",          country:"France",       iso2:"fr" },
+	{ year:2028, city:"Los Angeles",    country:"États-Unis",   iso2:"us" },
+	{ year:2032, city:"Brisbane",       country:"Australie",    iso2:"au" },
+  ];
+
+  const TOTAL = editions.length;
+  document.getElementById("total").textContent = TOTAL;
+
+  // Index
+  const byYear = new Map();                 // year -> edition
+  const yearsByCountry = new Map();         // countryKey -> [years...]
+  const yearsByCity = new Map();            // cityKey -> [years...]
+  const displayCountryByKey = new Map();    // key -> "France"
+  const displayCityByKey = new Map();       // key -> "Paris"
+  const isoByCountryKey = new Map();        // countryKey -> iso2
+
+  for (const e of editions) {
+    byYear.set(e.year, e);
+
+    const ck = normalize(e.country);
+    const vk = normalize(e.city);
+
+    if (!yearsByCountry.has(ck)) yearsByCountry.set(ck, []);
+    yearsByCountry.get(ck).push(e.year);
+
+    if (!yearsByCity.has(vk)) yearsByCity.set(vk, []);
+    yearsByCity.get(vk).push(e.year);
+
+    displayCountryByKey.set(ck, e.country);
+    displayCityByKey.set(vk, e.city);
+
+    if (!isoByCountryKey.has(ck)) isoByCountryKey.set(ck, e.iso2);
+  }
+
+  // --------- Aliases ----------
+  const aliasCountryToKey = new Map([
+    [normalize("usa"), normalize("États-Unis")],
+    [normalize("etats unis"), normalize("États-Unis")],
+    [normalize("etatsunis"), normalize("États-Unis")],
+    [normalize("united states"), normalize("États-Unis")],
+    [normalize("unitedstates"), normalize("États-Unis")],
+    [normalize("amerique"), normalize("États-Unis")],
+
+    [normalize("uk"), normalize("Royaume-Uni")],
+    [normalize("royaume uni"), normalize("Royaume-Uni")],
+    [normalize("royaumeuni"), normalize("Royaume-Uni")],
+    [normalize("united kingdom"), normalize("Royaume-Uni")],
+    [normalize("great britain"), normalize("Royaume-Uni")],
+    [normalize("grande bretagne"), normalize("Royaume-Uni")],
+    [normalize("angleterre"), normalize("Royaume-Uni")],
+
+    [normalize("germany"), normalize("Allemagne")],
+    [normalize("spain"), normalize("Espagne")],
+    [normalize("italy"), normalize("Italie")],
+    [normalize("australia"), normalize("Australie")],
+    [normalize("sweden"), normalize("Suède")],
+    [normalize("belgium"), normalize("Belgique")],
+    [normalize("finlande"), normalize("Finlande")],
+    [normalize("netherlands"), normalize("Pays-Bas")],
+    [normalize("brazil"), normalize("Brésil")],
+    [normalize("brasil"), normalize("Brésil")],
+    [normalize("japan"), normalize("Japon")],
+    [normalize("china"), normalize("Chine")],
+    [normalize("mexico"), normalize("Mexique")],
+    [normalize("south korea"), normalize("Corée du Sud")],
+    [normalize("korea"), normalize("Corée du Sud")],
+
+    [normalize("urss"), normalize("URSS")],
+    [normalize("ussr"), normalize("URSS")],
+    [normalize("union sovietique"), normalize("URSS")],
+    [normalize("soviet union"), normalize("URSS")],
+    [normalize("russie"), normalize("URSS")], // tolérance
+
+    // pour sécurité (tape exact)
+    [normalize("france"), normalize("France")],
+    [normalize("grece"), normalize("Grèce")],
+    [normalize("canada"), normalize("Canada")],
+    [normalize("chine"), normalize("Chine")],
+    [normalize("japon"), normalize("Japon")],
+    [normalize("mexique"), normalize("Mexique")],
+    [normalize("espagne"), normalize("Espagne")],
+    [normalize("italie"), normalize("Italie")],
+    [normalize("australie"), normalize("Australie")],
+    [normalize("suede"), normalize("Suède")],
+    [normalize("belgique"), normalize("Belgique")],
+    [normalize("finlande"), normalize("Finlande")],
+    [normalize("pays bas"), normalize("Pays-Bas")],
+    [normalize("paysbas"), normalize("Pays-Bas")],
+    [normalize("bresil"), normalize("Brésil")],
+    [normalize("coree du sud"), normalize("Corée du Sud")],
+    [normalize("coreedusud"), normalize("Corée du Sud")],
+  ]);
+
+  const aliasCityToKey = new Map([
+    [normalize("athenes"), normalize("Athènes")],
+    [normalize("athens"), normalize("Athènes")],
+    [normalize("londres"), normalize("Londres")],
+    [normalize("london"), normalize("Londres")],
+    [normalize("saint louis"), normalize("Saint-Louis")],
+    [normalize("saintlouis"), normalize("Saint-Louis")],
+    [normalize("st louis"), normalize("Saint-Louis")],
+    [normalize("stlouis"), normalize("Saint-Louis")],
+    [normalize("losangeles"), normalize("Los Angeles")],
+    [normalize("los angeles"), normalize("Los Angeles")],
+    [normalize("la"), normalize("Los Angeles")],
+    [normalize("anvers"), normalize("Anvers")],
+    [normalize("antwerp"), normalize("Anvers")],
+    [normalize("montreal"), normalize("Montréal")],
+    [normalize("moscow"), normalize("Moscou")],
+    [normalize("seoul"), normalize("Séoul")],
+    [normalize("beijing"), normalize("Pékin")],
+    [normalize("pekin"), normalize("Pékin")],
+    [normalize("rio"), normalize("Rio de Janeiro")],
+    [normalize("rio de janeiro"), normalize("Rio de Janeiro")],
+    [normalize("riodejaneiro"), normalize("Rio de Janeiro")],
+
+    // tape exact
+    [normalize("paris"), normalize("Paris")],
+    [normalize("stockholm"), normalize("Stockholm")],
+    [normalize("amsterdam"), normalize("Amsterdam")],
+    [normalize("berlin"), normalize("Berlin")],
+    [normalize("helsinki"), normalize("Helsinki")],
+    [normalize("melbourne"), normalize("Melbourne")],
+    [normalize("rome"), normalize("Rome")],
+    [normalize("roma"), normalize("Rome")],
+    [normalize("tokyo"), normalize("Tokyo")],
+    [normalize("tokio"), normalize("Tokyo")],
+    [normalize("mexico"), normalize("Mexico")],
+    [normalize("mexico city"), normalize("Mexico")],
+    [normalize("mexicocity"), normalize("Mexico")],
+    [normalize("munich"), normalize("Munich")],
+    [normalize("munchen"), normalize("Munich")],
+    [normalize("barcelone"), normalize("Barcelone")],
+    [normalize("barcelona"), normalize("Barcelone")],
+    [normalize("atlanta"), normalize("Atlanta")],
+    [normalize("sydney"), normalize("Sydney")],
+	[normalize("brisbane"), normalize("Brisbane")],
+  ]);
+
+  // --------- State ----------
+  const foundCountryYears = new Set(); // années dont le pays est trouvé
+  const foundCityYears = new Set();    // années dont la ville est trouvée
+  const solvedYears = new Set();       // années complètes (pays + ville)
+
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = solvedYears.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.year}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.year}" alt="" />
+          <div class="num">${e.year}</div>
+          <div class="lines">
+            <div class="label">Pays</div>
+            <div class="name masked" id="country-${e.year}">??????</div>
+            <div class="label" style="margin-top:2px;">Ville</div>
+            <div class="name masked" id="city-${e.year}">??????</div>
+          </div>
+        </div>
+        <div class="status">
+          <div class="miniPill off" id="stC-${e.year}">Pays</div>
+          <div class="miniPill off" id="stV-${e.year}">Ville</div>
+        </div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function refreshCellClass(year) {
+    const cell = document.getElementById(`cell-${year}`);
+    const hasC = foundCountryYears.has(year);
+    const hasV = foundCityYears.has(year);
+
+    cell.classList.remove("partial", "found", "revealed");
+    if (isGivenUp && !solvedYears.has(year)) {
+      cell.classList.add("revealed");
+      return;
+    }
+    if (hasC && hasV) cell.classList.add("found");
+    else if (hasC || hasV) cell.classList.add("partial");
+  }
+
+  function markSolvedIfComplete(year) {
+    if (foundCountryYears.has(year) && foundCityYears.has(year)) {
+      solvedYears.add(year);
+    }
+  }
+
+  function renderCountryForYear(year, mode /* "found" | "revealed" */) {
+    const e = byYear.get(year);
+    if (!e) return;
+
+    const el = document.getElementById(`country-${year}`);
+    const st = document.getElementById(`stC-${year}`);
+    const flagEl = document.getElementById(`flag-${year}`);
+
+    el.textContent = e.country;
+    el.classList.remove("masked");
+    st.classList.remove("off");
+    st.textContent = "Pays ✅";
+
+    flagEl.src = flagUrl(e.iso2);
+    flagEl.alt = `Drapeau ${e.country}`;
+
+    if (mode === "found") {
+      foundCountryYears.add(year);
+      markSolvedIfComplete(year);
+    }
+
+    refreshCellClass(year);
+  }
+
+  function renderCityForYear(year, mode /* "found" | "revealed" */) {
+    const e = byYear.get(year);
+    if (!e) return;
+
+    const el = document.getElementById(`city-${year}`);
+    const st = document.getElementById(`stV-${year}`);
+
+    el.textContent = e.city;
+    el.classList.remove("masked");
+    st.classList.remove("off");
+    st.textContent = "Ville ✅";
+
+    if (mode === "found") {
+      foundCityYears.add(year);
+      markSolvedIfComplete(year);
+    }
+
+    refreshCellClass(year);
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (!foundCountryYears.has(e.year)) renderCountryForYear(e.year, "revealed");
+      if (!foundCityYears.has(e.year)) renderCityForYear(e.year, "revealed");
+      refreshCellClass(e.year);
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = solvedYears.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} années complètes en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Quiz complété en ${timerEl.textContent} !`);
+  }
+
+  // --------- Validation logic (1 champ : pays OU ville) ----------
+  function validateCountry(raw) {
+    const norm = normalize(raw);
+    const key = aliasCountryToKey.get(norm) || norm;
+    if (!yearsByCountry.has(key)) return { ok:false };
+
+    startTimerIfNeeded();
+
+    const years = yearsByCountry.get(key);
+    const newly = [];
+    for (const y of years) {
+      if (!foundCountryYears.has(y)) {
+        renderCountryForYear(y, "found");
+        newly.push(y);
+      }
+    }
+    updateStats();
+
+    return {
+      ok:true,
+      changed: newly.length > 0,
+      display: displayCountryByKey.get(key) || raw,
+      years: newly.sort((a,b)=>a-b)
+    };
+  }
+
+  function validateCity(raw) {
+    const norm = normalize(raw);
+    const key = aliasCityToKey.get(norm) || norm;
+    if (!yearsByCity.has(key)) return { ok:false };
+
+    startTimerIfNeeded();
+
+    const years = yearsByCity.get(key);
+    const newly = [];
+    for (const y of years) {
+      if (!foundCityYears.has(y)) {
+        renderCityForYear(y, "found");
+        newly.push(y);
+      }
+    }
+    updateStats();
+
+    return {
+      ok:true,
+      changed: newly.length > 0,
+      display: displayCityByKey.get(key) || raw,
+      years: newly.sort((a,b)=>a-b)
+    };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    const norm = normalize(raw);
+
+    input.value = "";
+    input.focus();
+
+    if (!norm) { setToast("warn", "⚠️ Tape un pays ou une ville."); return; }
+
+    // On tente pays puis ville (si les deux matchent, on révèle les deux)
+    const cTry = validateCountry(raw);
+    const vTry = validateCity(raw);
+
+    if (!cTry.ok && !vTry.ok) {
+      setToast("bad", "❌ Non reconnu (ni pays, ni ville).");
+      return;
+    }
+
+    const parts = [];
+    let anyChanged = false;
+
+    if (cTry.ok) {
+      if (cTry.changed) { anyChanged = true; parts.push(`✅ Pays : ${cTry.display} → ${cTry.years.join(", ")}`); }
+      else parts.push(`⚠️ Pays déjà trouvé : ${cTry.display}.`);
+    }
+    if (vTry.ok) {
+      if (vTry.changed) { anyChanged = true; parts.push(`✅ Ville : ${vTry.display} → ${vTry.years.join(", ")}`); }
+      else parts.push(`⚠️ Ville déjà trouvée : ${vTry.display}.`);
+    }
+
+    setToast(anyChanged ? "good" : "warn", parts.join("  "));
+
+    if (solvedYears.size === TOTAL) finish();
+  }
+
+  function resetQuiz() {
+    foundCountryYears.clear();
+    foundCityYears.clear();
+    solvedYears.clear();
+
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // --------- Auto-try (validation auto si correspond exactement) ----------
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const cKey = aliasCountryToKey.get(norm) || norm;
+    const vKey = aliasCityToKey.get(norm) || norm;
+
+    const canC = yearsByCountry.has(cKey);
+    const canV = yearsByCity.has(vKey);
+
+    if (!canC && !canV) return;
+
+    input.value = "";
+    // révèle ce qui match
+    if (canC) validateCountry(raw);
+    if (canV) validateCity(raw);
+
+    updateStats();
+    if (solvedYears.size === TOTAL) finish();
+    input.focus();
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 130);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Ballon d’Or (1956–…)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(245,158,11,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(34,197,94,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .badge{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      box-shadow: 0 12px 22px rgba(0,0,0,.25);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      font-size:22px;
+    }
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(245,158,11,.55);
+      background: rgba(245,158,11,.16);
+    }
+    .btn.primary:hover{ background: rgba(245,158,11,.22); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(245,158,11,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+
+    .hintPanel{
+      margin: 0 18px 12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      padding:12px 12px 10px;
+      display:none;
+    }
+    .hintPanel.show{ display:block; }
+    .hintPanelTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .hintTitle{ font-weight:900; color: var(--text); font-size:13px; }
+    .hintSub{ color: var(--muted); font-size:12px; margin-top:2px; }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      max-height: 140px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:12px;
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .chip span{ color: var(--muted); font-weight:800; font-size:11px; }
+
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{ color: var(--bad); font-weight: 900; }
+
+    .cell.cancelled{
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.10);
+      color: var(--text);
+    }
+    .cell.cancelled .status{
+      color: var(--warn);
+      font-weight: 900;
+    }
+    .cell.cancelled .name{
+      color: var(--warn);
+      font-weight: 900;
+    }
+
+    .left{ display:flex; align-items:center; gap:10px; min-width: 0; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:110px;
+      text-align:center;
+      flex: 0 0 auto;
+      white-space:nowrap;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+    .name small{ font-weight:700; color: rgba(231,238,252,.86); }
+
+    /* ✅ drapeau en image */
+    .flagImg{
+      width:18px;
+      height:12px;
+      border-radius:3px;
+      vertical-align:-2px;
+      margin-left:8px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      object-fit:cover;
+    }
+
+    .status{ flex: 0 0 auto; font-size: 14px; opacity:.9; white-space:nowrap; }
+    .masked{ letter-spacing:.6px; font-weight:700; color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true">🏆</div>
+        <div class="title">
+          <h1>Quiz — Ballon d’Or</h1>
+          <p>De 1956 à aujourd’hui (vainqueur + drapeau)</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          ✅ Tu peux taper <strong>nom complet</strong> ou <strong>nom de famille</strong> (ordre libre).<br/>
+          Exemple : <strong>Messi</strong>, <strong>Cristiano Ronaldo</strong>, <strong>Platini</strong>, <strong>Cruyff</strong>…
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un vainqueur du Ballon d’Or (ex : Messi, Ronaldo, Zidane…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div class="hintPanel" id="hintPanel">
+        <div class="hintPanelTop">
+          <div>
+            <div class="hintTitle">💡 Initiales des joueurs restants</div>
+            <div class="hintSub">Affiché par joueur (si un joueur a gagné plusieurs fois, il n’apparaît qu’une fois ici).</div>
+          </div>
+          <button class="btn" id="btnHintClose">✖</button>
+        </div>
+        <div class="chips" id="hintChips"></div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+  function lastName(fullName){
+    const s = (fullName || "").trim();
+    if (!s) return "";
+    const parts = s.split(/\s+/).filter(Boolean);
+    return parts[parts.length - 1] || s;
+  }
+  function buildAcceptedSet(fullName, extraAliases = []){
+    const set = new Set();
+    const full = normalize(fullName);
+    const ln = normalize(lastName(fullName));
+    if (full) set.add(full);
+    if (ln) set.add(ln);
+
+    // variantes sans espaces / tirets
+    set.add(full.replace(/-/g,""));
+    set.add(ln.replace(/-/g,""));
+    set.add(full.replace(/\s+/g,""));
+    set.add(ln.replace(/\s+/g,""));
+
+    // alias supplémentaires
+    (extraAliases || []).forEach(a => {
+      const n = normalize(a);
+      if (n) set.add(n);
+    });
+    return set;
+  }
+  function safeHTML(s){
+    return String(s || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+  function initialsOf(fullName){
+    const parts = String(fullName||"").trim().split(/\s+/).filter(Boolean);
+    const letters = parts.map(p => (p[0] || "").toUpperCase()).filter(Boolean);
+    return letters.join(" ");
+  }
+  function playerIdOf(s){ return normalize(s.player); }
+
+  // ✅ drapeau image (FlagCDN) : attend un code ISO2 en minuscule (fr, ar, pt, etc.)
+  function flagImgHTML(code2){
+    const cc = String(code2 || "").trim().toLowerCase();
+    if (!cc || cc.length !== 2) return "";
+    const alt = cc.toUpperCase();
+    return `<img class="flagImg" loading="lazy"
+      src="https://flagcdn.com/w20/${cc}.png"
+      srcset="https://flagcdn.com/w40/${cc}.png 2x"
+      alt="${alt}" title="${alt}" />`;
+  }
+
+  // --------- Data ----------
+  // ✅ Tri CHRONOLOGIQUE (du plus ancien au plus récent) :
+  // - on stocke les années en number
+  // - on trie ascendant
+  // - on affiche 2020 comme "Annulé (Covid)" (si tu veux l'inclure)
+  const awards = [
+    // Dernières années (mets à jour si besoin)
+    { year:2025, player:"Ousmane Dembélé", country:"fr", aliases:["Dembele","Dembélé"] },
+    { year:2024, player:"Rodri", country:"es", aliases:["Rodri Hernandez","Rodrigo Hernandez"] },
+    { year:2023, player:"Lionel Messi", country:"ar", aliases:["Messi","Leo Messi","La Pulga"] },
+    { year:2022, player:"Karim Benzema", country:"fr", aliases:["Benzema"] },
+    { year:2021, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2020, cancelled:true, label:"Annulé (Covid)" },
+
+    { year:2019, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2018, player:"Luka Modrić", country:"hr", aliases:["Modric","Modrić"] },
+    { year:2017, player:"Cristiano Ronaldo", country:"pt", aliases:["CR7","Cristiano","Ronaldo (Cristiano)"] },
+    { year:2016, player:"Cristiano Ronaldo", country:"pt", aliases:["CR7","Cristiano"] },
+    { year:2015, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2014, player:"Cristiano Ronaldo", country:"pt", aliases:["CR7","Cristiano"] },
+    { year:2013, player:"Cristiano Ronaldo", country:"pt", aliases:["CR7","Cristiano"] },
+    { year:2012, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2011, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2010, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2009, player:"Lionel Messi", country:"ar", aliases:["Messi"] },
+    { year:2008, player:"Cristiano Ronaldo", country:"pt", aliases:["CR7","Cristiano"] },
+    { year:2007, player:"Kaká", country:"br", aliases:["Kaka"] },
+    { year:2006, player:"Fabio Cannavaro", country:"it", aliases:["Cannavaro"] },
+    { year:2005, player:"Ronaldinho", country:"br", aliases:["Dinho","Ronaldinho Gaucho"] },
+    { year:2004, player:"Andriy Shevchenko", country:"ua", aliases:["Sheva","Shevchenko"] },
+    { year:2003, player:"Pavel Nedvěd", country:"cz", aliases:["Nedved","Nedvěd"] },
+    { year:2002, player:"Ronaldo", country:"br", aliases:["R9","Ronaldo Nazario","Ronaldo (R9)"] },
+    { year:2001, player:"Michael Owen", country:"gb", aliases:["Owen"] },
+    { year:2000, player:"Luís Figo", country:"pt", aliases:["Figo"] },
+    { year:1999, player:"Rivaldo", country:"br", aliases:["Rivaldo"] },
+    { year:1998, player:"Zinedine Zidane", country:"fr", aliases:["Zidane","Zizou"] },
+    { year:1997, player:"Ronaldo", country:"br", aliases:["R9","Ronaldo Nazario"] },
+    { year:1996, player:"Matthias Sammer", country:"de", aliases:["Sammer"] },
+    { year:1995, player:"George Weah", country:"lr", aliases:["Weah"] },
+    { year:1994, player:"Hristo Stoichkov", country:"bg", aliases:["Stoichkov"] },
+    { year:1993, player:"Roberto Baggio", country:"it", aliases:["Baggio"] },
+    { year:1992, player:"Marco van Basten", country:"nl", aliases:["Van Basten","vanbasten"] },
+    { year:1991, player:"Jean-Pierre Papin", country:"fr", aliases:["Papin","JPP"] },
+    { year:1990, player:"Lothar Matthäus", country:"de", aliases:["Matthaus","Matthäus"] },
+    { year:1989, player:"Marco van Basten", country:"nl", aliases:["Van Basten"] },
+    { year:1988, player:"Marco van Basten", country:"nl", aliases:["Van Basten"] },
+    { year:1987, player:"Ruud Gullit", country:"nl", aliases:["Gullit"] },
+    { year:1986, player:"Igor Belanov", country:"ua", aliases:["Belanov"] },
+    { year:1985, player:"Michel Platini", country:"fr", aliases:["Platini","Platoche"] },
+    { year:1984, player:"Michel Platini", country:"fr", aliases:["Platini","Platoche"] },
+    { year:1983, player:"Michel Platini", country:"fr", aliases:["Platini","Platoche"] },
+    { year:1982, player:"Paolo Rossi", country:"it", aliases:["Rossi"] },
+    { year:1981, player:"Karl-Heinz Rummenigge", country:"de", aliases:["Rummenigge"] },
+    { year:1980, player:"Karl-Heinz Rummenigge", country:"de", aliases:["Rummenigge"] },
+    { year:1979, player:"Kevin Keegan", country:"gb", aliases:["Keegan"] },
+    { year:1978, player:"Kevin Keegan", country:"gb", aliases:["Keegan"] },
+    { year:1977, player:"Allan Simonsen", country:"dk", aliases:["Simonsen"] },
+    { year:1976, player:"Franz Beckenbauer", country:"de", aliases:["Beckenbauer","Der Kaiser"] },
+    { year:1975, player:"Oleg Blokhin", country:"ua", aliases:["Blokhin","Blokhin"] },
+    { year:1974, player:"Johan Cruyff", country:"nl", aliases:["Cruyff"] },
+    { year:1973, player:"Johan Cruyff", country:"nl", aliases:["Cruyff"] },
+    { year:1972, player:"Franz Beckenbauer", country:"de", aliases:["Beckenbauer"] },
+    { year:1971, player:"Johan Cruyff", country:"nl", aliases:["Cruyff"] },
+    { year:1970, player:"Gerd Müller", country:"de", aliases:["Muller","Müller","Gerd Muller"] },
+    { year:1969, player:"Gianni Rivera", country:"it", aliases:["Rivera"] },
+    { year:1968, player:"George Best", country:"gb", aliases:["Best"] },
+    { year:1967, player:"Flórián Albert", country:"hu", aliases:["Florian Albert","Albert"] },
+    { year:1966, player:"Bobby Charlton", country:"gb", aliases:["Charlton"] },
+    { year:1965, player:"Eusébio", country:"pt", aliases:["Eusebio","Eusébio"] },
+    { year:1964, player:"Denis Law", country:"gb", aliases:["Law"] },
+    { year:1963, player:"Lev Yashin", country:"ru", aliases:["Yashin"] },
+    { year:1962, player:"Josef Masopust", country:"cz", aliases:["Masopust"] },
+    { year:1961, player:"Omar Sívori", country:"it", aliases:["Sivori","Sívori"] },
+    { year:1960, player:"Luis Suárez", country:"es", aliases:["Luis Suarez","Suárez"] },
+    { year:1959, player:"Alfredo Di Stéfano", country:"es", aliases:["Di Stefano","Di Stéfano","DiStefano"] },
+    { year:1958, player:"Raymond Kopa", country:"fr", aliases:["Kopa"] },
+    { year:1957, player:"Alfredo Di Stéfano", country:"es", aliases:["Di Stefano","Di Stéfano"] },
+    { year:1956, player:"Stanley Matthews", country:"gb", aliases:["Matthews"] },
+  ];
+
+  // ✅ CHRONO ASC : 1956 -> ...
+  awards.sort((a,b) => a.year - b.year);
+
+  // --------- Indexes ----------
+  const TOTAL = awards.length;
+  document.getElementById("totalTop").textContent = String(TOTAL);
+
+  const acceptedByIndex = awards.map(s => s.cancelled ? new Set() : buildAcceptedSet(s.player, s.aliases));
+  const aliasToIndices = new Map();
+  acceptedByIndex.forEach((set, i) => {
+    for (const a of set) {
+      if (!aliasToIndices.has(a)) aliasToIndices.set(a, []);
+      aliasToIndices.get(a).push(i);
+    }
+  });
+
+  const playerToIndices = new Map();
+  awards.forEach((s, i) => {
+    if (s.cancelled) return;
+    const id = playerIdOf(s);
+    if (!playerToIndices.has(id)) playerToIndices.set(id, []);
+    playerToIndices.get(id).push(i);
+  });
+
+  // --------- State ----------
+  const foundIdx = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  const btnHint = document.getElementById("btnHint");
+  const hintPanel = document.getElementById("hintPanel");
+  const hintChips = document.getElementById("hintChips");
+  const btnHintClose = document.getElementById("btnHintClose");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIdx.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    awards.forEach((s, i) => {
+      const cell = document.createElement("div");
+      cell.className = "cell" + (s.cancelled ? " cancelled" : "");
+      cell.id = `cell-${i}`;
+
+      if (s.cancelled) {
+        cell.innerHTML = `
+          <div class="left">
+            <div class="num">${safeHTML(String(s.year))}</div>
+            <div class="name" id="name-${i}">—</div>
+          </div>
+          <div class="status" id="status-${i}">🟧 ${safeHTML(s.label || "Annulé")}</div>
+        `;
+      } else {
+        cell.innerHTML = `
+          <div class="left">
+            <div class="num">${safeHTML(String(s.year))}</div>
+            <div class="name masked" id="name-${i}">??????</div>
+          </div>
+          <div class="status" id="status-${i}">—</div>
+        `;
+      }
+      gridEl.appendChild(cell);
+    });
+  }
+
+  function renderPlayerLineHTML(s){
+    // ✅ demandé : drapeau correspondant à la nationalité une fois trouvé
+    const player = safeHTML(s.player);
+    const flag = flagImgHTML(s.country);
+    return `${player}${flag ? ` ${flag}` : ""}`;
+  }
+
+  function revealIndex(i, mode /* "found" | "revealed" */) {
+    const s = awards[i];
+    if (!s || s.cancelled) return;
+
+    const cell = document.getElementById(`cell-${i}`);
+    const nameEl = document.getElementById(`name-${i}`);
+    const statusEl = document.getElementById(`status-${i}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.innerHTML = renderPlayerLineHTML(s);
+    nameEl.classList.remove("masked");
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+  }
+
+  function revealMissingSolutions() {
+    awards.forEach((s, i) => {
+      if (s.cancelled) return;
+      if (foundIdx.has(i)) return;
+      revealIndex(i, "revealed");
+    });
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    renderHint();
+
+    const n = foundIdx.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function pickIndexForAlias(norm){
+    const list = aliasToIndices.get(norm);
+    if (!list || !list.length) return -1;
+
+    for (const i of list) if (!foundIdx.has(i)) return i;
+    return -1;
+  }
+
+  function revealAllAwardsOfPlayer(playerId){
+    const indices = playerToIndices.get(playerId) || [];
+    for (const i of indices) {
+      if (foundIdx.has(i)) continue;
+      foundIdx.add(i);
+      revealIndex(i, "found");
+    }
+    return indices;
+  }
+
+  // Empêche l'auto-validation sur un préfixe qui correspond à plusieurs noms
+  function isAnyAliasPrefix(typed){
+    if (!typed) return false;
+    for (const k of aliasToIndices.keys()) {
+      if (k.startsWith(typed) && k !== typed) return true;
+    }
+    return false;
+  }
+
+  function validatePlayer(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    // cas ambigu volontaire : "ronaldo" peut viser CR7 ou R9 -> on force un alias
+    if (norm === "ronaldo") {
+      setToast("warn", "⚠️ Ambigu : tape plutôt “cristiano” / “cr7” ou “r9”.");
+      return;
+    }
+
+    const idx = pickIndexForAlias(norm);
+
+    if (idx === -1) {
+      if (aliasToIndices.has(norm)) {
+        setToast("warn", "⚠️ Déjà trouvé (toutes les entrées correspondant à ce nom sont déjà validées).");
+      } else {
+        setToast("bad", "❌ Joueur non reconnu (ou orthographe non reconnue).");
+      }
+      return;
+    }
+
+    startTimerIfNeeded();
+
+    const pid = playerIdOf(awards[idx]);
+    const indices = revealAllAwardsOfPlayer(pid);
+
+    updateStats();
+    renderHint();
+
+    const s = awards[idx];
+    if (indices.length > 1) setToast("good", `✅ Bien joué : ${s.player} — ${indices.length} Ballons d’Or validés d’un coup !`);
+    else setToast("good", `✅ Bien joué : ${s.player} — ${s.year}.`);
+
+    const first = indices[0];
+    const cell = document.getElementById(`cell-${first}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (foundIdx.size === TOTAL) finish();
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom de joueur."); return; }
+
+    validatePlayer(raw);
+  }
+
+  function resetQuiz() {
+    foundIdx.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+    renderHint();
+  }
+
+  // --------- Auto-validate ----------
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    if (norm === "ronaldo") return; // bloque l'ambiguïté
+    if (isAnyAliasPrefix(norm)) return;
+
+    if (aliasToIndices.has(norm)) {
+      input.value = "";
+      validatePlayer(raw);
+      input.focus();
+    }
+  }
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // --------- Hint feature ----------
+  function remainingPlayerIds(){
+    const ids = [];
+    for (const [id, idxs] of playerToIndices.entries()) {
+      let anyMissing = false;
+      for (const i of idxs) { if (!foundIdx.has(i)) { anyMissing = true; break; } }
+      if (anyMissing) ids.push(id);
+    }
+    return ids;
+  }
+
+  function renderHint(){
+    hintChips.innerHTML = "";
+    const ids = remainingPlayerIds();
+
+    const items = ids.map(id => {
+      const anyIndex = (playerToIndices.get(id) || [])[0];
+      const s = awards[anyIndex];
+      const init = initialsOf(s.player);
+      const missingCount = (playerToIndices.get(id) || []).filter(i => !foundIdx.has(i)).length;
+      const totalCount = (playerToIndices.get(id) || []).length;
+      return { player: s.player, init, missingCount, totalCount };
+    }).sort((a,b) => a.player.localeCompare(b.player, "fr"));
+
+    items.forEach(it => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = `${safeHTML(it.init)} <span>${it.totalCount > 1 ? `${it.missingCount}/${it.totalCount}` : ""}</span>`;
+      hintChips.appendChild(chip);
+    });
+
+    if (!items.length) {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = "✅ Plus aucun joueur restant !";
+      hintChips.appendChild(chip);
+    }
+  }
+
+  function toggleHint(){
+    const show = !hintPanel.classList.contains("show");
+    if (show) {
+      renderHint();
+      hintPanel.classList.add("show");
+      btnHint.textContent = "💡 Indice (ON)";
+    } else {
+      hintPanel.classList.remove("show");
+      btnHint.textContent = "💡 Indice";
+    }
+  }
+
+  // --------- Events ----------
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  btnHint.addEventListener("click", toggleHint);
+  btnHintClose.addEventListener("click", () => {
+    hintPanel.classList.remove("show");
+    btnHint.textContent = "💡 Indice";
+  });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  renderHint();
+  input.focus();
+</script>
+</body>
+</html>

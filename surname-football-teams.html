@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Surnoms des sélections (50) — par zones</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .badge{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      box-shadow: 0 12px 22px rgba(0,0,0,.25);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      font-size:22px;
+    }
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+
+    .hintPanel{
+      margin: 0 18px 12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      padding:12px 12px 10px;
+      display:none;
+    }
+    .hintPanel.show{ display:block; }
+    .hintPanelTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .hintTitle{ font-weight:900; color: var(--text); font-size:13px; }
+    .hintSub{ color: var(--muted); font-size:12px; margin-top:2px; }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      max-height: 140px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:12px;
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .chip span{ color: var(--muted); font-weight:800; font-size:11px; }
+
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+
+    /* ✅ Grille de sections (zones) */
+    .zones{
+      display:grid;
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .zone{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background: rgba(0,0,0,.14);
+      overflow:hidden;
+    }
+    .zoneHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+    }
+    .zoneTitle{
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .zoneCount{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      color: var(--muted);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px 8px;
+      background: rgba(0,0,0,.16);
+      white-space:nowrap;
+    }
+    .zoneGrid{
+      padding:12px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{ color: var(--bad); font-weight: 900; }
+
+    .left{ display:flex; align-items:center; gap:10px; min-width: 0; }
+
+    /* ✅ Ici on affiche le SURNOM (indice) */
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:170px;
+      text-align:center;
+      flex: 0 0 auto;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+    .name small{ font-weight:700; color: rgba(231,238,252,.86); }
+
+    /* ✅ drapeau en image (fiable) */
+    .flagImg{
+      width:18px;
+      height:12px;
+      border-radius:3px;
+      vertical-align:-2px;
+      margin-left:8px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      object-fit:cover;
+    }
+
+    .status{ flex: 0 0 auto; font-size: 14px; opacity:.9; white-space:nowrap; }
+    .masked{ letter-spacing:.6px; font-weight:700; color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true">⚽</div>
+        <div class="title">
+          <h1>Quiz — Surnoms des sélections</h1>
+          <p>50 surnoms : trouve le pays (affichage par zones) + traduction FR du surnom</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">0</span></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:680px;">
+          ✅ Le <strong>surnom</strong> (indice) est affiché. Tape le <strong>pays</strong> correspondant.<br/>
+          Quand un pays est trouvé, on affiche : <strong>Pays + drapeau + (traduction FR du surnom)</strong>.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un pays (ex : France, Brésil, États-Unis, Maroc…)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div class="hintPanel" id="hintPanel">
+        <div class="hintPanelTop">
+          <div>
+            <div class="hintTitle">💡 Initiales des pays restants</div>
+            <div class="hintSub">Une pastille par pays non trouvé.</div>
+          </div>
+          <button class="btn" id="btnHintClose">✖</button>
+        </div>
+        <div class="chips" id="hintChips"></div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <!-- ✅ Remplace l'ancien #grid par des sections -->
+        <div class="zones" id="zones"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+  function safeHTML(s){
+    return String(s || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+  function initialsOf(name){
+    const parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+    const letters = parts.map(p => (p[0] || "").toUpperCase()).filter(Boolean);
+    return letters.join(" ");
+  }
+  function buildAcceptedSet(mainName, extraAliases = []){
+    const set = new Set();
+    const m = normalize(mainName);
+    if (m) set.add(m);
+    set.add(m.replace(/^the/,""));
+    set.add(m.replace(/^republique/,""));
+    (extraAliases || []).forEach(a => {
+      const n = normalize(a);
+      if (n) set.add(n);
+    });
+    return set;
+  }
+
+  // ✅ drapeau image (FlagCDN)
+  function flagImgHTML(code2){
+    const cc = String(code2 || "").trim().toLowerCase();
+    if (!cc || cc.length !== 2) return "";
+    const alt = cc.toUpperCase();
+    return `<img class="flagImg" loading="lazy"
+      src="https://flagcdn.com/w20/${cc}.png"
+      srcset="https://flagcdn.com/w40/${cc}.png 2x"
+      alt="${alt}" title="${alt}" />`;
+  }
+
+  // --------- Data (50) ----------
+  // zone = regroupement ; nicknameFr = traduction FR du surnom affichée entre parenthèses après le drapeau
+  const teams = [
+    // EUROPE
+    { zone:"Europe", nickname:"Les Bleus", nicknameFr:"Les Bleus", country:"France", code:"FR", aliases:["République française","French","FR"] },
+    { zone:"Europe", nickname:"La Roja", nicknameFr:"La Rouge", country:"Espagne", code:"ES", aliases:["Spain","España","ES"] },
+    { zone:"Europe", nickname:"Gli Azzurri", nicknameFr:"Les Bleus", country:"Italie", code:"IT", aliases:["Italy","Italia","IT","Azzurri"] },
+    { zone:"Europe", nickname:"Die Mannschaft", nicknameFr:"L’Équipe", country:"Allemagne", code:"DE", aliases:["Germany","Deutschland","DE"] },
+    { zone:"Europe", nickname:"Oranje", nicknameFr:"Les Oranges", country:"Pays-Bas", code:"NL", aliases:["Netherlands","Hollande","Holland","Nederland","NL"] },
+    { zone:"Europe", nickname:"Red Devils", nicknameFr:"Les Diables rouges", country:"Belgique", code:"BE", aliases:["Belgium","BE","Diables Rouges","Les Diables Rouges"] },
+    { zone:"Europe", nickname:"Seleção das Quinas", nicknameFr:"Sélection des Quinas", country:"Portugal", code:"PT", aliases:["Portugal","PT","Seleção"] },
+    { zone:"Europe", nickname:"Crescent-Stars", nicknameFr:"Les Étoiles du Croissant", country:"Turquie", code:"TR", aliases:["Turkey","Türkiye","TR"] },
+    { zone:"Europe", nickname:"Nati", nicknameFr:"La Nati", country:"Suisse", code:"CH", aliases:["Switzerland","CH","Confédération suisse","Confederation helvetique","Helvetia"] },
+    { zone:"Europe", nickname:"Wunderteam", nicknameFr:"L’Équipe merveille", country:"Autriche", code:"AT", aliases:["Austria","Österreich","AT"] },
+    { zone:"Europe", nickname:"Blågult", nicknameFr:"Bleu et jaune", country:"Suède", code:"SE", aliases:["Sweden","Sverige","SE","Suede"] },
+    { zone:"Europe", nickname:"Danish Dynamite", nicknameFr:"La Dynamite danoise", country:"Danemark", code:"DK", aliases:["Denmark","Danmark","DK"] },
+    { zone:"Europe", nickname:"Vatreni", nicknameFr:"Les Flamboyants", country:"Croatie", code:"HR", aliases:["Croatia","Hrvatska","HR"] },
+    { zone:"Europe", nickname:"Orlovi", nicknameFr:"Les Aigles", country:"Serbie", code:"RS", aliases:["Serbia","Srbija","RS"] },
+    { zone:"Europe", nickname:"Biało-Czerwoni", nicknameFr:"Les Blancs et rouges", country:"Pologne", code:"PL", aliases:["Poland","Polska","PL"] },
+    { zone:"Europe", nickname:"Sbornaya", nicknameFr:"La Sélection", country:"Russie", code:"RU", aliases:["Russia","Russian Federation","RU"] },
+    { zone:"Europe", nickname:"Blue-Yellows", nicknameFr:"Les Bleus et jaunes", country:"Ukraine", code:"UA", aliases:["UA"] },
+
+    // AMERIQUES
+    { zone:"Amériques", nickname:"Seleção", nicknameFr:"La Sélection", country:"Brésil", code:"BR", aliases:["Brazil","Brasil","BR","Canarinha"] },
+    { zone:"Amériques", nickname:"Albiceleste", nicknameFr:"Blanc et ciel", country:"Argentine", code:"AR", aliases:["Argentina","AR"] },
+    { zone:"Amériques", nickname:"La Celeste", nicknameFr:"La Céleste", country:"Uruguay", code:"UY", aliases:["UY"] },
+    { zone:"Amériques", nickname:"Los Cafeteros", nicknameFr:"Les Cafetiers", country:"Colombie", code:"CO", aliases:["Colombia","CO"] },
+    { zone:"Amériques", nickname:"El Tri", nicknameFr:"Le Tri", country:"Mexique", code:"MX", aliases:["Mexico","México","MX"] },
+    { zone:"Amériques", nickname:"Stars and Stripes", nicknameFr:"Étoiles et bandes", country:"États-Unis", code:"US", aliases:["USA","United States","United States of America","US","U.S.A.","Etats-Unis","États Unis","America"] },
+    { zone:"Amériques", nickname:"Los Ticos", nicknameFr:"Les Ticos", country:"Costa Rica", code:"CR", aliases:["CR","Costa-Rica"] },
+    { zone:"Amériques", nickname:"Reggae Boyz", nicknameFr:"Les garçons du reggae", country:"Jamaïque", code:"JM", aliases:["Jamaica","JM"] },
+    { zone:"Amériques", nickname:"Los Catrachos", nicknameFr:"Les Catrachos", country:"Honduras", code:"HN", aliases:["HN"] },
+    { zone:"Amériques", nickname:"Los Canaleros", nicknameFr:"Les Canalistes", country:"Panama", code:"PA", aliases:["Panamá","PA"] },
+    { zone:"Amériques", nickname:"Soca Warriors", nicknameFr:"Les guerriers du soca", country:"Trinité-et-Tobago", code:"TT", aliases:["Trinidad and Tobago","Trinidad-et-Tobago","TT","Trinidad","Tobago"] },
+
+    // ASIE / MOYEN-ORIENT
+    { zone:"Asie / Moyen-Orient", nickname:"Samurai Blue", nicknameFr:"Samouraïs bleus", country:"Japon", code:"JP", aliases:["Japan","Nippon","JP"] },
+    { zone:"Asie / Moyen-Orient", nickname:"Taegeuk Warriors", nicknameFr:"Guerriers du Taegeuk", country:"Corée du Sud", code:"KR", aliases:["South Korea","Republic of Korea","Korea Republic","Korea","République de Corée","KR","Coree du Sud"] },
+    { zone:"Asie / Moyen-Orient", nickname:"Socceroos", nicknameFr:"Les Socceroos", country:"Australie", code:"AU", aliases:["Australia","AU"] },
+    { zone:"Asie / Moyen-Orient", nickname:"All Whites", nicknameFr:"Les Tout-Blancs", country:"Nouvelle-Zélande", code:"NZ", aliases:["New Zealand","NZ","Nouvelle Zelande","New-Zealand"] },
+    { zone:"Asie / Moyen-Orient", nickname:"Team Melli", nicknameFr:"Équipe nationale", country:"Iran", code:"IR", aliases:["IR","Islamic Republic of Iran"] },
+    { zone:"Asie / Moyen-Orient", nickname:"Green Falcons", nicknameFr:"Faucons verts", country:"Arabie saoudite", code:"SA", aliases:["Saudi Arabia","KSA","SA","Arabie Saoudite"] },
+    { zone:"Asie / Moyen-Orient", nickname:"Lions of Mesopotamia", nicknameFr:"Lions de Mésopotamie", country:"Irak", code:"IQ", aliases:["Iraq","IQ"] },
+    { zone:"Asie / Moyen-Orient", nickname:"The Maroons", nicknameFr:"Les Grenats", country:"Qatar", code:"QA", aliases:["QA"] },
+
+    // AFRIQUE
+    { zone:"Afrique", nickname:"Atlas Lions", nicknameFr:"Lions de l’Atlas", country:"Maroc", code:"MA", aliases:["Morocco","MA"] },
+    { zone:"Afrique", nickname:"Desert Foxes", nicknameFr:"Renards du désert", country:"Algérie", code:"DZ", aliases:["Algeria","DZ","Algerie"] },
+    { zone:"Afrique", nickname:"Eagles of Carthage", nicknameFr:"Aigles de Carthage", country:"Tunisie", code:"TN", aliases:["Tunisia","TN"] },
+    { zone:"Afrique", nickname:"The Pharaohs", nicknameFr:"Les Pharaons", country:"Égypte", code:"EG", aliases:["Egypt","EG","Egypte"] },
+    { zone:"Afrique", nickname:"Indomitable Lions", nicknameFr:"Lions indomptables", country:"Cameroun", code:"CM", aliases:["Cameroon","CM"] },
+    { zone:"Afrique", nickname:"Super Eagles", nicknameFr:"Super Aigles", country:"Nigeria", code:"NG", aliases:["NG"] },
+    { zone:"Afrique", nickname:"Black Stars", nicknameFr:"Étoiles noires", country:"Ghana", code:"GH", aliases:["GH"] },
+    { zone:"Afrique", nickname:"Elephants", nicknameFr:"Les Éléphants", country:"Côte d’Ivoire", code:"CI", aliases:["Cote dIvoire","Côte dIvoire","Ivory Coast","CIV","CI"] },
+    { zone:"Afrique", nickname:"Bafana Bafana", nicknameFr:"Les Garçons", country:"Afrique du Sud", code:"ZA", aliases:["South Africa","RSA","ZA","Afrique du Sud"] },
+    { zone:"Afrique", nickname:"Eagles", nicknameFr:"Les Aigles", country:"Mali", code:"ML", aliases:["ML"] },
+    { zone:"Afrique", nickname:"Stallions", nicknameFr:"Les Étalons", country:"Burkina Faso", code:"BF", aliases:["Burkina","BF"] },
+    { zone:"Afrique", nickname:"Chipolopolo", nicknameFr:"Les Balles de cuivre", country:"Zambie", code:"ZM", aliases:["Zambia","ZM","Copper Bullets"] },
+    { zone:"Afrique", nickname:"Blue Sharks", nicknameFr:"Requins bleus", country:"Cap-Vert", code:"CV", aliases:["Cape Verde","Cabo Verde","Cabo-Verde","CV"] },
+    { zone:"Afrique", nickname:"Lions of Teranga", nicknameFr:"Lions de la Téranga", country:"Sénégal", code:"SN", aliases:["Senegal","SN","Senegalais"] },
+  ];
+
+  // --------- Zones order ----------
+  const ZONE_ORDER = ["Europe","Amériques","Afrique","Asie / Moyen-Orient"];
+
+  // --------- Indexes ----------
+  const TOTAL = teams.length;
+  document.getElementById("totalTop").textContent = String(TOTAL);
+
+  const acceptedByIndex = teams.map(t => buildAcceptedSet(t.country, t.aliases));
+  const aliasToIndex = new Map();
+  acceptedByIndex.forEach((set, i) => {
+    for (const a of set) {
+      if (!aliasToIndex.has(a)) aliasToIndex.set(a, []);
+      aliasToIndex.get(a).push(i);
+    }
+  });
+
+  // --------- State ----------
+  const foundIdx = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const zonesEl = document.getElementById("zones");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  const btnHint = document.getElementById("btnHint");
+  const hintPanel = document.getElementById("hintPanel");
+  const hintChips = document.getElementById("hintChips");
+  const btnHintClose = document.getElementById("btnHintClose");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIdx.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+    updateZoneCounts();
+  }
+
+  // --------- ZONE BUILD ----------
+  const zoneToIndices = new Map();
+  teams.forEach((t, i) => {
+    const z = t.zone || "Autres";
+    if (!zoneToIndices.has(z)) zoneToIndices.set(z, []);
+    zoneToIndices.get(z).push(i);
+  });
+
+  function zoneListOrdered(){
+    const present = Array.from(zoneToIndices.keys());
+    const known = ZONE_ORDER.filter(z => present.includes(z));
+    const rest = present.filter(z => !ZONE_ORDER.includes(z)).sort((a,b)=>a.localeCompare(b,"fr"));
+    return [...known, ...rest];
+  }
+
+  function updateZoneCounts(){
+    zoneListOrdered().forEach(z => {
+      const badge = document.getElementById(`zoneCount-${normalize(z)}`);
+      if (!badge) return;
+      const idxs = zoneToIndices.get(z) || [];
+      const found = idxs.filter(i => foundIdx.has(i)).length;
+      badge.textContent = `${found}/${idxs.length}`;
+    });
+  }
+
+  function buildZones() {
+    zonesEl.innerHTML = "";
+
+    zoneListOrdered().forEach(zoneName => {
+      const zoneBox = document.createElement("div");
+      zoneBox.className = "zone";
+      const zid = normalize(zoneName);
+
+      const idxs = (zoneToIndices.get(zoneName) || []).slice().sort((a,b)=>{
+        // tri stable : par pays
+        return teams[a].country.localeCompare(teams[b].country, "fr");
+      });
+
+      zoneBox.innerHTML = `
+        <div class="zoneHead">
+          <div class="zoneTitle">🗺️ ${safeHTML(zoneName)}</div>
+          <div class="zoneCount" id="zoneCount-${zid}">0/${idxs.length}</div>
+        </div>
+        <div class="zoneGrid" id="zoneGrid-${zid}"></div>
+      `;
+      zonesEl.appendChild(zoneBox);
+
+      const grid = zoneBox.querySelector(`#zoneGrid-${zid}`);
+
+      idxs.forEach(i => {
+        const t = teams[i];
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.id = `cell-${i}`;
+        cell.innerHTML = `
+          <div class="left">
+            <div class="num" title="${safeHTML(t.nickname)}">${safeHTML(t.nickname)}</div>
+            <div class="name masked" id="name-${i}">??????</div>
+          </div>
+          <div class="status" id="status-${i}">—</div>
+        `;
+        grid.appendChild(cell);
+      });
+    });
+
+    updateZoneCounts();
+  }
+
+  function renderCountryLineHTML(t){
+    const country = safeHTML(t.country);
+    const flag = flagImgHTML(t.code);
+    const nickFR = safeHTML(t.nicknameFr || "");
+    // ✅ demandé : traduction FR du surnom entre parenthèses à droite du drapeau
+    return `${country}${flag ? ` ${flag}` : ""}${nickFR ? ` <small>(${nickFR})</small>` : ""}`;
+  }
+
+  function revealIndex(i, mode /* "found" | "revealed" */) {
+    const t = teams[i];
+    if (!t) return;
+
+    const cell = document.getElementById(`cell-${i}`);
+    const nameEl = document.getElementById(`name-${i}`);
+    const statusEl = document.getElementById(`status-${i}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.innerHTML = renderCountryLineHTML(t);
+    nameEl.classList.remove("masked");
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+  }
+
+  function revealMissingSolutions() {
+    teams.forEach((_, i) => {
+      if (foundIdx.has(i)) return;
+      revealIndex(i, "revealed");
+    });
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    renderHint();
+
+    const n = foundIdx.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function pickIndexForAlias(norm){
+    const list = aliasToIndex.get(norm);
+    if (!list || !list.length) return -1;
+    for (const i of list) if (!foundIdx.has(i)) return i;
+    return -1;
+  }
+
+  function validateCountry(raw) {
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const idx = pickIndexForAlias(norm);
+
+    if (idx === -1) {
+      if (aliasToIndex.has(norm)) {
+        setToast("warn", "⚠️ Déjà trouvé.");
+      } else {
+        setToast("bad", "❌ Pays non reconnu (ou orthographe non reconnue).");
+      }
+      return;
+    }
+
+    startTimerIfNeeded();
+
+    foundIdx.add(idx);
+    revealIndex(idx, "found");
+
+    updateStats();
+    renderHint();
+
+    const t = teams[idx];
+    setToast("good", `✅ Bien joué : ${t.nickname} = ${t.country}.`);
+
+    const cell = document.getElementById(`cell-${idx}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    if (foundIdx.size === TOTAL) finish();
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un pays."); return; }
+
+    validateCountry(raw);
+  }
+
+  function resetQuiz() {
+    foundIdx.clear();
+    buildZones();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+    renderHint();
+  }
+
+  // --------- Auto-validate ----------
+  let autoT = null;
+  function isAnyAliasPrefix(typed){
+    if (!typed) return false;
+    for (const k of aliasToIndex.keys()) {
+      if (k.startsWith(typed) && k !== typed) return true;
+    }
+    return false;
+  }
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    if (isAnyAliasPrefix(norm)) return;
+
+    if (aliasToIndex.has(norm)) {
+      input.value = "";
+      validateCountry(raw);
+      input.focus();
+    }
+  }
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // --------- Hint feature ----------
+  function remainingCountries(){
+    const items = [];
+    teams.forEach((t, i) => {
+      if (!foundIdx.has(i)) items.push(t);
+    });
+    return items;
+  }
+
+  function renderHint(){
+    hintChips.innerHTML = "";
+    const items = remainingCountries()
+      .map(t => ({ country:t.country, init:initialsOf(t.country) }))
+      .sort((a,b) => a.country.localeCompare(b.country, "fr"));
+
+    items.forEach(it => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = `${safeHTML(it.init)} <span></span>`;
+      hintChips.appendChild(chip);
+    });
+
+    if (!items.length) {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = "✅ Plus aucun pays restant !";
+      hintChips.appendChild(chip);
+    }
+  }
+
+  function toggleHint(){
+    const show = !hintPanel.classList.contains("show");
+    if (show) {
+      renderHint();
+      hintPanel.classList.add("show");
+      btnHint.textContent = "💡 Indice (ON)";
+    } else {
+      hintPanel.classList.remove("show");
+      btnHint.textContent = "💡 Indice";
+    }
+  }
+
+  // --------- Events ----------
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  btnHint.addEventListener("click", toggleHint);
+  btnHintClose.addEventListener("click", () => {
+    hintPanel.classList.remove("show");
+    btnHint.textContent = "💡 Indice";
+  });
+
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildZones();
+  updateStats();
+  renderHint();
+  input.focus();
+</script>
+</body>
+</html>

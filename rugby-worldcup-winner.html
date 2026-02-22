@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Vainqueurs de la Coupe du monde de Rugby (1987–2023)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+
+    .ball{
+      width:54px; height:40px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.35) 0 10px, transparent 11px),
+        linear-gradient(180deg, rgba(255,255,255,.18), transparent 55%),
+        linear-gradient(90deg, #6b2f1a, #8b3e22 60%, #6b2f1a);
+      border:3px solid rgba(0,0,0,.65);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      transform: rotate(-10deg);
+    }
+    .ball::before{
+      content:"";
+      position:absolute;
+      left:10px; right:10px; top:50%;
+      height:3px;
+      background: rgba(255,255,255,.35);
+      transform: translateY(-50%);
+      border-radius:999px;
+    }
+    .ball::after{
+      content:"";
+      position:absolute;
+      left:50%; top:50%;
+      width:20px; height:16px;
+      transform: translate(-50%,-50%);
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.35);
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:12px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    /* 🔒 cellules verrouillées (années futures) */
+    .cell.locked{
+      opacity:.55;
+      filter:saturate(.85);
+    }
+    .cell.locked:hover{
+      transform:none;
+      background: rgba(0,0,0,.18);
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .flag{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:2px;
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:74px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      text-overflow:clip;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+
+    /* ✅ nouvelle ligne "finale" */
+    .finaleLine{
+      margin-top:4px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.2;
+      white-space:normal;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .cell.found .finaleLine{
+      color: rgba(232,238,252,.92);
+    }
+    .cell.revealed .finaleLine{
+      color: rgba(239,68,68,.9);
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="ball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Quiz — Vainqueurs Coupe du monde de Rugby</h1>
+          <p>Ordre chronologique obligatoire (1987 → 2023).</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/10</div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 10</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          Accents/espaces/points ignorés.<br>
+          🔒 Tu dois répondre <strong>dans l’ordre</strong> : tant que 1987 n’est pas trouvé, 1991 est verrouillé, etc.<br>
+          Alias acceptés : <strong>All Blacks</strong> → <strong>Nouvelle-Zélande</strong>, <strong>Springboks</strong> → <strong>Afrique du Sud</strong>, <strong>Wallabies</strong> → <strong>Australie</strong>.
+          <div style="margin-top:8px;">
+            Prochaine année à trouver : <strong id="nextYear">1987</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape le vainqueur de l’année affichée…" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function flagUrl(iso2){
+    const code = (iso2 || "un").toLowerCase();
+    return `https://flagcdn.com/${code}.svg`;
+  }
+
+  // --------- Data ----------
+  // ✅ Ajout : runnerUp (finaliste perdant) + score
+  const editions = [
+    { year:1987, winner:"Nouvelle-Zélande", iso2:"nz", runnerUp:"France",         score:"29–9"  },
+    { year:1991, winner:"Australie",        iso2:"au", runnerUp:"Angleterre",     score:"12–6"  },
+    { year:1995, winner:"Afrique du Sud",   iso2:"za", runnerUp:"Nouvelle-Zélande", score:"15–12" },
+    { year:1999, winner:"Australie",        iso2:"au", runnerUp:"France",         score:"35–12" },
+    { year:2003, winner:"Angleterre",       iso2:"gb-eng", runnerUp:"Australie",  score:"20–17 (a.p.)" },
+    { year:2007, winner:"Afrique du Sud",   iso2:"za", runnerUp:"Angleterre",     score:"15–6"  },
+    { year:2011, winner:"Nouvelle-Zélande", iso2:"nz", runnerUp:"France",         score:"8–7"   },
+    { year:2015, winner:"Nouvelle-Zélande", iso2:"nz", runnerUp:"Australie",      score:"34–17" },
+    { year:2019, winner:"Afrique du Sud",   iso2:"za", runnerUp:"Angleterre",     score:"32–12" },
+    { year:2023, winner:"Afrique du Sud",   iso2:"za", runnerUp:"Nouvelle-Zélande", score:"12–11" },
+  ];
+  const TOTAL = editions.length;
+
+  // Index par année
+  const byYear = new Map();
+  for (const e of editions) byYear.set(e.year, e);
+
+  // aliases -> key normalisée du pays "canonical"
+  const canonByNorm = new Map();
+  function addAlias(alias, canonical){
+    canonByNorm.set(normalize(alias), normalize(canonical));
+  }
+
+  addAlias("Nouvelle-Zélande", "Nouvelle-Zélande");
+  addAlias("Nouvelle Zelande", "Nouvelle-Zélande");
+  addAlias("New Zealand", "Nouvelle-Zélande");
+  addAlias("All Blacks", "Nouvelle-Zélande");
+  addAlias("AllBlacks", "Nouvelle-Zélande");
+
+  addAlias("Afrique du Sud", "Afrique du Sud");
+  addAlias("South Africa", "Afrique du Sud");
+  addAlias("Springboks", "Afrique du Sud");
+  addAlias("Spring bok", "Afrique du Sud");
+
+  addAlias("Australie", "Australie");
+  addAlias("Australia", "Australie");
+  addAlias("Wallabies", "Australie");
+  addAlias("Aussie", "Australie");
+
+  addAlias("Angleterre", "Angleterre");
+  addAlias("England", "Angleterre");
+
+  // --------- State ----------
+  const foundYears = new Set();
+  let currentIndex = 0; // 🔥 année attendue = editions[currentIndex]
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+  const nextYearEl = document.getElementById("nextYear");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundYears.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function finaleText(e){
+    if (!e) return "";
+    const ru = e.runnerUp ? `vs ${e.runnerUp}` : "";
+    const sc = e.score ? ` (${e.score})` : "";
+    return (ru || sc) ? `${ru}${sc}`.trim() : "";
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const e of editions) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${e.year}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="flag" id="flag-${e.year}" alt="" />
+          <div class="num">${e.year}</div>
+          <div style="min-width:0;">
+            <div class="name masked" id="name-${e.year}">??????</div>
+            <div class="finaleLine masked" id="finale-${e.year}">—</div>
+          </div>
+        </div>
+        <div class="status" id="status-${e.year}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+    updateLocks();
+  }
+
+  function updateLocks(){
+    for (let i=0; i<editions.length; i++){
+      const y = editions[i].year;
+      const cell = document.getElementById(`cell-${y}`);
+      if (!cell) continue;
+
+      const shouldLock = (i > currentIndex) && !isFinished && !isGivenUp;
+      cell.classList.toggle("locked", shouldLock);
+    }
+
+    const next = editions[currentIndex]?.year;
+    nextYearEl.textContent = next ? String(next) : "—";
+  }
+
+  function revealYear(year, mode /* "found" | "revealed" */) {
+    const e = byYear.get(year);
+    if (!e) return;
+
+    const cell = document.getElementById(`cell-${year}`);
+    const nameEl = document.getElementById(`name-${year}`);
+    const finaleEl = document.getElementById(`finale-${year}`);
+    const statusEl = document.getElementById(`status-${year}`);
+    const flagEl = document.getElementById(`flag-${year}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+    cell.classList.remove("locked");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+
+    // ✅ ici on affiche finaliste + score
+    finaleEl.textContent = finaleText(e) || "—";
+    finaleEl.classList.remove("masked");
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+
+    flagEl.src = flagUrl(e.iso2);
+    flagEl.alt = `Drapeau ${e.winner}`;
+  }
+
+  function revealMissingSolutions() {
+    for (const e of editions) {
+      if (foundYears.has(e.year)) continue;
+      revealYear(e.year, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    updateLocks();
+
+    const n = foundYears.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    updateLocks();
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function canonicalKeyFromRaw(raw){
+    const norm = normalize(raw);
+    return canonByNorm.get(norm) || norm;
+  }
+
+  function submitAttempt(raw) {
+    const expected = editions[currentIndex];
+    if (!expected) return;
+
+    const typedKey = canonicalKeyFromRaw(raw);
+    const expectedKey = normalize(expected.winner);
+
+    // pas reconnu du tout (ni alias, ni canonical attendu)
+    const isKnown = canonByNorm.has(normalize(raw)) || typedKey === expectedKey;
+    if (!isKnown) {
+      setToast("bad", "❌ Pays non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    // correct mais pas l'année attendue ?
+    let appearsAt = -1;
+    for (let i=0; i<editions.length; i++){
+      if (normalize(editions[i].winner) === typedKey) { appearsAt = i; break; }
+    }
+
+    if (typedKey !== expectedKey) {
+      if (appearsAt >= 0) {
+        const y = editions[appearsAt].year;
+        if (appearsAt > currentIndex) {
+          setToast("warn", `⏳ Oui, mais pas encore : ce vainqueur correspond à ${y}. Prochaine année à trouver : ${expected.year}.`);
+        } else {
+          setToast("warn", `⚠️ Déjà passé : ce vainqueur correspond à ${y}. Prochaine année à trouver : ${expected.year}.`);
+        }
+      } else {
+        setToast("bad", `❌ Ce n'est pas le vainqueur de ${expected.year}.`);
+      }
+      return;
+    }
+
+    // ✅ correct pour l'année attendue
+    startTimerIfNeeded();
+
+    foundYears.add(expected.year);
+    revealYear(expected.year, "found");
+    updateStats();
+
+    // ✅ toast enrichi aussi (optionnel, mais sympa)
+    setToast("good", `✅ ${expected.year} : ${expected.winner} — ${finaleText(expected)} !`);
+
+    // petit scroll/anim
+    const cell = document.getElementById(`cell-${expected.year}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+    cell && cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+
+    // next
+    currentIndex++;
+    updateLocks();
+
+    if (foundYears.size === TOTAL) finish();
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un pays."); return; }
+
+    submitAttempt(raw);
+  }
+
+  function resetQuiz() {
+    foundYears.clear();
+    currentIndex = 0;
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // Auto-validation : uniquement si la saisie matche le vainqueur ATTENDU
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const expected = editions[currentIndex];
+    if (!expected) return;
+
+    const typedKey = canonicalKeyFromRaw(raw);
+    const expectedKey = normalize(expected.winner);
+
+    if (typedKey === expectedKey) {
+      input.value = "";
+      submitAttempt(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

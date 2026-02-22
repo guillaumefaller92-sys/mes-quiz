@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Vainqueurs Grand Chelem (Hommes) depuis 2000</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+
+      /* hauteur approx du header sticky */
+      --stickyPad: 160px;
+    }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+
+      /* ✅ page scroll only : on ne centre plus verticalement */
+      display:block;
+      padding:24px;
+
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{
+      width:min(1200px, 100%);
+      margin: 0 auto;
+      display:grid;
+      gap:16px;
+      padding-top: 0;
+    }
+
+    /* ✅ header sticky (topbar + carte “controls”) */
+    .sticky{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding-top: 8px;
+      margin-top: -8px; /* compense padding */
+    }
+    /* fond sous le sticky pour lisibilité */
+    .sticky::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      background: linear-gradient(180deg, rgba(7,11,22,.92), rgba(7,11,22,.55));
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .stickyInner{
+      padding: 14px;
+      display:grid;
+      gap: 12px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:0;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .ball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        radial-gradient(circle at 30% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 70% 35%, #111 0 5px, transparent 6px),
+        radial-gradient(circle at 50% 72%, #111 0 5px, transparent 6px),
+        linear-gradient(#0b1024 0 50%, #fff 50% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+      flex: 0 0 auto;
+    }
+    .ball::after{
+      content:""; position:absolute; left:-3px; right:-3px; top:50%; height:3px;
+      background:#111; transform: translateY(-50%);
+      opacity:.55;
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:12px 0 0; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    /* ✅ espace pour éviter que le contenu passe sous le sticky quand on scroll/anchor */
+    .contentPad{
+      padding-top: 10px;
+    }
+
+    .gridWrap{ padding: 0 0 18px; }
+
+    /* ✅ PAGE SCROLL ONLY : plus de max-height/overflow sur .cols */
+    .cols{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(240px, 1fr));
+      gap:12px;
+      align-items:start;
+      padding-right: 0;
+    }
+
+    .col{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+      min-width: 0;
+    }
+
+    .colHead{
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:
+        linear-gradient(90deg, rgba(59,130,246,.16), transparent 65%),
+        linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+    }
+    .colTitle{
+      font-weight:900;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .badge{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      flex: 0 0 auto;
+    }
+    .colList{ padding:10px 10px 12px; display:grid; gap:10px; }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      min-width:0;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .flag{
+      width:28px;
+      height:20px;
+      border-radius:6px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      flex: 0 0 auto;
+      display:none;
+      object-fit:cover;
+    }
+    .cell.found .flag{ display:block; }
+    .cell.revealed .flag{ display:block; }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:64px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      text-overflow:clip;
+      line-height:1.15;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+      min-width:0;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      white-space:nowrap;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+
+    .cell.cancelled{
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.10);
+      color: var(--text);
+    }
+    .cell.cancelled .status{
+      color: var(--warn);
+      font-weight: 900;
+    }
+    .cell.cancelled .name{
+      color: var(--warn);
+      font-weight: 900;
+    }
+
+    @media (max-width: 980px){
+      :root{ --stickyPad: 220px; }
+      .cols{ grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+    }
+    @media (max-width: 560px){
+      :root{ --stickyPad: 260px; }
+      .cols{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- ✅ sticky header : topbar + stats + input + toast -->
+    <div class="sticky">
+      <div class="stickyInner">
+        <div class="topbar">
+          <div class="brand">
+            <div class="ball" aria-hidden="true"></div>
+            <div class="title">
+              <h1>Quiz — Vainqueurs Grand Chelem (Hommes)</h1>
+              <p>Depuis 2000 • 4 colonnes • années récentes en haut • validation auto.</p>
+            </div>
+          </div>
+
+          <div class="meta">
+            <button class="btn" id="btnHome">🏠 Accueil</button>
+            <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+            <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="scoreTotal">0</span></div>
+            <button class="btn" id="btnPause">⏸️ Pause</button>
+            <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+            <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+          </div>
+        </div>
+
+        <div class="cardHead" style="padding:0; border:0; background:transparent;">
+          <div style="width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div style="min-width:260px;">
+              <div class="count" id="count">0 / 0</div>
+              <div class="bar"><div class="fill" id="fill"></div></div>
+            </div>
+            <div class="hint" style="max-width:620px;">
+              Accents/espaces/points ignorés.<br>
+              ✅ Un joueur trouvé révèle <strong>toutes</strong> ses victoires (ex: Djokovic → AO/RG/Wim/USO selon les années).<br>
+              Tu peux taper <strong>nom complet</strong> ou juste le <strong>nom</strong> (ex: <em>federer</em>, <em>nadal</em>, <em>djokovic</em>, <em>alcaraz</em>).<br>
+              Note : <strong>Wimbledon 2020</strong> est indiqué comme <strong>Annulé (Covid)</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div class="inputArea">
+          <div class="inputRow">
+            <input id="input" type="text" placeholder="Tape un joueur… (ex: djokovic, nadal, federer, murray, sinner, alcaraz)" autocomplete="off" />
+            <button class="btn" id="btnSubmit">✅ Valider</button>
+          </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+      </div>
+    </div>
+
+    <!-- ✅ contenu scrolle avec la page -->
+    <div class="contentPad">
+      <div class="card">
+        <div class="gridWrap">
+          <div class="cols" id="cols"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function flagUrl(iso2){
+    const code = (iso2 || "un").toLowerCase();
+    return `https://flagcdn.com/${code}.svg`;
+  }
+
+  // --------- Data ----------
+  const tournaments = [
+    {
+      id:"AO", title:"Open d'Australie", emoji:"🇦🇺",
+      items: [
+        { year:2026, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2025, winner:"Jannik Sinner", iso2:"it" },
+        { year:2024, winner:"Jannik Sinner", iso2:"it" },
+        { year:2023, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2022, winner:"Rafael Nadal", iso2:"es" },
+        { year:2021, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2020, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2019, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2018, winner:"Roger Federer", iso2:"ch" },
+        { year:2017, winner:"Roger Federer", iso2:"ch" },
+        { year:2016, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2015, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2014, winner:"Stan Wawrinka", iso2:"ch" },
+        { year:2013, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2012, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2011, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2010, winner:"Roger Federer", iso2:"ch" },
+        { year:2009, winner:"Rafael Nadal", iso2:"es" },
+        { year:2008, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2007, winner:"Roger Federer", iso2:"ch" },
+        { year:2006, winner:"Roger Federer", iso2:"ch" },
+        { year:2005, winner:"Marat Safin", iso2:"ru" },
+        { year:2004, winner:"Roger Federer", iso2:"ch" },
+        { year:2003, winner:"Andre Agassi", iso2:"us" },
+        { year:2002, winner:"Thomas Johansson", iso2:"se" },
+        { year:2001, winner:"Andre Agassi", iso2:"us" },
+        { year:2000, winner:"Andre Agassi", iso2:"us" },
+      ]
+    },
+    {
+      id:"RG", title:"Roland Garros", emoji:"🇫🇷",
+      items: [
+        { year:2025, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2024, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2023, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2022, winner:"Rafael Nadal", iso2:"es" },
+        { year:2021, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2020, winner:"Rafael Nadal", iso2:"es" },
+        { year:2019, winner:"Rafael Nadal", iso2:"es" },
+        { year:2018, winner:"Rafael Nadal", iso2:"es" },
+        { year:2017, winner:"Rafael Nadal", iso2:"es" },
+        { year:2016, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2015, winner:"Stan Wawrinka", iso2:"ch" },
+        { year:2014, winner:"Rafael Nadal", iso2:"es" },
+        { year:2013, winner:"Rafael Nadal", iso2:"es" },
+        { year:2012, winner:"Rafael Nadal", iso2:"es" },
+        { year:2011, winner:"Rafael Nadal", iso2:"es" },
+        { year:2010, winner:"Rafael Nadal", iso2:"es" },
+        { year:2009, winner:"Roger Federer", iso2:"ch" },
+        { year:2008, winner:"Rafael Nadal", iso2:"es" },
+        { year:2007, winner:"Rafael Nadal", iso2:"es" },
+        { year:2006, winner:"Rafael Nadal", iso2:"es" },
+        { year:2005, winner:"Rafael Nadal", iso2:"es" },
+        { year:2004, winner:"Gastón Gaudio", iso2:"ar" },
+        { year:2003, winner:"Juan Carlos Ferrero", iso2:"es" },
+        { year:2002, winner:"Albert Costa", iso2:"es" },
+        { year:2001, winner:"Gustavo Kuerten", iso2:"br" },
+        { year:2000, winner:"Gustavo Kuerten", iso2:"br" },
+      ]
+    },
+    {
+      id:"WIM", title:"Wimbledon", emoji:"🇬🇧",
+      items: [
+        { year:2025, winner:"Jannik Sinner", iso2:"it" },
+        { year:2024, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2023, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2022, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2021, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2020, cancelled:true, label:"Annulé (Covid)" },
+        { year:2019, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2018, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2017, winner:"Roger Federer", iso2:"ch" },
+        { year:2016, winner:"Andy Murray", iso2:"gb" },
+        { year:2015, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2014, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2013, winner:"Andy Murray", iso2:"gb" },
+        { year:2012, winner:"Roger Federer", iso2:"ch" },
+        { year:2011, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2010, winner:"Rafael Nadal", iso2:"es" },
+        { year:2009, winner:"Roger Federer", iso2:"ch" },
+        { year:2008, winner:"Rafael Nadal", iso2:"es" },
+        { year:2007, winner:"Roger Federer", iso2:"ch" },
+        { year:2006, winner:"Roger Federer", iso2:"ch" },
+        { year:2005, winner:"Roger Federer", iso2:"ch" },
+        { year:2004, winner:"Roger Federer", iso2:"ch" },
+        { year:2003, winner:"Roger Federer", iso2:"ch" },
+        { year:2002, winner:"Lleyton Hewitt", iso2:"au" },
+        { year:2001, winner:"Goran Ivanišević", iso2:"hr" },
+        { year:2000, winner:"Pete Sampras", iso2:"us" },
+      ]
+    },
+    {
+      id:"USO", title:"US Open", emoji:"🇺🇸",
+      items: [
+        { year:2025, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2024, winner:"Jannik Sinner", iso2:"it" },
+        { year:2023, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2022, winner:"Carlos Alcaraz", iso2:"es" },
+        { year:2021, winner:"Daniil Medvedev", iso2:"ru" },
+        { year:2020, winner:"Dominic Thiem", iso2:"at" },
+        { year:2019, winner:"Rafael Nadal", iso2:"es" },
+        { year:2018, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2017, winner:"Rafael Nadal", iso2:"es" },
+        { year:2016, winner:"Stan Wawrinka", iso2:"ch" },
+        { year:2015, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2014, winner:"Marin Čilić", iso2:"hr" },
+        { year:2013, winner:"Rafael Nadal", iso2:"es" },
+        { year:2012, winner:"Andy Murray", iso2:"gb" },
+        { year:2011, winner:"Novak Djokovic", iso2:"rs" },
+        { year:2010, winner:"Rafael Nadal", iso2:"es" },
+        { year:2009, winner:"Juan Martín del Potro", iso2:"ar" },
+        { year:2008, winner:"Roger Federer", iso2:"ch" },
+        { year:2007, winner:"Roger Federer", iso2:"ch" },
+        { year:2006, winner:"Roger Federer", iso2:"ch" },
+        { year:2005, winner:"Roger Federer", iso2:"ch" },
+        { year:2004, winner:"Roger Federer", iso2:"ch" },
+        { year:2003, winner:"Andy Roddick", iso2:"us" },
+        { year:2002, winner:"Pete Sampras", iso2:"us" },
+        { year:2001, winner:"Lleyton Hewitt", iso2:"au" },
+        { year:2000, winner:"Marat Safin", iso2:"ru" },
+      ]
+    },
+  ];
+
+  // --------- Index / Aliases ----------
+  const entries = [];
+  const byKey = new Map();
+  const displayNameByKey = new Map();
+  const byId = new Map();
+  let TOTAL = 0;
+
+  const aliasToKey = new Map();
+  function addAlias(alias, canonical){
+    aliasToKey.set(normalize(alias), normalize(canonical));
+  }
+
+  addAlias("nole", "Novak Djokovic");
+  addAlias("novak", "Novak Djokovic");
+  addAlias("rafa", "Rafael Nadal");
+  addAlias("rafael", "Rafael Nadal");
+  addAlias("roger", "Roger Federer");
+  addAlias("andy", "Andy Murray");
+  addAlias("carlos", "Carlos Alcaraz");
+  addAlias("jannik", "Jannik Sinner");
+  addAlias("daniil", "Daniil Medvedev");
+  addAlias("stan", "Stan Wawrinka");
+  addAlias("dominic", "Dominic Thiem");
+  addAlias("cilić", "Marin Čilić");
+  addAlias("cilic", "Marin Čilić");
+  addAlias("ivanisevic", "Goran Ivanišević");
+  addAlias("ivanišević", "Goran Ivanišević");
+  addAlias("del potro", "Juan Martín del Potro");
+  addAlias("delpotro", "Juan Martín del Potro");
+  addAlias("gaudio", "Gastón Gaudio");
+  addAlias("gaston gaudio", "Gastón Gaudio");
+
+  for (const t of tournaments) {
+    for (const it of t.items) {
+      const id = `${t.id}-${it.year}`;
+      const e = {
+        id, tid:t.id, tTitle:t.title, tEmoji:t.emoji,
+        year:it.year, winner:it.winner || null, iso2:it.iso2 || null,
+        cancelled: !!it.cancelled, label: it.label || null
+      };
+      entries.push(e);
+      byId.set(id, e);
+      if (!e.cancelled) TOTAL++;
+    }
+  }
+
+  function surnameOf(fullName){
+    const cleaned = (fullName || "").trim().replace(/\s+/g," ");
+    const parts = cleaned.split(" ");
+    return parts[parts.length - 1] || cleaned;
+  }
+
+  for (const e of entries) {
+    if (e.cancelled) continue;
+    const canonicalKey = normalize(e.winner);
+
+    if (!byKey.has(canonicalKey)) byKey.set(canonicalKey, []);
+    byKey.get(canonicalKey).push(e.id);
+    displayNameByKey.set(canonicalKey, e.winner);
+
+    const sur = surnameOf(e.winner);
+    const surKey = normalize(sur);
+    if (surKey && surKey !== canonicalKey) {
+      if (!aliasToKey.has(surKey)) aliasToKey.set(surKey, canonicalKey);
+    }
+  }
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const colsEl = document.getElementById("cols");
+  const scoreEl = document.getElementById("score");
+  const scoreTotalEl = document.getElementById("scoreTotal");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  scoreTotalEl.textContent = String(TOTAL);
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildCols() {
+    colsEl.innerHTML = "";
+
+    for (const t of tournaments) {
+      const col = document.createElement("div");
+      col.className = "col";
+      col.innerHTML = `
+        <div class="colHead">
+          <div class="colTitle" title="${t.title}">
+            <span aria-hidden="true">${t.emoji}</span>
+            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.title}</span>
+          </div>
+          <div class="badge" id="badge-${t.id}">—</div>
+        </div>
+        <div class="colList" id="list-${t.id}"></div>
+      `;
+      colsEl.appendChild(col);
+
+      const list = col.querySelector(`#list-${t.id}`);
+      for (const it of t.items) {
+        const cell = document.createElement("div");
+        const id = `${t.id}-${it.year}`;
+        const isCancelled = !!it.cancelled;
+
+        cell.className = "cell" + (isCancelled ? " cancelled" : "");
+        cell.id = `cell-${id}`;
+
+        if (isCancelled) {
+          cell.innerHTML = `
+            <div class="left">
+              <img class="flag" alt="" />
+              <div class="num">${it.year}</div>
+              <div class="name" id="name-${id}">—</div>
+            </div>
+            <div class="status" id="status-${id}">🟧 Annulé (Covid)</div>
+          `;
+        } else {
+          cell.innerHTML = `
+            <div class="left">
+              <img class="flag" id="flag-${id}" alt="" loading="lazy" decoding="async" />
+              <div class="num">${it.year}</div>
+              <div class="name masked" id="name-${id}">??????</div>
+            </div>
+            <div class="status" id="status-${id}">—</div>
+          `;
+        }
+        list.appendChild(cell);
+      }
+    }
+
+    updateBadges();
+  }
+
+  function updateBadges(){
+    for (const t of tournaments){
+      const ids = t.items.filter(it => !it.cancelled).map(it => `${t.id}-${it.year}`);
+      const found = ids.filter(id => foundIds.has(id)).length;
+      document.getElementById(`badge-${t.id}`).textContent = `${found}/${ids.length}`;
+    }
+  }
+
+  function revealEntry(id, mode /* "found" | "revealed" */) {
+    const e = byId.get(id);
+    if (!e || e.cancelled) return;
+
+    const cell = document.getElementById(`cell-${id}`);
+    const nameEl = document.getElementById(`name-${id}`);
+    const statusEl = document.getElementById(`status-${id}`);
+    const flagEl = document.getElementById(`flag-${id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = e.winner;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+
+    if (flagEl) {
+      flagEl.src = flagUrl(e.iso2);
+      flagEl.alt = `Drapeau ${e.iso2 || ""}`;
+    }
+  }
+
+  function revealMissingSolutions() {
+    for (const e of entries) {
+      if (e.cancelled) continue;
+      if (foundIds.has(e.id)) continue;
+      revealEntry(e.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    updateBadges();
+    updateStats();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Palmarès complété en ${timerEl.textContent} !`);
+  }
+
+  function isPrefixOfAnotherUnfoundPlayer(normKey) {
+    if (!normKey) return false;
+    const keys = Array.from(byKey.keys());
+    for (const k of keys) {
+      if (k === normKey) continue;
+      const missing = (byKey.get(k) || []).some(id => !foundIds.has(id));
+      if (missing && k.startsWith(normKey)) return true;
+    }
+    return false;
+  }
+
+  function resolveKeyFromInput(raw){
+    const norm = normalize(raw);
+    if (!norm) return null;
+    return aliasToKey.get(norm) || norm;
+  }
+
+  function validatePlayer(raw) {
+    const key = resolveKeyFromInput(raw);
+    if (!key) return;
+
+    if (!byKey.has(key)) return { ok:false, reason:"unknown" };
+
+    startTimerIfNeeded();
+
+    const ids = byKey.get(key);
+    const newly = [];
+    for (const id of ids) {
+      if (!foundIds.has(id)) {
+        foundIds.add(id);
+        revealEntry(id, "found");
+        newly.push(id);
+      }
+    }
+
+    updateBadges();
+    updateStats();
+
+    const display = displayNameByKey.get(key) || raw;
+
+    if (newly.length === 0) {
+      setToast("warn", `⚠️ Déjà trouvé : ${display} (toutes ses victoires sont déjà révélées).`);
+      return { ok:true, changed:false };
+    } else {
+      const buckets = new Map();
+      for (const id of newly) {
+        const e = byId.get(id);
+        if (!buckets.has(e.tid)) buckets.set(e.tid, []);
+        buckets.get(e.tid).push(e.year);
+      }
+      const parts = [];
+      for (const t of tournaments) {
+        if (!buckets.has(t.id)) continue;
+        const years = buckets.get(t.id).sort((a,b)=>a-b).join(", ");
+        parts.push(`${t.id} → ${years}`);
+      }
+
+      setToast("good", `✅ Bien joué : ${display} (${parts.join(" • ")})`);
+
+      if (foundIds.size === TOTAL) finish();
+      return { ok:true, changed:true };
+    }
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const key = resolveKeyFromInput(raw);
+    if (!key) { setToast("warn", "⚠️ Tape un joueur."); return; }
+
+    if (!byKey.has(key)) {
+      setToast("bad", "❌ Joueur non reconnu (ou orthographe non reconnue).");
+      return;
+    }
+
+    validatePlayer(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+    buildCols();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+
+    // remonte en haut de page pour repartir proprement
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  let autoT = null;
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    const key = resolveKeyFromInput(raw);
+    if (!key) return;
+
+    if (isPrefixOfAnotherUnfoundPlayer(key)) return;
+
+    if (byKey.has(key)) {
+      input.value = "";
+      validatePlayer(raw);
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildCols();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

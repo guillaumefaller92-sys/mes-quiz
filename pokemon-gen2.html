@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokédex Quiz – Gen 2 (Johto)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(229,57,53,.22), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(34,197,94,.16), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.12;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#e53935 0 50%, #ffffff 50% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .pokeball{
+      width:44px; height:44px; border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 8px, #111 8px 10px, #fff 10px 12px, transparent 12px),
+        linear-gradient(#e53935 0 50%, #fff 50% 100%);
+      border:3px solid #111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .pokeball::after{
+      content:""; position:absolute; left:-3px; right:-3px; top:50%; height:3px;
+      background:#111; transform: translateY(-50%);
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(229,57,53,.16), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(229,57,53,.45);
+      background: rgba(229,57,53,.16);
+    }
+    .btn.primary:hover{ background: rgba(229,57,53,.22); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap:10px;
+      max-height: 540px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    /* ✅ NOUVEAU: cellule révélée via abandon (solutions en rouge) */
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .sprite{
+      width:40px;
+      height:40px;
+      image-rendering: pixelated;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding:2px;
+      flex: 0 0 auto;
+      display:none;
+    }
+    .cell.found .sprite{ display:block; }
+    .cell.revealed .sprite{ display:block; } /* ✅ affiche aussi les sprites après abandon */
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:64px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="pokeball" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Pokédex Quiz – Génération 2 (Johto)</h1>
+          <p>Johto • 100 Pokémon (N°152 → 251) • numéros visibles, noms masqués.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/100</div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <!-- ✅ NOUVEAU bouton -->
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 100</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:560px;">
+          Entrée pour valider. Accents/espaces/points/tirets ignorés (ex: <em>Ho-Oh</em>, <em>Porygon2</em>).<br>
+          Les sprites apparaissent dès qu’un Pokémon est trouvé.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un Pokémon… (ex: germignon, ho-oh, porygon2)" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .replace(/♀/g, "f")
+      .replace(/♂/g, "m")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+  function pad3(n){ return String(n).padStart(3, "0"); }
+
+  function spriteUrl(num) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${num}.png`;
+  }
+
+  // --------- Data (Gen 2 FR) ----------
+  const gen2 = [
+    [152,"Germignon"],[153,"Macronium"],[154,"Meganium"],
+    [155,"Héricendre"],[156,"Feurisson"],[157,"Typhlosion"],
+    [158,"Kaiminus"],[159,"Crocrodil"],[160,"Aligatueur"],
+    [161,"Fouinette"],[162,"Fouinar"],
+    [163,"Hoothoot"],[164,"Noarfang"],
+    [165,"Coxy"],[166,"Coxyclaque"],
+    [167,"Mimigal"],[168,"Migalos"],
+    [169,"Nostenfer"],
+    [170,"Loupio"],[171,"Lanturn"],
+    [172,"Pichu"],[173,"Mélo"],[174,"Toudoudou"],
+    [175,"Togepi"],[176,"Togetic"],
+    [177,"Natu"],[178,"Xatu"],
+    [179,"Wattouat"],[180,"Lainergie"],[181,"Pharamp"],
+    [182,"Joliflor"],
+    [183,"Marill"],[184,"Azumarill"],
+    [185,"Simularbre"],
+    [186,"Tarpaud"],
+    [187,"Granivol"],[188,"Floravol"],[189,"Cotovol"],
+    [190,"Capumain"],
+    [191,"Tournegrin"],[192,"Héliatronc"],
+    [193,"Yanma"],
+    [194,"Axoloto"],[195,"Maraiste"],
+    [196,"Mentali"],[197,"Noctali"],
+    [198,"Cornèbre"],
+    [199,"Roigada"],
+    [200,"Feuforêve"],
+    [201,"Zarbi"],
+    [202,"Qulbutoké"],
+    [203,"Girafarig"],
+    [204,"Pomdepik"],
+    [205,"Foretress"],
+    [206,"Insolourdo"],
+    [207,"Scorplane"],
+    [208,"Steelix"],
+    [209,"Snubbull"],[210,"Granbull"],
+    [211,"Qwilfish"],
+    [212,"Cizayox"],
+    [213,"Caratroc"],
+    [214,"Scarhino"],
+    [215,"Farfuret"],
+    [216,"Teddiursa"],[217,"Ursaring"],
+    [218,"Limagma"],[219,"Volcaropod"],
+    [220,"Marcacrin"],[221,"Cochignon"],
+    [222,"Corayon"],
+    [223,"Rémoraid"],[224,"Octillery"],
+    [225,"Cadoizo"],
+    [226,"Démanta"],
+    [227,"Airmure"],
+    [228,"Malosse"],[229,"Démolosse"],
+    [230,"Hyporoi"],
+    [231,"Phanpy"],[232,"Donphan"],
+    [233,"Porygon2"],
+    [234,"Cerfrousse"],
+    [235,"Queulorior"],
+    [236,"Debugant"],[237,"Kapoera"],
+    [238,"Lippouti"],
+    [239,"Élekid"],
+    [240,"Magby"],
+    [241,"Écrémeuh"],
+    [242,"Leuphorie"],
+    [243,"Raikou"],[244,"Entei"],[245,"Suicune"],
+    [246,"Embrylex"],[247,"Ymphect"],[248,"Tyranocif"],
+    [249,"Lugia"],[250,"Ho-Oh"],[251,"Celebi"]
+  ];
+
+  const START = 152;
+  const END = 251;
+  const TOTAL = gen2.length; // 100
+
+  const byKey = new Map();
+  for (const [num, name] of gen2) byKey.set(normalize(name), { num, name });
+
+  const aliasToKey = new Map([
+    ["unown", normalize("Zarbi")],
+    ["wobbuffet", normalize("Qulbutoké")],
+    ["tyranitar", normalize("Tyranocif")],
+    ["sneasel", normalize("Farfuret")],
+    ["scizor", normalize("Cizayox")],
+    ["crobat", normalize("Nostenfer")],
+    ["ampharos", normalize("Pharamp")],
+    ["politoed", normalize("Tarpaud")],
+    ["sudowoodo", normalize("Simularbre")],
+    ["houndour", normalize("Malosse")],
+    ["houndoom", normalize("Démolosse")],
+    ["kingdra", normalize("Hyporoi")],
+    ["blissey", normalize("Leuphorie")],
+    ["miltank", normalize("Écrémeuh")],
+    ["heracross", normalize("Scarhino")],
+    ["skarmory", normalize("Airmure")]
+  ]);
+
+  const foundKeys = new Set();
+
+  // --------- Timer (avec pause) ----------
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+
+  // ✅ NOUVEAU: état abandon
+  let isGivenUp = false;
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+
+  function stopTimer() {
+    if (startTs) {
+      elapsedMs += (Date.now() - startTs);
+      startTs = null;
+    }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) {
+      elapsedMs += (Date.now() - startTs);
+      startTs = null;
+    }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  // ✅ NOUVEAU
+  const btnGiveUp = document.getElementById("btnGiveUp");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundKeys.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (let num = START; num <= END; num++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${num}`;
+      cell.innerHTML = `
+        <div class="left">
+          <img class="sprite" id="sprite-${num}" alt="" />
+          <div class="num">#${pad3(num)}</div>
+          <div class="name masked" id="name-${num}">??????</div>
+        </div>
+        <div class="status" id="status-${num}">—</div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function revealByKey(key) {
+    if (!byKey.has(key)) return { changed:false, msg:null };
+    if (foundKeys.has(key)) {
+      const { num, name } = byKey.get(key);
+      return { changed:false, msg:`⚠️ Déjà trouvé : #${pad3(num)} ${name}` };
+    }
+
+    const { num, name } = byKey.get(key);
+    foundKeys.add(key);
+
+    const cell = document.getElementById(`cell-${num}`);
+    const nameEl = document.getElementById(`name-${num}`);
+    const statusEl = document.getElementById(`status-${num}`);
+    const spriteEl = document.getElementById(`sprite-${num}`);
+
+    cell.classList.add("found");
+    cell.classList.remove("revealed"); // sécurité
+    nameEl.textContent = name;
+    nameEl.classList.remove("masked");
+    statusEl.textContent = "✅";
+
+    spriteEl.src = spriteUrl(num);
+    spriteEl.alt = name;
+
+    cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+
+    cell.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    return { changed:true, msg:`✅ Bien joué : #${pad3(num)} ${name}` };
+  }
+
+  // ✅ NOUVEAU: Révélation des solutions manquantes en rouge
+  function revealMissingSolutions() {
+    for (const [key, { num, name }] of byKey.entries()) {
+      if (foundKeys.has(key)) continue;
+
+      const cell = document.getElementById(`cell-${num}`);
+      const nameEl = document.getElementById(`name-${num}`);
+      const statusEl = document.getElementById(`status-${num}`);
+      const spriteEl = document.getElementById(`sprite-${num}`);
+
+      cell.classList.add("revealed");
+      nameEl.textContent = name;
+      nameEl.classList.remove("masked");
+      statusEl.textContent = "❌";
+
+      spriteEl.src = spriteUrl(num);
+      spriteEl.alt = name;
+    }
+  }
+
+  // ✅ NOUVEAU: abandonner
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    document.getElementById("btnSubmit").disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundKeys.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions affichées en rouge.`);
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    startTimerIfNeeded();
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom de Pokémon."); return; }
+
+    const key = aliasToKey.get(norm) || norm;
+
+    if (!byKey.has(key)) {
+      setToast("bad", "❌ Pas un Pokémon de la 2e génération (ou orthographe non reconnue).");
+      return;
+    }
+
+    const r = revealByKey(key);
+    updateStats();
+    setToast(r.changed ? "good" : "warn", r.msg);
+
+    if (foundKeys.size === TOTAL) finish();
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    document.getElementById("btnSubmit").disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Pokédex Johto complété en ${timerEl.textContent} !`);
+  }
+
+  function resetQuiz() {
+    foundKeys.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    document.getElementById("btnSubmit").disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.focus();
+  }
+
+  document.getElementById("btnSubmit").addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>

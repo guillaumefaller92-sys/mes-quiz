@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Quiz — Départements français</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.20), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.14), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 16px 16px, #ffffff 0 3px, transparent 3px 100%),
+        radial-gradient(circle at 16px 16px, #000000 0 6px, transparent 6px 100%),
+        linear-gradient(#1f7a4b 0 50%, #ffffff 50% 100%);
+      background-size: 84px 84px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1160px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .badge{
+      width:44px; height:44px; border-radius:14px;
+      border:2px solid rgba(255,255,255,.22);
+      background:
+        radial-gradient(14px 14px at 25% 25%, rgba(255,255,255,.20), transparent 70%),
+        linear-gradient(135deg, rgba(34,197,94,.22), rgba(59,130,246,.18));
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900;
+    }
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:15px;
+      letter-spacing:.4px;
+      line-height:1.35;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(59,130,246,.45);
+      background: rgba(59,130,246,.16);
+    }
+    .btn.primary:hover{ background: rgba(59,130,246,.22); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+      max-width:780px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    input{
+      flex: 1 1 360px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    /* ✅ Grid normal (remplissage par lignes) + ordre réorganisé en JS pour obtenir "par colonne" */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+      max-height:600px;
+      overflow:auto;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:12px 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:64px;
+      text-align:center;
+      flex:0 0 auto;
+    }
+    .name{
+      font-weight: 800;
+      color: inherit;
+
+      white-space: normal;
+      overflow: hidden;
+
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;   /* ✅ max 2 lignes */
+
+      line-height: 1.2;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    .masked{
+      letter-spacing:.55px;
+      font-weight:750;
+      color: var(--muted);
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.95;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:64px;
+      justify-content:flex-end;
+    }
+    .tag{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.16);
+      border-radius:10px;
+      padding:3px 7px;
+      font-size:12px;
+      color: var(--text);
+    }
+    .tag.ok{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); }
+    .tag.ko{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.08); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true">🧾</div>
+        <div class="title">
+          <h1>Quiz — Départements français</h1>
+          <p>Codes visibles, noms masqués. Saisie libre. Validation auto.</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<span id="totalTop">101</span></div>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div style="min-width:280px;">
+          <div class="count" id="count">0 / 101</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint">
+          Tape un <strong>nom de département</strong>. Accents / tirets / apostrophes ignorés.<br>
+          ✅ Validation auto dès que le nom correspond exactement à un département non trouvé.
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input
+            id="input"
+            type="text"
+            placeholder="Ex : Ain, Côte-d'Or, Seine-Saint-Denis, La Réunion…"
+            autocomplete="off"
+            spellcheck="false"
+            autocapitalize="none"
+          />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast" aria-live="polite"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/œ/g, "oe")
+      .replace(/æ/g, "ae")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // ---------- Data (101 départements) ----------
+  const DEPS = [
+    { code:"01", dep:"Ain" },
+    { code:"02", dep:"Aisne" },
+    { code:"03", dep:"Allier" },
+    { code:"04", dep:"Alpes-de-Haute-Provence" },
+    { code:"05", dep:"Hautes-Alpes" },
+    { code:"06", dep:"Alpes-Maritimes" },
+    { code:"07", dep:"Ardèche" },
+    { code:"08", dep:"Ardennes" },
+    { code:"09", dep:"Ariège" },
+    { code:"10", dep:"Aube" },
+    { code:"11", dep:"Aude" },
+    { code:"12", dep:"Aveyron" },
+    { code:"13", dep:"Bouches-du-Rhône" },
+    { code:"14", dep:"Calvados" },
+    { code:"15", dep:"Cantal" },
+    { code:"16", dep:"Charente" },
+    { code:"17", dep:"Charente-Maritime" },
+    { code:"18", dep:"Cher" },
+    { code:"19", dep:"Corrèze" },
+    { code:"2A", dep:"Corse-du-Sud" },
+    { code:"2B", dep:"Haute-Corse" },
+    { code:"21", dep:"Côte-d'Or" },
+    { code:"22", dep:"Côtes-d'Armor" },
+    { code:"23", dep:"Creuse" },
+    { code:"24", dep:"Dordogne" },
+    { code:"25", dep:"Doubs" },
+    { code:"26", dep:"Drôme" },
+    { code:"27", dep:"Eure" },
+    { code:"28", dep:"Eure-et-Loir" },
+    { code:"29", dep:"Finistère" },
+    { code:"30", dep:"Gard" },
+    { code:"31", dep:"Haute-Garonne" },
+    { code:"32", dep:"Gers" },
+    { code:"33", dep:"Gironde" },
+    { code:"34", dep:"Hérault" },
+    { code:"35", dep:"Ille-et-Vilaine" },
+    { code:"36", dep:"Indre" },
+    { code:"37", dep:"Indre-et-Loire" },
+    { code:"38", dep:"Isère" },
+    { code:"39", dep:"Jura" },
+    { code:"40", dep:"Landes" },
+    { code:"41", dep:"Loir-et-Cher" },
+    { code:"42", dep:"Loire" },
+    { code:"43", dep:"Haute-Loire" },
+    { code:"44", dep:"Loire-Atlantique" },
+    { code:"45", dep:"Loiret" },
+    { code:"46", dep:"Lot" },
+    { code:"47", dep:"Lot-et-Garonne" },
+    { code:"48", dep:"Lozère" },
+    { code:"49", dep:"Maine-et-Loire" },
+    { code:"50", dep:"Manche" },
+    { code:"51", dep:"Marne" },
+    { code:"52", dep:"Haute-Marne" },
+    { code:"53", dep:"Mayenne" },
+    { code:"54", dep:"Meurthe-et-Moselle" },
+    { code:"55", dep:"Meuse" },
+    { code:"56", dep:"Morbihan" },
+    { code:"57", dep:"Moselle" },
+    { code:"58", dep:"Nièvre" },
+    { code:"59", dep:"Nord" },
+    { code:"60", dep:"Oise" },
+    { code:"61", dep:"Orne" },
+    { code:"62", dep:"Pas-de-Calais" },
+    { code:"63", dep:"Puy-de-Dôme" },
+    { code:"64", dep:"Pyrénées-Atlantiques" },
+    { code:"65", dep:"Hautes-Pyrénées" },
+    { code:"66", dep:"Pyrénées-Orientales" },
+    { code:"67", dep:"Bas-Rhin" },
+    { code:"68", dep:"Haut-Rhin" },
+    { code:"69", dep:"Rhône" },
+    { code:"70", dep:"Haute-Saône" },
+    { code:"71", dep:"Saône-et-Loire" },
+    { code:"72", dep:"Sarthe" },
+    { code:"73", dep:"Savoie" },
+    { code:"74", dep:"Haute-Savoie" },
+    { code:"75", dep:"Paris" },
+    { code:"76", dep:"Seine-Maritime" },
+    { code:"77", dep:"Seine-et-Marne" },
+    { code:"78", dep:"Yvelines" },
+    { code:"79", dep:"Deux-Sèvres" },
+    { code:"80", dep:"Somme" },
+    { code:"81", dep:"Tarn" },
+    { code:"82", dep:"Tarn-et-Garonne" },
+    { code:"83", dep:"Var" },
+    { code:"84", dep:"Vaucluse" },
+    { code:"85", dep:"Vendée" },
+    { code:"86", dep:"Vienne" },
+    { code:"87", dep:"Haute-Vienne" },
+    { code:"88", dep:"Vosges" },
+    { code:"89", dep:"Yonne" },
+    { code:"90", dep:"Territoire de Belfort" },
+    { code:"91", dep:"Essonne" },
+    { code:"92", dep:"Hauts-de-Seine" },
+    { code:"93", dep:"Seine-Saint-Denis" },
+    { code:"94", dep:"Val-de-Marne" },
+    { code:"95", dep:"Val-d'Oise" },
+    { code:"971", dep:"Guadeloupe" },
+    { code:"972", dep:"Martinique" },
+    { code:"973", dep:"Guyane" },
+    { code:"974", dep:"La Réunion" },
+    { code:"976", dep:"Mayotte" },
+  ];
+
+  const TOTAL = DEPS.length;
+  document.getElementById("totalTop").textContent = TOTAL;
+
+  // ---------- Affichage "par colonne" ----------
+  // On garde un grid "normal" (remplissage par lignes) et on ré-ordonne en JS
+  const COLS = 4;
+  const ROWS = Math.ceil(TOTAL / COLS);
+
+  const ORDERED_DEPS = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const idx = c * ROWS + r; // colonne-major
+      if (idx < TOTAL) ORDERED_DEPS.push(DEPS[idx]);
+    }
+  }
+
+  // key(dep normalized) -> {code, dep}
+  const byKey = new Map();
+  for (const d of DEPS) byKey.set(normalize(d.dep), d);
+
+  // alias utiles (variantes tolérées)
+  const aliasToKey = new Map([
+    [normalize("Cotes d Armor"), normalize("Côtes-d'Armor")],
+    [normalize("Cote d Or"), normalize("Côte-d'Or")],
+    [normalize("Bouches du Rhone"), normalize("Bouches-du-Rhône")],
+    [normalize("Alpes Maritimes"), normalize("Alpes-Maritimes")],
+    [normalize("Reunion"), normalize("La Réunion")],
+    [normalize("La Reunion"), normalize("La Réunion")],
+    [normalize("Territoire De Belfort"), normalize("Territoire de Belfort")],
+  ]);
+
+  const foundKeys = new Set();
+
+  // ---------- UI refs ----------
+  const gridEl = document.getElementById("grid");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+
+  const input = document.getElementById("input");
+  const btnPause = document.getElementById("btnPause");
+  const btnReset = document.getElementById("btnReset");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundKeys.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  // ---------- Timer ----------
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer();
+    else pauseTimer();
+  }
+
+  // ---------- Grid ----------
+  function buildGrid() {
+    gridEl.innerHTML = "";
+    for (const d of ORDERED_DEPS) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = `cell-${d.code}`;
+
+      cell.innerHTML = `
+        <div class="left">
+          <div class="code">${d.code}</div>
+          <div class="name masked" id="name-${d.code}">??????</div>
+        </div>
+        <div class="status" id="status-${d.code}">
+          <span class="tag">—</span>
+        </div>
+      `;
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function reveal(d, ok=true, scroll=true) {
+    const cell = document.getElementById(`cell-${d.code}`);
+    const nameEl = document.getElementById(`name-${d.code}`);
+    const statusWrap = document.getElementById(`status-${d.code}`);
+
+    cell.classList.remove("revealed");
+    cell.classList.add(ok ? "found" : "revealed");
+
+    nameEl.textContent = d.dep;
+    nameEl.classList.remove("masked");
+
+    statusWrap.innerHTML = `<span class="tag ${ok ? "ok" : "ko"}">${ok ? "✅" : "❌"}</span>`;
+
+    if (scroll) cell.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  }
+
+  function revealMissingSolutions() {
+    for (const d of DEPS) {
+      const key = normalize(d.dep);
+      if (foundKeys.has(key)) continue;
+      reveal(d, false, false);
+    }
+  }
+
+  // ---------- Validation ----------
+  function validateRaw(raw, showUnknown=false) {
+    const norm0 = normalize(raw);
+    if (!norm0) return false;
+
+    const key = aliasToKey.get(norm0) || norm0;
+
+    if (!byKey.has(key)) {
+      if (showUnknown) setToast("bad", "❌ Département non reconnu.");
+      return false;
+    }
+    if (foundKeys.has(key)) {
+      setToast("warn", "⚠️ Déjà trouvé.");
+      return false;
+    }
+
+    startTimerIfNeeded();
+
+    foundKeys.add(key);
+    const d = byKey.get(key);
+    reveal(d, true, true);
+
+    updateStats();
+    setToast("good", `✅ Trouvé : ${d.code} — ${d.dep}`);
+
+    if (foundKeys.size === TOTAL) finish();
+    return true;
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Bravo en ${timerEl.textContent} !`);
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+
+    btnGiveUp.disabled = true;   // ✅ désactiver Abandonner après abandon
+
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+    setToast("bad", `🏳️ Abandon : ${foundKeys.size}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions en rouge.`);
+  }
+
+  function resetQuiz() {
+    foundKeys.clear();
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // ---------- Auto-validation ----------
+  let autoT = null;
+
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm0 = normalize(raw);
+    if (!norm0) return;
+
+    const key = aliasToKey.get(norm0) || norm0;
+
+    if (byKey.has(key) && !foundKeys.has(key)) {
+      const ok = validateRaw(raw, false);
+      if (ok) input.value = "";  // ✅ vide seulement si trouvé
+      input.focus();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // ---------- Events ----------
+  document.getElementById("btnHome").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  btnSubmit.addEventListener("click", () => {
+    if (isGivenUp) { setToast("warn","🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer."); return; }
+    if (isPaused) { setToast("warn","⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer."); return; }
+
+    const raw = input.value;
+    const ok = validateRaw(raw, true);
+
+    if (ok) input.value = "";   // ✅ ne vide pas si faux
+    input.focus();
+  });
+
+  btnPause.addEventListener("click", togglePause);
+  btnReset.addEventListener("click", resetQuiz);
+  btnGiveUp.addEventListener("click", giveUp);
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      btnSubmit.click();
+    }
+  });
+
+  // ---------- init ----------
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>
