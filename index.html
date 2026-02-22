@@ -375,6 +375,12 @@
       transform: translateY(-.5px);
       flex: 0 0 auto;
     }
+    .subIco--rings{
+      display:inline-flex;
+      align-items:center;
+      font-size:0;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.45));
+    }
 
     .subFlag{
       width:18px;
@@ -989,6 +995,16 @@
     if (iconKey==="uk"||iconKey==="angleterre") return ukFlagSVG();
     if (iconKey==="us"||iconKey==="etats-unis") return usFlagSVG();
     if (iconKey==="ru"||iconKey==="russie") return ruFlagSVG();
+    // ✅ Anneaux olympiques
+    if (iconKey==="olympics") return `<span class="subIco subIco--rings" aria-hidden="true" title="Jeux Olympiques"><svg viewBox="0 0 44 28" xmlns="http://www.w3.org/2000/svg" width="36" height="23">
+    <!-- Rangée du haut : 3 anneaux -->
+    <circle cx="9"  cy="10" r="7.5" fill="none" stroke="#0085C7" stroke-width="2.6"/>
+    <circle cx="22" cy="10" r="7.5" fill="none" stroke="#F4C300" stroke-width="2.6"/>
+    <circle cx="35" cy="10" r="7.5" fill="none" stroke="#009F3D" stroke-width="2.6"/>
+    <!-- Rangée du bas : 2 anneaux (décalés) -->
+    <circle cx="15.5" cy="19" r="7.5" fill="none" stroke="#DF0024" stroke-width="2.6"/>
+    <circle cx="28.5" cy="19" r="7.5" fill="none" stroke="#000000" stroke-width="2.6"/>
+  </svg></span>`;
     const emoji = SUBICON[iconKey] || iconKey || "•";
     return `<span class="subIco" aria-hidden="true">${emoji}</span>`;
   }
