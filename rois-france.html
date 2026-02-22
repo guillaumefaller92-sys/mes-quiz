@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Rois de France (par dynastie)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .crown{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      font-size:22px;
+      line-height:1;
+      transform: translateY(-1px);
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    /* Group header inside the grid */
+    .group{
+      grid-column: 1 / -1;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(59,130,246,.16), rgba(34,197,94,.10) 70%, rgba(0,0,0,.10));
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .group .gName{
+      font-family:"Press Start 2P", monospace;
+      font-size:12px;
+      letter-spacing:.35px;
+      line-height:1.25;
+    }
+    .group .gRange{
+      color: var(--muted);
+      font-weight:800;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:92px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+
+    /* ✅ Fun fact */
+    .info{
+      margin-top:4px;
+      font-size:12px;
+      line-height:1.25;
+      color: var(--muted);
+      opacity:.95;
+    }
+    .cell.found .info{ color: rgba(232,238,252,.92); }
+    /* ✅ CHANGEMENT : on n'enterre plus les facts en mode revealed */
+    .cell.revealed .info{
+      display:block;
+      color: rgba(183,194,223,.95);
+      opacity:.95;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      white-space:nowrap;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="crown" aria-hidden="true">👑</div>
+        <div class="title">
+          <h1>Quiz — Rois de France</h1>
+          <p>Par dynastie · fun facts + emoji</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<strong id="total">0</strong></div>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:660px;">
+          ✅ <strong>Ordre libre</strong> — tu peux taper un roi dans n’importe quel ordre.
+          <span style="display:inline-block; opacity:.9"> (ex : “Louis 14”, “Louis XIV”, “Saint Louis”, “Charles le Chauve”…)</span>
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un roi de France…" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/œ/g,"oe")
+      .replace(/æ/g,"ae")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // Roman helpers (pour accepter XIV / 14, etc.)
+  const romanMap = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 };
+  function romanToInt(roman){
+    if(!roman) return null;
+    roman = roman.toUpperCase().replace(/[^IVXLCDM]/g,"");
+    if(!roman) return null;
+    let total = 0, prev = 0;
+    for(let i=roman.length-1;i>=0;i--){
+      const v = romanMap[roman[i]] || 0;
+      if(v < prev) total -= v; else total += v;
+      prev = v;
+    }
+    return total || null;
+  }
+  function intToRoman(num){
+    if(!num || num<=0 || num>3999) return "";
+    const vals = [
+      [1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],
+      [100,"C"],[90,"XC"],[50,"L"],[40,"XL"],
+      [10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]
+    ];
+    let n=num, out="";
+    for(const [v,s] of vals){
+      while(n>=v){ out+=s; n-=v; }
+    }
+    return out;
+  }
+
+  // --------- Data ----------
+  // id: unique (dynastie + début) / label: affichage court
+  // king: nom affiché / reign: années / fact: fun fact + emoji
+  const dynasties = [
+    {
+      id:"merovingiens",
+      name:"Mérovingiens",
+      range:"(458–751)",
+      kings:[
+        { id:"mer-0458-childeric1", label:"458", king:"Childéric I", reign:"458–481", fact:"🪙 Son tombeau (Tournai) a livré un trésor célèbre… avec des abeilles en or !" },
+        { id:"mer-0481-clovis1",    label:"481", king:"Clovis I",    reign:"481–511", fact:"⛪ Baptisé à Reims : un tournant majeur pour le royaume des Francs." },
+        { id:"mer-0511-clotaire1",  label:"511", king:"Clotaire I",  reign:"511–561", fact:"🧩 Il finit par réunifier une grande partie du royaume franc." },
+        { id:"mer-0561-charibert1", label:"561", king:"Caribert I",  reign:"561–567", fact:"⏳ Règne très court : l’époque est un vrai puzzle dynastique." },
+        { id:"mer-0561-sigebert1",  label:"561", king:"Sigebert I",  reign:"561–575", fact:"🛡️ Roi d’Austrasie : une des grandes “France” de l’époque mérovingienne." },
+        { id:"mer-0561-chilperic1", label:"561", king:"Chilpéric I", reign:"561–584", fact:"⚔️ Rivalités et intrigues : on est en plein feuilleton politique." },
+        { id:"mer-0575-childebert2",label:"575", king:"Childebert II",reign:"575–596", fact:"👑 Héritages et partages : il récupère plusieurs territoires au fil du temps." },
+        { id:"mer-0584-clotaire2",  label:"584", king:"Clotaire II", reign:"584–629", fact:"📜 L’édit de Paris (614) est un texte clé pour l’organisation du royaume." },
+        { id:"mer-0629-dagobert1",  label:"629", king:"Dagobert I",  reign:"629–639", fact:"🎶 “Le bon roi Dagobert” : sa célébrité pop dépasse largement son époque !" },
+        { id:"mer-0639-clovis2",    label:"639", king:"Clovis II",   reign:"639–657", fact:"🏛️ À cette période, les “maires du palais” deviennent ultra-puissants." },
+        { id:"mer-0662-childeric2", label:"662", king:"Childéric II",reign:"662–675", fact:"🌀 Règne bref : instabilité et luttes d’influence en coulisses." },
+        { id:"mer-0679-theuderic3", label:"679", king:"Thierry III", reign:"679–691", fact:"🧠 Période souvent associée aux “rois fainéants” (pouvoir très encadré)." },
+        { id:"mer-0691-clovis3",    label:"691", king:"Clovis III",  reign:"691–695", fact:"⏱️ Quelques années seulement : record de “speed-run” royal." },
+        { id:"mer-0695-childebert3",label:"695", king:"Childebert III",reign:"695–711", fact:"🧲 Fin de dynastie : les Carolingiens prennent déjà toute la place." },
+        { id:"mer-0711-dagobert3",  label:"711", king:"Dagobert III",reign:"711–715", fact:"⚡ Règne éclair : la transition vers les Carolingiens s’accélère." },
+        { id:"mer-0715-chilperic2", label:"715", king:"Chilpéric II",reign:"715–721", fact:"🧨 Époque liée à la montée en puissance de Charles Martel (en arrière-plan)." },
+        { id:"mer-0721-theuderic4", label:"721", king:"Thierry IV",  reign:"721–737", fact:"🌒 Derniers Mérovingiens : le pouvoir réel est ailleurs." },
+        { id:"mer-0743-childeric3", label:"743", king:"Childéric III",reign:"743–751", fact:"🚪 Dernier Mérovingien : déposé par Pépin le Bref." },
+      ]
+    },
+    {
+      id:"carolingiens",
+      name:"Carolingiens",
+      range:"(751–987)",
+      kings:[
+        { id:"car-0751-pepin",      label:"751", king:"Pépin le Bref",        reign:"751–768", fact:"🛐 Son sacre assoit une nouvelle dynastie : les Carolingiens." },
+        { id:"car-0768-charlemagne",label:"768", king:"Charlemagne",           reign:"768–814", fact:"👑 Couronné empereur en 800 : une date “waouh” de l’histoire européenne." },
+        { id:"car-0814-louis1",     label:"814", king:"Louis I le Pieux",      reign:"814–840", fact:"🧾 Son règne ouvre une période de partages… et de tensions familiales." },
+        { id:"car-0843-charles2",   label:"843", king:"Charles II le Chauve",  reign:"843–877", fact:"🗺️ Traité de Verdun (843) : la Francie occidentale prend forme." },
+        { id:"car-0877-louis2",     label:"877", king:"Louis II le Bègue",     reign:"877–879", fact:"🗣️ Son surnom est l’un des plus mémorables (et un peu cruel…)." },
+        { id:"car-0879-louis3",     label:"879", king:"Louis III",             reign:"879–882", fact:"⚡ Règne très court : 3 ans et puis s’en va." },
+        { id:"car-0879-carloman2",  label:"879", king:"Carloman II",           reign:"879–884", fact:"🤝 Il règne au départ en parallèle : duo royal dans une période tendue." },
+        { id:"car-0884-charles3",   label:"884", king:"Charles III le Gros",   reign:"884–888", fact:"🧩 Dernier à réunir brièvement un immense ensemble carolingien." },
+        { id:"car-0888-eudes",      label:"888", king:"Eudes",                 reign:"888–898", fact:"🏰 Héros de la défense de Paris face aux Vikings." },
+        { id:"car-0898-charles3simple",label:"898", king:"Charles III le Simple", reign:"898–922", fact:"🛶 911 : traité à l’origine de la Normandie (et des Normands) !" },
+        { id:"car-0922-robert1",    label:"922", king:"Robert I",              reign:"922–923", fact:"🗳️ Élu contre Charles le Simple : la royauté devient très disputée." },
+        { id:"car-0923-raoul",      label:"923", king:"Raoul",                 reign:"923–936", fact:"🍷 Duc de Bourgogne devenu roi : le poids des grands seigneurs explose." },
+        { id:"car-0936-louis4",     label:"936", king:"Louis IV d’Outremer",   reign:"936–954", fact:"🌊 “D’Outremer” car il a grandi en Angleterre. International avant l’heure !" },
+        { id:"car-0954-lothaire",   label:"954", king:"Lothaire",              reign:"954–986", fact:"🧱 Époque de rivalités entre princes : le roi doit “négocier” sans cesse." },
+        { id:"car-0986-louis5",     label:"986", king:"Louis V",               reign:"986–987", fact:"🧨 Dernier Carolingien : après lui, place aux Capétiens." },
+      ]
+    },
+    {
+      id:"capetiens",
+      name:"Capétiens",
+      range:"(987–1328)",
+      kings:[
+        { id:"cap-0987-hugues",     label:"987", king:"Hugues Capet",          reign:"987–996", fact:"🔑 Il lance une dynastie qui va durer… des siècles." },
+        { id:"cap-0996-robert2",    label:"996", king:"Robert II le Pieux",    reign:"996–1031", fact:"⛪ Surnom “le Pieux” : il est très lié aux réformes religieuses." },
+        { id:"cap-1031-henri1",     label:"1031",king:"Henri I",               reign:"1031–1060", fact:"🧭 Consolide l’autorité royale dans un royaume très féodal." },
+        { id:"cap-1060-philippe1",  label:"1060",king:"Philippe I",            reign:"1060–1108", fact:"🧒 Roi très jeune : il règne d’abord sous régence." },
+        { id:"cap-1108-louis6",     label:"1108",king:"Louis VI le Gros",      reign:"1108–1137", fact:"🛡️ Il s’attaque aux seigneurs turbulents : “police” du royaume." },
+        { id:"cap-1137-louis7",     label:"1137",king:"Louis VII le Jeune",    reign:"1137–1180", fact:"⚔️ Il participe à la 2e croisade (et ça secoue son règne)." },
+        { id:"cap-1180-philippe2",  label:"1180",king:"Philippe II Auguste",  reign:"1180–1223", fact:"🏰 Il reprend de vastes territoires aux Plantagenêts (Angleterre)." },
+        { id:"cap-1223-louis8",     label:"1223",king:"Louis VIII le Lion",    reign:"1223–1226", fact:"🦁 “Le Lion” : surnom badass pour un règne très court." },
+        { id:"cap-1226-louis9",     label:"1226",king:"Louis IX (Saint Louis)",reign:"1226–1270", fact:"⚖️ Symbole de justice : l’image du roi rendant justice sous un chêne." },
+        { id:"cap-1270-philippe3",  label:"1270",king:"Philippe III le Hardi",reign:"1270–1285", fact:"🏇 “Le Hardi” : courageux… même si son règne reste discret." },
+        { id:"cap-1285-philippe4",  label:"1285",king:"Philippe IV le Bel",   reign:"1285–1314", fact:"🔥 Bras de fer avec le pape + fin des Templiers : règne explosif." },
+        { id:"cap-1314-louis10",    label:"1314",king:"Louis X le Hutin",      reign:"1314–1316", fact:"🍷 Surnom “le Hutin” = querelleur : ambiance tendue au sommet." },
+        { id:"cap-1316-jean1",      label:"1316",king:"Jean I le Posthume",   reign:"1316", fact:"👶 Roi-nourrisson : un des règnes les plus courts de l’histoire." },
+        { id:"cap-1316-philippe5",  label:"1316",king:"Philippe V le Long",   reign:"1316–1322", fact:"📏 “Le Long” : un surnom qui a traversé les siècles." },
+        { id:"cap-1322-charles4",   label:"1322",king:"Charles IV le Bel",    reign:"1322–1328", fact:"🧬 Dernier Capétien direct : après lui, changement de branche !" },
+      ]
+    },
+    {
+      id:"valois",
+      name:"Valois",
+      range:"(1328–1589)",
+      kings:[
+        { id:"val-1328-philippe6",  label:"1328",king:"Philippe VI",           reign:"1328–1350", fact:"⚔️ Début de la guerre de Cent Ans : ça part très fort." },
+        { id:"val-1350-jean2",      label:"1350",king:"Jean II le Bon",        reign:"1350–1364", fact:"🎭 Capturé à Poitiers : un roi prisonnier, ça marque l’époque." },
+        { id:"val-1364-charles5",   label:"1364",king:"Charles V le Sage",     reign:"1364–1380", fact:"🧠 “Le Sage” : gros travail de redressement après des crises." },
+        { id:"val-1380-charles6",   label:"1380",king:"Charles VI",            reign:"1380–1422", fact:"🌀 Surnommé “le Fou” : son règne est marqué par de graves troubles." },
+        { id:"val-1422-charles7",   label:"1422",king:"Charles VII",           reign:"1422–1461", fact:"🕊️ Jeanne d’Arc change la donne : Reims, sacre, et regain." },
+        { id:"val-1461-louis11",    label:"1461",king:"Louis XI",              reign:"1461–1483", fact:"🕸️ “L’universelle araigne” : maître des intrigues et de la diplomatie." },
+        { id:"val-1483-charles8",   label:"1483",king:"Charles VIII",          reign:"1483–1498", fact:"🇮🇹 Il lance les guerres d’Italie : la France regarde vers la Renaissance." },
+        { id:"val-1498-louis12",    label:"1498",king:"Louis XII",             reign:"1498–1515", fact:"❤️ Surnommé “Père du peuple” : image de roi proche et populaire." },
+        { id:"val-1515-francois1",  label:"1515",king:"François I",            reign:"1515–1547", fact:"🎨 Renaissance XXL : Léonard de Vinci vient en France sous son règne." },
+        { id:"val-1547-henri2",     label:"1547",king:"Henri II",              reign:"1547–1559", fact:"🏟️ Passionné de tournois… et un accident fatal lors d’une joute." },
+        { id:"val-1559-francois2",  label:"1559",king:"François II",           reign:"1559–1560", fact:"⏱️ Règne éclair : 1 an, et la crise religieuse s’intensifie." },
+        { id:"val-1560-charles9",   label:"1560",king:"Charles IX",            reign:"1560–1574", fact:"🩸 Guerres de Religion : son règne reste associé à une France déchirée." },
+        { id:"val-1574-henri3",     label:"1574",king:"Henri III",             reign:"1574–1589", fact:"🗡️ Fin tragique : assassiné, au cœur des tensions de l’époque." },
+      ]
+    },
+    {
+      id:"bourbons",
+      name:"Bourbons",
+      range:"(1589–1792)",
+      kings:[
+        { id:"bou-1589-henri4",     label:"1589",king:"Henri IV",              reign:"1589–1610", fact:"🌾 “Poulet au pot” : la punchline sociale la plus célèbre de la monarchie." },
+        { id:"bou-1610-louis13",    label:"1610",king:"Louis XIII",            reign:"1610–1643", fact:"🃏 Richelieu, mousquetaires… une époque qui a inspiré mille récits !" },
+        { id:"bou-1643-louis14",    label:"1643",king:"Louis XIV",             reign:"1643–1715", fact:"☀️ “Roi-Soleil” + Versailles : le règne-symbole de l’absolutisme." },
+        { id:"bou-1715-louis15",    label:"1715",king:"Louis XV",              reign:"1715–1774", fact:"🕯️ Long règne, mais une popularité qui s’effrite (et prépare la suite…)." },
+        { id:"bou-1774-louis16",    label:"1774",king:"Louis XVI",             reign:"1774–1792", fact:"🇺🇸 Soutien aux Américains… puis la Révolution bouleverse tout." },
+      ]
+    },
+    {
+      id:"restauration",
+      name:"Restauration",
+      range:"(1814–1830)",
+      kings:[
+        { id:"res-1814-louis18",    label:"1814",king:"Louis XVIII",            reign:"1814–1824 (interruption 1815)", fact:"🧩 Retour de la monarchie après Napoléon : période ultra-politique." },
+        { id:"res-1824-charles10",  label:"1824",king:"Charles X",              reign:"1824–1830", fact:"📣 Ses ordonnances déclenchent la Révolution de 1830." },
+      ]
+    },
+    {
+      id:"orleans",
+      name:"Orléans",
+      range:"(1830–1848)",
+      kings:[
+        { id:"orl-1830-louisphilippe1",label:"1830",king:"Louis-Philippe I",    reign:"1830–1848", fact:"🧢 “Roi des Français” (et pas “roi de France”) : détail qui change tout." },
+      ]
+    }
+  ];
+
+  // Flatten
+  const kings = [];
+  for (const d of dynasties) for (const k of d.kings) kings.push({ ...k, dynastyId:d.id });
+
+  const TOTAL = kings.length;
+
+  // Index
+  const byId = new Map();
+  const byKey = new Map(); // key -> id (canonical)
+  const allKeys = new Set();
+
+  function addKey(key, id){
+    if(!key) return;
+    const k = normalize(key);
+    if(!k) return;
+    allKeys.add(k);
+    if(!byKey.has(k)) byKey.set(k, id);
+  }
+
+  for (const k of kings) {
+    byId.set(k.id, k);
+
+    // Canonical
+    addKey(k.king, k.id);
+
+    // Variantes simples (sans parenthèses / surnoms)
+    const paren = k.king.match(/^(.+?)\s*\((.+)\)\s*$/);
+    if (paren) {
+      addKey(paren[1], k.id);
+      addKey(paren[2], k.id);
+    }
+
+    // Variantes chiffres/romains
+    const m = k.king.match(/^(.*?)(\s+)([IVXLCDM]+|\d+)\s*$/i);
+    if (m) {
+      const base = m[1].trim();
+      const rawNum = m[3].trim();
+
+      const asInt = /^\d+$/.test(rawNum) ? parseInt(rawNum,10) : romanToInt(rawNum);
+      if (asInt) {
+        const roman = intToRoman(asInt);
+        addKey(`${base} ${roman}`, k.id);
+        addKey(`${base} ${asInt}`, k.id);
+        addKey(`${base}${asInt}`, k.id);
+        addKey(`${base}${roman}`, k.id);
+
+        if (asInt === 1) {
+          addKey(`${base} 1er`, k.id);
+          addKey(`${base} ier`, k.id);
+          addKey(`${base} premier`, k.id);
+        }
+      }
+      addKey(base, k.id);
+    } else {
+      addKey(k.king.replace(/\bIer\b/gi,"I"), k.id);
+      addKey(k.king.replace(/\bI\b/gi,"1"), k.id);
+    }
+
+    // Alias “à la main”
+    const manual = new Map([
+      ["saintlouis","louisix"],
+      ["philippeauguste","philippeii"],
+      ["louisdoutremer","louisiv"],
+      ["charleslechauve","charlesii"],
+      ["charleslegros","charlesiii"],
+      ["charleslesimple","charlesiii"],
+      ["robertlepieus","robertii"],
+      ["lebel","philippeiv"],
+      ["roisoleil","louisxiv"],
+    ]);
+    for (const [alias, token] of manual.entries()) {
+      const curKey = normalize(k.king);
+      if (curKey.includes(token)) addKey(alias, k.id);
+    }
+  }
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer(); else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const totalEl = document.getElementById("total");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    totalEl.textContent = TOTAL;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+
+    for (const d of dynasties) {
+      const g = document.createElement("div");
+      g.className = "group";
+      g.innerHTML = `
+        <div class="gName">👑 ${d.name}</div>
+        <div class="gRange">${d.range}</div>
+      `;
+      gridEl.appendChild(g);
+
+      for (const k of d.kings) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.id = `cell-${k.id}`;
+        cell.innerHTML = `
+          <div class="left">
+            <div class="num">${k.label}</div>
+            <div style="min-width:0">
+              <div class="name masked" id="name-${k.id}">??????</div>
+              <div class="info" id="info-${k.id}" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="status" id="status-${k.id}">—</div>
+        `;
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function revealId(id, mode /* "found" | "revealed" */) {
+    const k = byId.get(id);
+    if (!k) return;
+
+    const cell = document.getElementById(`cell-${k.id}`);
+    const nameEl = document.getElementById(`name-${k.id}`);
+    const infoEl = document.getElementById(`info-${k.id}`);
+    const statusEl = document.getElementById(`status-${k.id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = `${k.king} — ${k.reign}`;
+    nameEl.classList.remove("masked");
+
+    /* ✅ CHANGEMENT : on affiche le fun fact aussi en "revealed" */
+    infoEl.style.display = "block";
+    infoEl.textContent = k.fact ? `💡 ${k.fact}` : "💡 —";
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+  }
+
+  function revealMissingSolutions() {
+    for (const k of kings) {
+      if (foundIds.has(k.id)) continue;
+      revealId(k.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions + faits affichés en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function tryFindKing(raw){
+    const norm = normalize(raw);
+    if(!norm) return null;
+
+    if (byKey.has(norm)) return byKey.get(norm);
+
+    const compact = norm.replace(/[^a-z0-9]/g,"");
+    if (byKey.has(compact)) return byKey.get(compact);
+
+    return null;
+  }
+
+  function validate(raw) {
+    const id = tryFindKing(raw);
+    if (!id) {
+      setToast("bad", "❌ Roi non reconnu (ou orthographe non reconnue).");
+      return { ok:false };
+    }
+    if (foundIds.has(id)) {
+      setToast("warn", "⚠️ Déjà trouvé !");
+      return { ok:false };
+    }
+
+    startTimerIfNeeded();
+
+    foundIds.add(id);
+    revealId(id, "found");
+    updateStats();
+
+    const k = byId.get(id);
+    setToast("good", `✅ ${k.king} (${k.reign}) — 💡 ${k.fact}`);
+
+    const cell = document.getElementById(`cell-${id}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+
+    if (foundIds.size === TOTAL) finish();
+    return { ok:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom."); return; }
+
+    validate(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // ✅ Auto-validation (exact match seulement ; évite les préfixes)
+  let autoT = null;
+
+  function isAnyPrefix(typedKey){
+    if (!typedKey) return false;
+    for (const k of allKeys) {
+      if (k.startsWith(typedKey) && k !== typedKey) return true;
+    }
+    return false;
+  }
+
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    if (isAnyPrefix(norm)) return;
+
+    if (byKey.has(norm)) {
+      input.value = "";
+      validate(raw);
+      input.focus();
+      return;
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>
