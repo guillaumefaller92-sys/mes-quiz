@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz — Rois & Reines (Angleterre → Royaume-Uni) (par dynastie)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --card:#0b1226cc;
+      --line:#ffffff1f;
+      --text:#e8eefc;
+      --muted:#b7c2df;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(700px 400px at 60% 95%, rgba(245,158,11,.12), transparent 60%),
+        linear-gradient(180deg, #070b16, #0b1024 65%, #070b16);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-30px;
+      pointer-events:none;
+      opacity:.10;
+      background-image:
+        radial-gradient(circle at 15px 15px, #ffffff 0 4px, transparent 4px 100%),
+        radial-gradient(circle at 15px 15px, #000000 0 7px, transparent 7px 100%),
+        linear-gradient(#0b1024 0 55%, #ffffff 55% 100%);
+      background-size: 80px 80px;
+      transform: rotate(-4deg);
+    }
+
+    .wrap{ width:min(1120px, 100%); display:grid; gap:16px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .crown{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      font-size:22px;
+      line-height:1;
+      transform: translateY(-1px);
+    }
+
+    .title h1{
+      margin:0;
+      font-family:"Press Start 2P", monospace;
+      font-size:16px;
+      letter-spacing:.4px;
+      line-height:1.3;
+    }
+    .title p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pill strong{ color: var(--text); }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:visible;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34,197,94,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex-wrap:wrap;
+    }
+    .count{
+      font-family:"Press Start 2P", monospace;
+      font-size:14px;
+    }
+
+    .btn{
+      cursor:pointer;
+      user-select:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    .btn.primary:hover{ background: rgba(34,197,94,.20); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .bar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(59,130,246,1));
+      transition: width .25s ease;
+    }
+
+    .inputArea{ padding:16px 18px 10px; display:grid; gap:10px; }
+    .inputRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input{
+      flex: 1 1 340px;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{ border-color: rgba(59,130,246,.6); box-shadow: 0 0 0 4px rgba(59,130,246,.18); }
+
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+      padding:0 18px 12px;
+    }
+    .toast{ min-height:18px; font-weight:800; font-size:13px; padding:0 18px 14px; }
+    .toast.good{ color: var(--good); }
+    .toast.warn{ color: var(--warn); }
+    .toast.bad{ color: var(--bad); }
+
+    .gridWrap{ padding: 0 18px 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap:12px;
+      max-height: 560px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .group{
+      grid-column: 1 / -1;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(59,130,246,.16), rgba(34,197,94,.10) 70%, rgba(0,0,0,.10));
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .group .gName{
+      font-family:"Press Start 2P", monospace;
+      font-size:12px;
+      letter-spacing:.35px;
+      line-height:1.25;
+    }
+    .group .gRange{
+      color: var(--muted);
+      font-weight:800;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .gCount{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:11px;
+      font-weight:800;
+      padding:3px 8px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.2);
+      color:var(--muted);
+      white-space:nowrap;
+      transition:color .3s;
+    }
+
+    .cell{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .cell:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+
+    .cell.found{
+      color: var(--text);
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+    }
+
+    .cell.revealed{
+      color: var(--text);
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+    }
+    .cell.revealed .name{
+      color: var(--bad);
+      font-weight: 900;
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .num{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      border-radius:10px;
+      padding:3px 7px;
+      color: var(--text);
+      min-width:92px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-weight:800;
+      color: inherit;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      line-height:1.15;
+      display:block;
+    }
+
+    .info{
+      margin-top:4px;
+      font-size:12px;
+      line-height:1.25;
+      color: var(--muted);
+      opacity:.95;
+    }
+    .cell.found .info{ color: rgba(232,238,252,.92); }
+    .cell.revealed .info{
+      display:block;
+      color: rgba(183,194,223,.95);
+      opacity:.95;
+    }
+
+    .status{
+      flex: 0 0 auto;
+      font-size: 14px;
+      opacity:.9;
+      white-space:nowrap;
+    }
+
+    .masked{
+      letter-spacing:.6px;
+      font-weight:700;
+      color: var(--muted);
+    }
+    .cell.hinted{
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.07);
+    }
+    .name.hinted-text{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 3px;
+      color: var(--warn);
+      font-size: 13px;
+    }
+    .btn.hint-active{
+      border-color: rgba(245,158,11,.55);
+      background: rgba(245,158,11,.18);
+      color: var(--warn);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="crown" aria-hidden="true">👑</div>
+        <div class="title">
+          <h1>Quiz — Monarques (Angleterre → Royaume-Uni)</h1>
+          <p>Par dynastie</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <div class="pill">⏱️ Temps : <strong id="timer">00:00</strong></div>
+        <div class="pill">🎯 Score : <strong id="score">0</strong>/<strong id="total">0</strong></div>
+        <button class="btn" id="btnHint">💡 Indice</button>
+        <button class="btn" id="btnPause">⏸️ Pause</button>
+        <button class="btn primary" id="btnReset">🔄 Recommencer</button>
+        <button class="btn" id="btnGiveUp">🏳️ Abandonner</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="count" id="count">0 / 0</div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+        </div>
+        <div class="hint" style="padding:0; max-width:660px;">
+          ✅ <strong>Ordre libre</strong> — tape un nom, surnom, alias ou variante française.<br>
+          <span style="display:inline-block; opacity:.9">
+            Chiffres arabes/romains + ordinaux acceptés (ex : <em>Henry 8</em>, <em>Henry 8th</em>, <em>Henri VIII</em>).<br>
+            Pour les prénoms partagés, précise le numéro (ex : <em>Henry IV</em> et pas <em>Henry</em> seul).<br>
+            Surnoms : <em>Canute, Ironside, Lionheart, Bloody Mary, Lady Jane Grey, Virgin Queen…</em>
+          </span>
+        </div>
+      </div>
+
+      <div class="inputArea">
+        <div class="inputRow">
+          <input id="input" type="text" placeholder="Tape un roi ou une reine (Angleterre / GB / UK)…" autocomplete="off" />
+          <button class="btn" id="btnSubmit">✅ Valider</button>
+        </div>
+      </div>
+      <div id="toast" class="toast"></div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --------- Utils ----------
+  function normalize(str) {
+    return (str || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/œ/g,"oe")
+      .replace(/æ/g,"ae")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  // Roman helpers (pour accepter XIV / 14, etc.)
+  const romanMap = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 };
+  function romanToInt(roman){
+    if(!roman) return null;
+    roman = roman.toUpperCase().replace(/[^IVXLCDM]/g,"");
+    if(!roman) return null;
+    let total = 0, prev = 0;
+    for(let i=roman.length-1;i>=0;i--){
+      const v = romanMap[roman[i]] || 0;
+      if(v < prev) total -= v; else total += v;
+      prev = v;
+    }
+    return total || null;
+  }
+  function intToRoman(num){
+    if(!num || num<=0 || num>3999) return "";
+    const vals = [
+      [1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],
+      [100,"C"],[90,"XC"],[50,"L"],[40,"XL"],
+      [10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]
+    ];
+    let n=num, out="";
+    for(const [v,s] of vals){
+      while(n>=v){ out+=s; n-=v; }
+    }
+    return out;
+  }
+
+  // Ordinal helper : "4th"→4, "1st"→1, "2nd"→2, "3rd"→3
+  function ordinalToInt(str){
+    const m = str.match(/^(\d+)(?:st|nd|rd|th)$/i);
+    return m ? parseInt(m[1],10) : null;
+  }
+
+  // --------- Data ----------
+  // Angleterre (Kingdom of England) → Grande-Bretagne (1707) → Royaume-Uni (1801)
+  const dynasties = [
+    {
+      id:"wessex",
+      name:"Maison de Wessex (Rois des Anglais)",
+      range:"(927–1066)",
+      kings:[
+        { id:"wes-0927-athelstan", label:"927", king:"Æthelstan", reign:"927–939", fact:"🧩 Souvent considéré comme le 1er “roi des Anglais” au sens plein." },
+        { id:"wes-0939-edmund1",   label:"939", king:"Edmund I", reign:"939–946", fact:"⚔️ Règne court et agité : l’unification se joue encore sur le terrain." },
+        { id:"wes-0946-eadred",    label:"946", king:"Eadred", reign:"946–955", fact:"🏰 Il consolide l’autorité face aux résistances (notamment au Nord)." },
+        { id:"wes-0955-eadwig",    label:"955", king:"Eadwig", reign:"955–959", fact:"⏱️ Règne très court : l’Angleterre n’aime pas trop les transitions." },
+        { id:"wes-0959-edgar",     label:"959", king:"Edgar the Peaceful", reign:"959–975", fact:"🕊️ Surnommé “the Peaceful” : rare période de stabilité relative." },
+        { id:"wes-0975-edwardmartyr", label:"975", king:"Edward the Martyr", reign:"975–978", fact:"🕯️ Mort violente : une succession qui tourne au drame." },
+        { id:"wes-0978-aethelred2", label:"978", king:"Æthelred II (the Unready)", reign:"978–1013 & 1014–1016", fact:"🛡️ “Unready” = “mal conseillé” : l’ère des raids vikings bat son plein." },
+        { id:"wes-1013-sweyn",     label:"1013", king:"Sweyn Forkbeard", reign:"1013–1014", fact:"🪓 Roi danois : un épisode éclair… mais décisif." },
+        { id:"wes-1016-edmund2",   label:"1016", king:"Edmund II (Ironside)", reign:"1016", fact:"🦾 “Ironside” : surnom de dur à cuire, règne express." },
+        { id:"wes-1016-cnut",      label:"1016", king:"Cnut", reign:"1016–1035", fact:"🌊 La légende du roi face aux vagues : symbole des limites du pouvoir." },
+        { id:"wes-1035-haroldharefoot", label:"1035", king:"Harold I (Harefoot)", reign:"1035–1040", fact:"🏃 “Harefoot” : un surnom qui claque pour un règne de transition." },
+        { id:"wes-1040-harthacnut", label:"1040", king:"Harthacnut", reign:"1040–1042", fact:"🍻 Sa mort soudaine lors d’une fête est restée célèbre." },
+        { id:"wes-1042-edwardconfessor", label:"1042", king:"Edward the Confessor", reign:"1042–1066", fact:"⛪ Il est associé à Westminster et à une aura “sainteté”." },
+        { id:"wes-1066-harold2",   label:"1066", king:"Harold II", reign:"1066", fact:"🏹 1066 : année mythique — tout bascule en quelques mois." },
+      ]
+    },
+    {
+      id:"norman",
+      name:"Normands",
+      range:"(1066–1154)",
+      kings:[
+        { id:"nor-1066-william1", label:"1066", king:"William I (the Conqueror)", reign:"1066–1087", fact:"🗺️ Domesday Book : un inventaire énorme (et redoutable) du royaume." },
+        { id:"nor-1087-william2", label:"1087", king:"William II (Rufus)", reign:"1087–1100", fact:"🏹 Mort en chasse : une fin mystérieuse qui fait parler." },
+        { id:"nor-1100-henry1",   label:"1100", king:"Henry I", reign:"1100–1135", fact:"📜 Il renforce l’administration : l’État se structure." },
+        { id:"nor-1135-stephen",  label:"1135", king:"Stephen", reign:"1135–1154", fact:"🌀 “The Anarchy” : période de guerre civile et d’instabilité." },
+      ]
+    },
+    {
+      id:"plantagenet",
+      name:"Plantagenêts / Angevins",
+      range:"(1154–1399)",
+      kings:[
+        { id:"pla-1154-henry2",  label:"1154", king:"Henry II", reign:"1154–1189", fact:"⚖️ Conflit célèbre avec Thomas Becket : pouvoir vs Église." },
+        { id:"pla-1189-richard1",label:"1189", king:"Richard I (the Lionheart)", reign:"1189–1199", fact:"🦁 Icône des croisades : plus souvent sur les routes qu’à Londres." },
+        { id:"pla-1199-john",    label:"1199", king:"John", reign:"1199–1216", fact:"📜 1215 : Magna Carta — un texte-clé sur les limites du pouvoir." },
+        { id:"pla-1216-henry3",  label:"1216", king:"Henry III", reign:"1216–1272", fact:"🏰 Westminster prend forme : gros chantier symbolique." },
+        { id:"pla-1272-edward1", label:"1272", king:"Edward I (Longshanks)", reign:"1272–1307", fact:"🧱 Surnommé “Longshanks” : grand format et gros tempérament." },
+        { id:"pla-1307-edward2", label:"1307", king:"Edward II", reign:"1307–1327", fact:"♟️ Règne très contesté : les favoris et la politique font des étincelles." },
+        { id:"pla-1327-edward3", label:"1327", king:"Edward III", reign:"1327–1377", fact:"🛡️ Début de la guerre de Cent Ans côté anglais : l’Europe s’embrase." },
+        { id:"pla-1377-richard2",label:"1377", king:"Richard II", reign:"1377–1399", fact:"🎭 Déposé : la couronne change de mains (et de maison)." },
+      ]
+    },
+    {
+      id:"lancaster",
+      name:"Lancastre",
+      range:"(1399–1461)",
+      kings:[
+        { id:"lan-1399-henry4", label:"1399", king:"Henry IV", reign:"1399–1413", fact:"🧨 Premier Lancastre : une nouvelle branche s’impose." },
+        { id:"lan-1413-henry5", label:"1413", king:"Henry V", reign:"1413–1422", fact:"🏹 Azincourt (1415) : bataille devenue légende." },
+        { id:"lan-1422-henry6", label:"1422", king:"Henry VI", reign:"1422–1461 & 1470–1471", fact:"🌹 Guerre des Deux-Roses : l’Angleterre se fracture." },
+      ]
+    },
+    {
+      id:"york",
+      name:"York",
+      range:"(1461–1485)",
+      kings:[
+        { id:"yor-1461-edward4", label:"1461", king:"Edward IV", reign:"1461–1470 & 1471–1483", fact:"⚔️ Un règne de reconquête : aller-retour sur le trône." },
+        { id:"yor-1483-edward5", label:"1483", king:"Edward V", reign:"1483", fact:"🕯️ L’un des “Princes in the Tower” : mystère historique majeur." },
+        { id:"yor-1483-richard3", label:"1483", king:"Richard III", reign:"1483–1485", fact:"🏴 Fin à Bosworth : un tournant qui ouvre l’ère Tudor." },
+      ]
+    },
+    {
+      id:"tudor",
+      name:"Tudor",
+      range:"(1485–1603)",
+      kings:[
+        { id:"tud-1485-henry7",  label:"1485", king:"Henry VII", reign:"1485–1509", fact:"💰 Il stabilise les finances : après la tempête, l’addition." },
+        { id:"tud-1509-henry8",  label:"1509", king:"Henry VIII", reign:"1509–1547", fact:"⛪ Rupture avec Rome : l’Angleterre change d’ère religieuse." },
+        { id:"tud-1547-edward6", label:"1547", king:"Edward VI", reign:"1547–1553", fact:"👦 Roi très jeune : les régents gouvernent en coulisses." },
+        { id:"tud-1553-jane",    label:"1553", king:"Lady Jane Grey", reign:"1553", fact:"⏳ “Nine Days’ Queen” : un règne flash (mais inoubliable)." },
+        { id:"tud-1553-mary1",   label:"1553", king:"Mary I", reign:"1553–1558", fact:"🔥 Surnommée “Bloody Mary” : période de répression religieuse." },
+        { id:"tud-1558-elizabeth1", label:"1558", king:"Elizabeth I", reign:"1558–1603", fact:"🎭 Shakespeare, expansion maritime : l’“Elizabethan era” en mode XXL." },
+      ]
+    },
+    {
+      id:"stuart",
+      name:"Stuart",
+      range:"(1603–1714)",
+      kings:[
+        { id:"stu-1603-james1",  label:"1603", king:"James I", reign:"1603–1625", fact:"📖 La King James Bible : énorme impact culturel et religieux." },
+        { id:"stu-1625-charles1",label:"1625", king:"Charles I", reign:"1625–1649", fact:"⚖️ Procès et exécution : événement choc dans l’histoire anglaise." },
+        { id:"stu-1660-charles2",label:"1660", king:"Charles II", reign:"1660–1685", fact:"🏙️ Restauration : Londres se relève après peste et grand incendie." },
+        { id:"stu-1685-james2",  label:"1685", king:"James II", reign:"1685–1688", fact:"🧨 Renversé lors de la “Glorious Revolution”." },
+        { id:"stu-1689-mary2",   label:"1689", king:"Mary II", reign:"1689–1694", fact:"👑 Règne conjoint : une co-souveraineté rare et marquante." },
+        { id:"stu-1689-william3",label:"1689", king:"William III", reign:"1689–1702", fact:"📜 Bill of Rights (1689) : base du parlementarisme moderne." },
+        { id:"stu-1702-anne",    label:"1702", king:"Anne", reign:"1702–1714 (GB) — 1707 : Union", fact:"🤝 1707 : Acte d’Union — naissance du Royaume de Grande-Bretagne." },
+      ]
+    },
+
+    /* ✅ AJOUT : jusqu’à aujourd’hui */
+    {
+      id:"hanover",
+      name:"Hanovre",
+      range:"(1714–1901)",
+      kings:[
+        { id:"han-1714-george1",  label:"1714", king:"George I",  reign:"1714–1727", fact:"🇩🇪 Premier Hanovrien : une dynastie venue d’Allemagne." },
+        { id:"han-1727-george2",  label:"1727", king:"George II", reign:"1727–1760", fact:"🎼 Il soutient la vie culturelle (Handel, etc.)." },
+        { id:"han-1760-george3",  label:"1760", king:"George III",reign:"1760–1820", fact:"🗺️ Son règne couvre la Révolution américaine et l’ère napoléonienne." },
+        { id:"han-1820-george4",  label:"1820", king:"George IV", reign:"1820–1830", fact:"🏛️ Régent avant d’être roi : style “Regency” + grand goût pour l’architecture." },
+        { id:"han-1830-william4", label:"1830", king:"William IV",reign:"1830–1837", fact:"🗳️ Son règne voit une grande réforme électorale (1832)." },
+        { id:"han-1837-victoria", label:"1837", king:"Victoria",  reign:"1837–1901", fact:"🌍 “Victorian era” : industrialisation + empire à son apogée." },
+      ]
+    },
+    {
+      id:"saxe",
+      name:"Saxe-Cobourg-Gotha",
+      range:"(1901–1917)",
+      kings:[
+        { id:"sax-1901-edward7", label:"1901", king:"Edward VII", reign:"1901–1910", fact:"🤝 “Edwardian era” : une parenthèse avant la Grande Guerre." },
+      ]
+    },
+    {
+      id:"windsor",
+      name:"Windsor",
+      range:"(1910–aujourd’hui)",
+      kings:[
+        { id:"win-1910-george5",  label:"1910", king:"George V",   reign:"1910–1936", fact:"🏷️ 1917 : la maison prend le nom “Windsor” pendant la Première Guerre mondiale." },
+        { id:"win-1936-edward8",  label:"1936", king:"Edward VIII",reign:"1936", fact:"💍 Abdique pour épouser Wallis Simpson : crise constitutionnelle." },
+        { id:"win-1936-george6",  label:"1936", king:"George VI",  reign:"1936–1952", fact:"🎙️ Seconde Guerre mondiale : symbole de résilience nationale." },
+        { id:"win-1952-elizabeth2", label:"1952", king:"Elizabeth II", reign:"1952–2022", fact:"⏳ Règne record au Royaume-Uni : 70 ans sur le trône." },
+        { id:"win-2022-charles3", label:"2022", king:"Charles III", reign:"2022–…", fact:"♻️ Longtemps prince de Galles : très engagé sur l’environnement." },
+      ]
+    }
+  ];
+
+  // Flatten
+  const kings = [];
+  for (const d of dynasties) for (const k of d.kings) kings.push({ ...k, dynastyId:d.id });
+  const TOTAL = kings.length;
+
+  // Index
+  const byId = new Map();
+  const byKey = new Map();         // key -> id (canonical)
+  const ambiguousKeys = new Set(); // clés pointant vers plusieurs monarques
+  const allKeys = new Set();
+
+  // Suivi des prénoms partagés (Henry, Edward, George...)
+  const firstNameCount = new Map(); // prénom normalisé -> Set d'ids
+
+  function addKey(key, id){
+    if(!key) return;
+    const k = normalize(key);
+    if(!k) return;
+    allKeys.add(k);
+    if(!byKey.has(k)){
+      byKey.set(k, id);
+    } else if(byKey.get(k) !== id){
+      ambiguousKeys.add(k);
+    }
+  }
+
+  // Ajoute toutes les variantes numériques / romaines / ordinales pour "Base N"
+  function addNumVariants(base, asInt, id){
+    if(!asInt) return;
+    const roman = intToRoman(asInt);
+    const ordSuffix = asInt===1?"st":asInt===2?"nd":asInt===3?"rd":"th";
+    addKey(base+" "+roman, id);
+    addKey(base+" "+asInt, id);
+    addKey(base+asInt, id);
+    addKey(base+roman, id);
+    addKey(base+" "+asInt+ordSuffix, id);
+    addKey(base+asInt+ordSuffix, id);
+    if(asInt===1){
+      addKey(base+" 1er", id);
+      addKey(base+" ier", id);
+      addKey(base+" premier", id);
+      addKey(base+" first", id);
+    }
+  }
+
+  for (const k of kings) {
+    byId.set(k.id, k);
+
+    // Canonical
+    addKey(k.king, k.id);
+
+    // Variantes sans parenthèses / surnoms
+    const paren = k.king.match(/^(.+?)\s*\((.+)\)\s*$/);
+    if (paren) {
+      addKey(paren[1].trim(), k.id);
+      addKey(paren[2].trim(), k.id);
+    }
+
+    // Variantes chiffres / romains / ordinaux
+    const m = k.king.match(/^(.*?)(\s+)([IVXLCDM]+|\d+)\s*$/i);
+    if (m) {
+      const base = m[1].trim();
+      const rawNum = m[3].trim();
+      const asInt = /^\d+$/.test(rawNum) ? parseInt(rawNum,10) : romanToInt(rawNum);
+      addNumVariants(base, asInt, k.id);
+
+      // Prénom seul : tracker les collisions
+      const normBase = normalize(base);
+      if(!firstNameCount.has(normBase)) firstNameCount.set(normBase, new Set());
+      firstNameCount.get(normBase).add(k.id);
+      addKey(base, k.id);
+    }
+
+    // Variantes fréquentes
+    addKey(k.king.replace(/\bthe\b/gi,"").trim(), k.id);
+  }
+
+  // Marquer tous les prénoms partagés comme ambigus
+  for(const [fn, ids] of firstNameCount){
+    if(ids.size > 1) ambiguousKeys.add(fn);
+  }
+
+  // Map prénom -> liste des rois (pour message d'aide)
+  const ambiguousHelp = new Map();
+  for(const [fn, ids] of firstNameCount){
+    if(ids.size > 1){
+      const list = [...ids].map(id => byId.get(id)).filter(Boolean);
+      ambiguousHelp.set(fn, list);
+    }
+  }
+
+  // --------- Distance de Levenshtein (suggestion "vouliez-vous dire ?") ----------
+  function levenshtein(a, b){
+    const m=a.length, n=b.length;
+    if(m===0) return n; if(n===0) return m;
+    const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+    for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+      dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+    return dp[m][n];
+  }
+
+  function findClosestKey(norm){
+    if(norm.length < 3) return null;
+    let best=null, bestDist=Infinity;
+    for(const [k, id] of byKey){
+      if(ambiguousKeys.has(k)) continue;
+      const d = levenshtein(norm, k);
+      const threshold = Math.max(2, Math.floor(norm.length * 0.28));
+      if(d < bestDist && d <= threshold){ bestDist=d; best={id, dist:d}; }
+    }
+    return best;
+  }
+
+  // Alias directs [clé normalisée -> id exact du monarque]
+  const directAliases = [
+    // Anglo-Saxons
+    ["athelstan",            "wes-0927-athelstan"],
+    ["aethelstan",           "wes-0927-athelstan"],
+    ["ethelstan",            "wes-0927-athelstan"],
+    ["aethelred",            "wes-0978-aethelred2"],
+    ["ethelred",             "wes-0978-aethelred2"],
+    ["aethelredtheunready",  "wes-0978-aethelred2"],
+    ["ethelredtheunready",   "wes-0978-aethelred2"],
+    ["unready",              "wes-0978-aethelred2"],
+    ["theunready",           "wes-0978-aethelred2"],
+    ["canute",               "wes-1016-cnut"],
+    ["knutr",                "wes-1016-cnut"],
+    ["kingcanute",           "wes-1016-cnut"],
+    // Correction bug : id réel de Harold I Harefoot
+    ["haroldharefoot",       "wes-1035-haroldharefoot"],
+    ["harold1",              "wes-1035-haroldharefoot"],
+    ["haroldi",              "wes-1035-haroldharefoot"],
+    ["sweynforkbeard",       "wes-1013-sweyn"],
+    ["sveinforkbeard",       "wes-1013-sweyn"],
+    ["ironside",             "wes-1016-edmund2"],
+    ["edmundironside",       "wes-1016-edmund2"],
+    ["edwardtheconfessor",   "wes-1042-edwardconfessor"],
+    ["edwardconfessor",      "wes-1042-edwardconfessor"],
+    ["haroldgodwinson",      "wes-1066-harold2"],
+    // Normands
+    ["williamconqueror",     "nor-1066-william1"],
+    ["williamtheconqueror",  "nor-1066-william1"],
+    ["rufus",                "nor-1087-william2"],
+    ["williamrufus",         "nor-1087-william2"],
+    // Plantagenêts
+    ["lionheart",            "pla-1189-richard1"],
+    ["richardlionheart",     "pla-1189-richard1"],
+    ["richardcoeurdelion",   "pla-1189-richard1"],
+    ["coeurdelion",          "pla-1189-richard1"],
+    ["johnlackland",         "pla-1199-john"],
+    ["kingjohn",             "pla-1199-john"],
+    ["longshanks",           "pla-1272-edward1"],
+    ["edwardlongshanks",     "pla-1272-edward1"],
+    ["henrybolingbroke",     "lan-1399-henry4"],
+    ["bolingbroke",          "lan-1399-henry4"],
+    // Tudor
+    ["bloodymary",           "tud-1553-mary1"],
+    ["virginqueen",          "tud-1558-elizabeth1"],
+    ["goodqueenbess",        "tud-1558-elizabeth1"],
+    ["queenbess",            "tud-1558-elizabeth1"],
+    ["elizabethvirginqueen", "tud-1558-elizabeth1"],
+    ["ninedaysqueen",        "tud-1553-jane"],
+    ["ladyjane",             "tud-1553-jane"],
+    ["ladyjanegrey",         "tud-1553-jane"],
+    ["janegrey",             "tud-1553-jane"],
+    // Stuart
+    ["jamesbible",           "stu-1603-james1"],
+    ["kingsjamesbible",      "stu-1603-james1"],
+    ["gloriousrevolution",   "stu-1689-william3"],
+    ["billofrights",         "stu-1689-william3"],
+    ["williamorange",        "stu-1689-william3"],
+    ["williamoforange",      "stu-1689-william3"],
+    ["queenanne",            "stu-1702-anne"],
+    // Hanovre
+    ["victoria",             "han-1837-victoria"],
+    ["queenvictoria",        "han-1837-victoria"],
+    // Windsor
+    ["queenelizabeth",       "win-1952-elizabeth2"],
+    ["queenelizabeth2",      "win-1952-elizabeth2"],
+    ["queenelizabethii",     "win-1952-elizabeth2"],
+    ["elizabeth2",           "win-1952-elizabeth2"],
+    ["elizabethii",          "win-1952-elizabeth2"],
+    ["edward8",              "win-1936-edward8"],
+    ["edwardviii",           "win-1936-edward8"],
+    ["george5",              "win-1910-george5"],
+    ["georgev",              "win-1910-george5"],
+    ["george6",              "win-1936-george6"],
+    ["georgevi",             "win-1936-george6"],
+    ["charles3",             "win-2022-charles3"],
+    ["charlesiii",           "win-2022-charles3"],
+    ["kingcharles",          "win-2022-charles3"],
+    ["kingcharles3",         "win-2022-charles3"],
+    ["kingcharlesiii",       "win-2022-charles3"],
+    // Alias français — Henri -> Henry
+    ["henri1","nor-1100-henry1"],   ["henrii","nor-1100-henry1"],
+    ["henri2","pla-1154-henry2"],   ["henriii","pla-1154-henry2"],
+    ["henri3","pla-1216-henry3"],   ["henriiii","pla-1216-henry3"],
+    ["henri4","lan-1399-henry4"],   ["henriiv","lan-1399-henry4"],
+    ["henri5","lan-1413-henry5"],   ["henriv","lan-1413-henry5"],
+    ["henri6","lan-1422-henry6"],   ["henrivi","lan-1422-henry6"],
+    ["henri7","tud-1485-henry7"],   ["henrivii","tud-1485-henry7"],
+    ["henri8","tud-1509-henry8"],   ["henriviii","tud-1509-henry8"],
+    // Edouard -> Edward
+    ["edouard1","pla-1272-edward1"],  ["edouardier","pla-1272-edward1"],
+    ["edouard2","pla-1307-edward2"],  ["edouardii","pla-1307-edward2"],
+    ["edouard3","pla-1327-edward3"],  ["edouardiii","pla-1327-edward3"],
+    ["edouard4","yor-1461-edward4"],  ["edouardiv","yor-1461-edward4"],
+    ["edouard5","yor-1483-edward5"],  ["edouardv","yor-1483-edward5"],
+    ["edouard6","tud-1547-edward6"],  ["edouardvi","tud-1547-edward6"],
+    ["edouard7","sax-1901-edward7"],  ["edouardvii","sax-1901-edward7"],
+    ["edouard8","win-1936-edward8"],  ["edouardviii","win-1936-edward8"],
+    // Autres prénoms français
+    ["richard1","pla-1189-richard1"], ["richard2","pla-1377-richard2"],
+    ["guillaume1","nor-1066-william1"],["guillaume2","nor-1087-william2"],
+    ["guillaume3","stu-1689-william3"],
+    ["guillaumeconquerant","nor-1066-william1"],
+    ["georges1","han-1714-george1"],  ["georges2","han-1727-george2"],
+    ["georges3","han-1760-george3"],  ["georges4","han-1820-george4"],
+    ["georges5","win-1910-george5"],  ["georges6","win-1936-george6"],
+    ["charles1","stu-1625-charles1"], ["charles2","stu-1660-charles2"],
+    ["marie1","tud-1553-mary1"],      ["marie2","stu-1689-mary2"],
+    ["marietutor","tud-1553-mary1"],
+    ["elisabeth1","tud-1558-elizabeth1"], ["elisabethi","tud-1558-elizabeth1"],
+    ["elisabeth2","win-1952-elizabeth2"], ["elisabethii","win-1952-elizabeth2"],
+    ["jacques1","stu-1603-james1"],   ["jacquesi","stu-1603-james1"],
+    ["jacques2","stu-1685-james2"],   ["jacquesii","stu-1685-james2"],
+  ];
+
+  for(const [alias, id] of directAliases){
+    const k = normalize(alias);
+    if(!k) continue;
+    allKeys.add(k);
+    if(!byKey.has(k)) byKey.set(k, id);
+  }
+
+  // Personnages souvent tapés mais ABSENTS du quiz
+  const notInQuiz = new Map([
+    ["empressmatilda",  "Empress Matilda n'est pas listée : elle ne fut jamais officiellement couronnée reine d'Angleterre."],
+    ["matilda",         "Empress Matilda n'est pas listée : elle ne fut jamais officiellement couronnée reine d'Angleterre."],
+    ["anneboleyn",      "Anne Boleyn était reine consort, pas reine régnante. Ce quiz liste uniquement les monarques régnants."],
+    ["catherinearagon", "Catherine d'Aragon était reine consort. Ce quiz liste uniquement les monarques régnants."],
+    ["maryqueenofscots","Marie Reine d'Écosse régnait en Écosse, pas en Angleterre."],
+    ["cromwell",        "Oliver Cromwell était Lord Protecteur, pas roi. Non listé dans ce quiz."],
+    ["olivercromwell",  "Oliver Cromwell était Lord Protecteur, pas roi. Non listé dans ce quiz."],
+  ]);
+
+  // --------- State ----------
+  const foundIds = new Set();
+  let timerInterval = null;
+  let startTs = null;
+  let elapsedMs = 0;
+  let isPaused = false;
+  let isFinished = false;
+  let isGivenUp = false;
+
+  // --------- Timer ----------
+  const timerEl = document.getElementById("timer");
+  const btnPause = document.getElementById("btnPause");
+
+  function fmtTimeFromMs(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function renderTimer() {
+    timerEl.textContent = fmtTimeFromMs(elapsedMs + (startTs ? (Date.now() - startTs) : 0));
+  }
+  function stopTimerIntervalOnly() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  function startTimerIfNeeded() {
+    if (isFinished || isPaused || isGivenUp) return;
+    if (timerInterval) return;
+    if (!startTs) startTs = Date.now();
+    timerInterval = setInterval(renderTimer, 250);
+  }
+  function stopTimer() {
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    renderTimer();
+  }
+  function resetTimer() {
+    stopTimerIntervalOnly();
+    startTs = null;
+    elapsedMs = 0;
+    isPaused = false;
+    isFinished = false;
+    isGivenUp = false;
+    btnPause.disabled = false;
+    btnPause.textContent = "⏸️ Pause";
+    timerEl.textContent = "00:00";
+  }
+  function pauseTimer() {
+    if (isFinished || isGivenUp || isPaused) return;
+    if (startTs) { elapsedMs += (Date.now() - startTs); startTs = null; }
+    stopTimerIntervalOnly();
+    isPaused = true;
+    btnPause.textContent = "▶️ Reprendre";
+    setToast("warn", "⏸️ Timer en pause.");
+  }
+  function resumeTimer() {
+    if (isFinished || isGivenUp || !isPaused) return;
+    isPaused = false;
+    startTs = Date.now();
+    btnPause.textContent = "⏸️ Pause";
+    setToast("", "");
+    startTimerIfNeeded();
+  }
+  function togglePause() {
+    if (isFinished || isGivenUp) return;
+    if (isPaused) resumeTimer(); else pauseTimer();
+  }
+
+  // --------- UI ----------
+  const input = document.getElementById("input");
+  const toast = document.getElementById("toast");
+  const countEl = document.getElementById("count");
+  const fillEl = document.getElementById("fill");
+  const gridEl = document.getElementById("grid");
+  const scoreEl = document.getElementById("score");
+  const totalEl = document.getElementById("total");
+  const btnGiveUp = document.getElementById("btnGiveUp");
+  const btnSubmit = document.getElementById("btnSubmit");
+  const btnHint   = document.getElementById("btnHint");
+
+  function setToast(type, msg) {
+    toast.className = "toast " + (type || "");
+    toast.textContent = msg || "";
+  }
+
+  function updateStats() {
+    const n = foundIds.size;
+    countEl.textContent = `${n} / ${TOTAL}`;
+    scoreEl.textContent = n;
+    totalEl.textContent = TOTAL;
+    fillEl.style.width = `${(n / TOTAL) * 100}%`;
+    // Mettre à jour les compteurs par dynastie
+    for(const d of dynasties){
+      const el = document.getElementById(`dyncount-${d.id}`);
+      if(!el) continue;
+      const found = d.kings.filter(k => foundIds.has(k.id)).length;
+      const total = d.kings.length;
+      el.textContent = `${found}/${total}`;
+      el.style.color = found === total ? "var(--good)" : found > 0 ? "var(--warn)" : "";
+    }
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = "";
+
+    for (const d of dynasties) {
+      const g = document.createElement("div");
+      g.className = "group";
+      g.innerHTML = `
+        <div class="gName">👑 ${d.name}</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span class="gRange">${d.range}</span>
+          <span class="gCount" id="dyncount-${d.id}">0/${d.kings.length}</span>
+        </div>
+      `;
+      gridEl.appendChild(g);
+
+      for (const k of d.kings) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.id = `cell-${k.id}`;
+        cell.innerHTML = `
+          <div class="left">
+            <div class="num">${k.label}</div>
+            <div style="min-width:0">
+              <div class="name masked" id="name-${k.id}">??????</div>
+              <div class="info" id="info-${k.id}" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="status" id="status-${k.id}">—</div>
+        `;
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function revealId(id, mode /* "found" | "revealed" */) {
+    const k = byId.get(id);
+    if (!k) return;
+
+    const cell = document.getElementById(`cell-${k.id}`);
+    const nameEl = document.getElementById(`name-${k.id}`);
+    const infoEl = document.getElementById(`info-${k.id}`);
+    const statusEl = document.getElementById(`status-${k.id}`);
+
+    cell.classList.add(mode === "found" ? "found" : "revealed");
+    cell.classList.remove(mode === "found" ? "revealed" : "found");
+
+    nameEl.textContent = `${k.king} — ${k.reign}`;
+    nameEl.classList.remove("masked");
+
+    infoEl.style.display = "block";
+    infoEl.textContent = k.fact ? `💡 ${k.fact}` : "💡 —";
+
+    statusEl.textContent = mode === "found" ? "✅" : "❌";
+  }
+
+  function revealMissingSolutions() {
+    for (const k of kings) {
+      if (foundIds.has(k.id)) continue;
+      revealId(k.id, "revealed");
+    }
+  }
+
+  function giveUp() {
+    if (isFinished || isGivenUp) return;
+
+    isGivenUp = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "⏹️ Stop";
+    btnHint.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    revealMissingSolutions();
+
+    const n = foundIds.size;
+    setToast("bad", `🏳️ Abandon : ${n}/${TOTAL} trouvés en ${timerEl.textContent}. Solutions + faits affichés en rouge.`);
+  }
+
+  function finish() {
+    isFinished = true;
+    stopTimer();
+
+    btnPause.disabled = true;
+    btnPause.textContent = "🏁 Terminé";
+    btnGiveUp.disabled = true;
+    btnHint.disabled = true;
+    input.disabled = true;
+    btnSubmit.disabled = true;
+
+    setToast("good", `🏆 ${TOTAL}/${TOTAL} ! Liste complétée en ${timerEl.textContent} !`);
+  }
+
+  function tryFindKing(raw){
+    const norm = normalize(raw);
+    if(!norm) return null;
+    if(byKey.has(norm) && !ambiguousKeys.has(norm)) return byKey.get(norm);
+    if(byKey.has(norm) && ambiguousKeys.has(norm)) return "__ambiguous__:"+norm;
+    return null;
+  }
+
+  function buildAmbiguousMsg(normBase){
+    const list = ambiguousHelp.get(normBase) || [];
+    const examples = list.map(k => {
+      const m2 = k.king.match(/^(.*?)(\s+)([IVXLCDM]+|\d+)\s*$/i);
+      if(m2) return normalize(k.king);
+      return normalize(k.king);
+    }).slice(0,8).join(", ");
+    const hint = list.map(k => {
+      const m2 = k.king.match(/^(.*?)(\s+)([IVXLCDM]+|\d+)\s*$/i);
+      if(m2) return k.king;
+      return k.king;
+    }).join(" / ");
+    return `⚠️ Plusieurs monarques s'appellent ainsi. Précise le numéro : ${hint}`;
+  }
+
+  function validate(raw) {
+    const norm = normalize(raw);
+
+    // Personnage connu mais absent du quiz
+    if(notInQuiz.has(norm)){
+      setToast("warn", "ℹ️ "+notInQuiz.get(norm));
+      return { ok:false };
+    }
+
+    const result = tryFindKing(raw);
+
+    // Ambigu : prénom partagé sans numéro
+    if(result && result.startsWith("__ambiguous__:")){
+      const normBase = result.slice(14);
+      setToast("warn", buildAmbiguousMsg(normBase));
+      return { ok:false };
+    }
+
+    const id = result;
+    if (!id) {
+      // Tentative de suggestion par proximité (Levenshtein)
+      const closest = findClosestKey(norm);
+      if(closest){
+        const k2 = byId.get(closest.id);
+        if(k2) {
+          setToast("warn", `❓ Pas reconnu. Vouliez-vous dire : ${k2.king} ?`);
+          return { ok:false };
+        }
+      }
+      setToast("bad", "❌ Monarque non reconnu. Vérifie l'orthographe ou ajoute le numéro (ex : Henry VIII, Edward 3).");
+      return { ok:false };
+    }
+    if (foundIds.has(id)) {
+      const k2 = byId.get(id);
+      setToast("warn", `⚠️ Déjà trouvé : ${k2 ? k2.king : id}`);
+      return { ok:false };
+    }
+
+    startTimerIfNeeded();
+
+    foundIds.add(id);
+    revealId(id, "found");
+    // Nettoyer les classes d'indice sur la case trouvée
+    const hintCell = document.getElementById(`cell-${id}`);
+    const hintName = document.getElementById(`name-${id}`);
+    if(hintCell) hintCell.classList.remove("hinted");
+    if(hintName) hintName.classList.remove("hinted-text");
+    updateStats();
+
+    const k = byId.get(id);
+    setToast("good", `✅ ${k.king} (${k.reign}) — 💡 ${k.fact}`);
+
+    const cell = document.getElementById(`cell-${id}`);
+    cell && cell.animate(
+      [{ transform:"translateY(0)" }, { transform:"translateY(-2px)" }, { transform:"translateY(0)" }],
+      { duration: 160, easing: "ease-out" }
+    );
+
+    if (foundIds.size === TOTAL) finish();
+    return { ok:true };
+  }
+
+  function submit() {
+    if (isGivenUp) {
+      setToast("warn", "🏳️ Partie abandonnée. Clique sur « Recommencer » pour rejouer.");
+      input.value = "";
+      return;
+    }
+    if (isPaused) {
+      setToast("warn", "⏸️ Le timer est en pause. Clique sur « Reprendre » pour continuer.");
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    const raw = input.value;
+    input.value = "";
+    input.focus();
+
+    const norm = normalize(raw);
+    if (!norm) { setToast("warn", "⚠️ Tape un nom."); return; }
+
+    validate(raw);
+  }
+
+  function resetQuiz() {
+    foundIds.clear();
+
+    // Réinitialiser l'indice
+    isHintActive = false;
+    if(btnHint){ btnHint.classList.remove("hint-active"); btnHint.textContent = "💡 Indice"; btnHint.disabled = false; }
+
+    buildGrid();
+    updateStats();
+    setToast("", "");
+    resetTimer();
+
+    input.disabled = false;
+    btnSubmit.disabled = false;
+    btnGiveUp.disabled = false;
+
+    input.value = "";
+    input.focus();
+  }
+
+  // Auto-validation (exact match seulement ; évite les préfixes et les ambigus)
+  let autoT = null;
+
+  function isAnyPrefix(typedKey){
+    if (!typedKey) return false;
+    for (const k of allKeys) {
+      if (k.startsWith(typedKey) && k !== typedKey) return true;
+    }
+    return false;
+  }
+
+  function autoTryValidate() {
+    if (isPaused || isFinished || isGivenUp) return;
+
+    const raw = input.value;
+    const norm = normalize(raw);
+    if (!norm) return;
+
+    // Ne pas auto-valider si ambigu (prénom sans numéro) ou si préfixe d'autre chose
+    if (ambiguousKeys.has(norm)) return;
+    if (isAnyPrefix(norm)) return;
+
+    if (byKey.has(norm)) {
+      input.value = "";
+      validate(raw);
+      input.focus();
+      return;
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(autoT);
+    autoT = setTimeout(autoTryValidate, 120);
+  });
+
+  // --------- Indice ----------
+  let isHintActive = false;
+
+  // Génère le masque "P_ _ _ _ _" pour un nom donné
+  // Chaque "mot" (séparé par espace ou tiret) est traité indépendamment
+  function buildHintMask(name) {
+    // On extrait la partie avant "—" (le nom seul, pas le règne)
+    const namePart = name.split("—")[0].trim();
+    return namePart.split(/(\s+|-)/).map(token => {
+      if (/^\s+$/.test(token)) return token; // espace : conserver
+      if (token === "-") return "-";          // tiret : conserver
+      if (token.length === 0) return token;
+      // Premier caractère visible + "_" par lettre restante
+      const first = token[0];
+      const rest = token.slice(1).replace(/[a-zA-ZÀ-ÿ]/g, "_");
+      return first + rest;
+    }).join("");
+  }
+
+  function applyHints() {
+    for (const k of kings) {
+      if (foundIds.has(k.id)) continue; // déjà trouvé : on ne touche pas
+      const cell = document.getElementById(`cell-${k.id}`);
+      const nameEl = document.getElementById(`name-${k.id}`);
+      if (!cell || !nameEl) continue;
+
+      if (isHintActive) {
+        const mask = buildHintMask(`${k.king} — ${k.reign}`);
+        nameEl.textContent = mask;
+        nameEl.classList.add("masked", "hinted-text");
+        cell.classList.add("hinted");
+      } else {
+        nameEl.textContent = "??????";
+        nameEl.classList.remove("hinted-text");
+        nameEl.classList.add("masked");
+        cell.classList.remove("hinted");
+      }
+    }
+  }
+
+  function toggleHint() {
+    if (isFinished || isGivenUp) return;
+    isHintActive = !isHintActive;
+    btnHint.classList.toggle("hint-active", isHintActive);
+    btnHint.textContent = isHintActive ? "💡 Masquer" : "💡 Indice";
+    applyHints();
+    if (isHintActive) {
+      setToast("warn", "💡 Indices affichés : première lettre + longueur de chaque mot.");
+    } else {
+      setToast("", "");
+    }
+  }
+
+  // Quand un monarque est trouvé avec l'indice actif : retirer le hinting de sa case
+  const _origRevealId = revealId;
+  // (revealId gère déjà la suppression de "masked" ; on s'assure juste de nettoyer hinted-text)
+  // On surcharge via un patch post-revealId dans validate — voir ci-dessous.
+
+  // Events
+  btnSubmit.addEventListener("click", submit);
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  btnPause.addEventListener("click", togglePause);
+  btnGiveUp.addEventListener("click", giveUp);
+  btnHint.addEventListener("click", toggleHint);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+  const btnHome = document.getElementById("btnHome");
+  btnHome.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  // init
+  buildGrid();
+  updateStats();
+  input.focus();
+</script>
+</body>
+</html>
